@@ -1,21 +1,20 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import RootNavigation from './Navigation/RootNavigation';
+import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import { AppearanceProvider } from 'react-native-appearance';
+import { CustomDarkTheme, useTheme } from './Storage/ThemeController';
+// import { configureTheme, getTheme } from './Storage/ThemeController';
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+	const { theme, setTheme, toggleTheme } = useTheme();
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+	return (
+		<AppearanceProvider>
+			<NavigationContainer theme={theme === 'dark' ? CustomDarkTheme : DefaultTheme}>
+				<RootNavigation theme={theme} setTheme={setTheme} toggleTheme={toggleTheme} />
+			</NavigationContainer>
+		</AppearanceProvider>
+	);
+}
