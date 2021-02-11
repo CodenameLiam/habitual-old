@@ -53,7 +53,7 @@ export const CustomDarkTheme = {
 		text: '#FFFFFF',
 		background: '#0F2028',
 		border: '#0F2028',
-		card: '#0F2028',
+		card: '#223843',
 		notification: 'red',
 	},
 };
@@ -63,9 +63,9 @@ export const CustomLightTheme = {
 	colors: {
 		primary: '#FFFFFF',
 		text: '#0F2028',
-		background: '#0F2028',
+		background: '#f4f4f4',
 		border: '#0F2028',
-		card: '#0F2028',
+		card: '#fff',
 		notification: 'red',
 	},
 };

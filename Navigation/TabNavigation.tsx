@@ -41,7 +41,6 @@ export default function TabNavigation({ navigation, route }: AppProps) {
 
 	return (
 		<Tab.Navigator
-			// tabBarPosition='bottom'
 			tabBar={(props) => (
 				<AnimatedTabBar
 					tabs={tabs}
@@ -108,26 +107,3 @@ const getHeaderTitle = (route: RouteProp<TabParamList, 'Home'>) => {
 			return 'Awards';
 	}
 };
-
-// function getHeaderTitle(route: RouteProp<TabParamList, 'Home'>) {
-// 	// If the focused route is not found, we need to assume it's the initial screen
-// 	// This can happen during if there hasn't been any navigation inside the screen
-// 	// In our case, it's "Feed" as that's the first screen inside the navigator
-// 	const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
-
-// 	switch (routeName) {
-// 		case 'Calendar':
-// 			return 'Calendar';
-// 		case 'Account':
-// 			return 'My account';
-// 	}
-// }
-
-// export const setTitle = (navigation: NavigationProp<ParamListBase>, title: string) => {
-// 	const stackNavigator = navigation.dangerouslyGetParent();
-// 	if (stackNavigator) {
-// 		stackNavigator.setOptions({
-// 			title: title,
-// 		});
-// 	}
-// };

@@ -11,7 +11,9 @@ import { RootDrawerParamList } from './RootNavigation';
 import { Entypo } from '@expo/vector-icons';
 import SettingsMenuIcon from '../Components/SettingsMenuIcon';
 import TabNavigation from './TabNavigation';
-import { BlurView } from 'expo';
+import { Feather } from '@expo/vector-icons';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export type AppStackParamList = {
 	Tabs: undefined;
@@ -42,6 +44,11 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 		navigation.toggleDrawer();
 	};
 
+	const handleSave = (navigation: AppNavProps) => {
+		navigation.goBack();
+		console.log('This is where shit would be saved');
+	};
+
 	return (
 		<Stack.Navigator
 			mode='modal'
@@ -49,16 +56,16 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 				...TransitionPresets.ModalPresentationIOS,
 				gestureEnabled: true,
 				cardOverlayEnabled: true,
+				headerTitleStyle: styles.header,
 			}}
 		>
 			<Stack.Screen
 				name='Tabs'
 				component={TabNavigation}
 				options={({ navigation, route }) => ({
-					headerTitleStyle: styles.header,
 					headerBackground: () => <View />,
 					headerLeft: () => (
-						<View style={{ paddingLeft: 25 }}>
+						<TouchableOpacity style={{ paddingLeft: 25 }} onPress={handleOpen}>
 							<SettingsMenuIcon
 								type='cross'
 								active={isOpen}
@@ -66,19 +73,42 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 								underlayColor='transparent'
 								color={colors.text}
 							/>
-						</View>
+						</TouchableOpacity>
 					),
 					headerRight: () => (
-						<View
+						<TouchableOpacity
 							style={{ paddingRight: 25 }}
-							onTouchEnd={() => navigation.push('Add')}
+							onPress={() => navigation.push('Add')}
 						>
 							<Entypo name='plus' size={38} color={colors.text} />
-						</View>
+						</TouchableOpacity>
 					),
 				})}
 			/>
-			<Stack.Screen name='Add' component={Modal} options={{ headerStatusBarHeight: 5 }} />
+			<Stack.Screen
+				name='Add'
+				component={Modal}
+				options={({ navigation }) => ({
+					headerStatusBarHeight: 5,
+					title: 'Create Habit',
+					headerLeft: () => (
+						<TouchableOpacity
+							style={{ paddingLeft: 5 }}
+							onPress={() => navigation.goBack()}
+						>
+							<Feather name='chevron-left' size={36} color={colors.text} />
+						</TouchableOpacity>
+					),
+					headerRight: () => (
+						<TouchableOpacity
+							style={{ paddingRight: 25 }}
+							onPress={() => handleSave(navigation)}
+						>
+							<Feather name='save' size={30} color={colors.text} />
+						</TouchableOpacity>
+					),
+				})}
+			/>
 		</Stack.Navigator>
 	);
 }
@@ -89,10 +119,41 @@ interface ModalProps {
 
 const Modal = ({ navigation }: ModalProps) => {
 	return (
-		<View>
-			<Text>Yeet</Text>
-			<Button onPress={() => navigation.pop()} title='Close Modal' color='coral' />
-		</View>
+		<ScrollView>
+			<View style={{ height: 100 }}>
+				<LinearGradient
+					// Background Linear Gradient
+					colors={['#f4a261', '#fcbf49']}
+					style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
+					start={{ x: 0, y: 0 }}
+					end={{ x: 1, y: 0 }}
+				/>
+				<Text>Yeet</Text>
+				<Button
+					onPress={() =>
+						navigation.setOptions({
+							headerBackground: () => (
+								<LinearGradient
+									// Background Linear Gradient
+									colors={['#f4a261', '#fcbf49']}
+									style={{
+										position: 'absolute',
+										left: 0,
+										right: 0,
+										top: 0,
+										bottom: 0,
+									}}
+									start={{ x: 0, y: 0 }}
+									end={{ x: 1, y: 0 }}
+								/>
+							),
+						})
+					}
+					title='Change Header Color'
+					color='black'
+				/>
+			</View>
+		</ScrollView>
 	);
 };
 
