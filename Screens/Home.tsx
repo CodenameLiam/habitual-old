@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
 	View,
 	Text,
@@ -9,150 +9,123 @@ import {
 	Button,
 	TouchableOpacity,
 	Modal,
+	Animated,
+	Easing,
 } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { AppNavigationProps } from '../Navigation/AppNavigation';
-import { useTheme } from '@react-navigation/native';
+
+import {
+	RouteProp,
+	TabNavigationState,
+	useFocusEffect,
+	useNavigation,
+	useTheme,
+} from '@react-navigation/native';
 import { useIsDrawerOpen } from '@react-navigation/drawer';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import SettingsMenuIcon from '../Components/SettingsMenuIcon';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { TabParamList } from '../Navigation/TabNavigation';
+import AppNavigation, { AppNavProps } from '../Navigation/AppNavigation';
+
+type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
+type HomeRouteProps = RouteProp<TabParamList, 'Home'>;
 
 interface HomeProps {
-	navigation: AppNavigationProps;
+	navigation: HomeNavProps;
+	route: HomeRouteProps;
 }
 
-export default function Home({ navigation }: any) {
-	// use it the same way as before (as docs recommend)
-	const [modalVisible, setModalVisible] = useModalState(false);
-	console.log(modalVisible);
+export default function Home({ navigation, route }: HomeProps) {
+	const [day, setDay] = useState('Today');
 
-	// const [modalVisible, setModalVisible] = useState(false);
+	const growAnim = useRef(new Animated.Value(0)).current;
 
-	const { colors } = useTheme();
-	const isDrawerOpen = useIsDrawerOpen();
-	const [isOpen, setOpen] = useState(false);
+	const [count, setCount] = useState(1);
 
 	useEffect(() => {
-		setOpen(isDrawerOpen);
-	}, [isDrawerOpen]);
+		grow();
+	}, [count]);
 
-	const handleOpen = () => {
-		setOpen(!isOpen);
-		navigation.toggleDrawer();
+	const grow = () => {
+		// Will change fadeAnim value to 1 in 5 seconds
+		Animated.timing(growAnim, {
+			toValue: count,
+			duration: 1000,
+			useNativeDriver: true,
+			easing: Easing.out(Easing.quad),
+		}).start();
 	};
+
+	const shrink = () => {
+		// Will change fadeAnim value to 0 in 5 seconds
+		Animated.timing(growAnim, {
+			toValue: 0,
+			duration: 1000,
+			useNativeDriver: true,
+			easing: Easing.out(Easing.cubic),
+		}).start();
+	};
+
+	useFocusEffect(
+		useCallback(() => {
+			const stackNavigator = navigation.dangerouslyGetParent();
+			if (stackNavigator) {
+				stackNavigator.setOptions({
+					title: day,
+				});
+			}
+		}, [navigation, day])
+	);
+
+	const dimensions = 40;
+	// const bigDimensions = growAnim.interpolate({ inputRange: [0, 1], outputRange: [40, 650] });
 
 	return (
-		<SafeAreaView>
-			{/* <Modal
-				presentationStyle='pageSheet'
-				animationType='slide'
-				visible={modalVisible}
-				onRequestClose={() => {
-					console.log('Modal closed');
-					setModalVisible(!modalVisible);
+		<View style={{ flex: 1, padding: 20 }}>
+			{/* <Text>{growAnim}</Text> */}
+			{/* <Button title='Yesterday' onPress={() => setDay('Yesterday')} />
+			<Button title='Today' onPress={() => setDay('Today')} /> */}
+
+			<Button title='Complete' onPress={() => setCount(count + 1)} />
+			<Button title='UnComplete' onPress={() => setCount(count - 1)} />
+
+			<View
+				style={{
+					backgroundColor: 'white',
+					height: 80,
+					borderRadius: 10,
+					overflow: 'hidden',
 				}}
-				onDismiss={() => {
-					console.log('Modal dismissed');
-					setModalVisible(!modalVisible);
-				}}>
-				<View style={{ flex: 1 }}>
-					<Text>Hello!</Text>
-
-					<Button title='Hide modal' onPress={() => setModalVisible(false)} />
+			>
+				<View
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						backgroundColor: 'salmon',
+						height: dimensions,
+						width: dimensions,
+						borderRadius: dimensions,
+						position: 'absolute',
+						top: 20,
+						left: 10,
+					}}
+				>
+					<Animated.View
+						style={{
+							backgroundColor: 'salmon',
+							height: 20,
+							width: 20,
+							transform: [{ scale: growAnim }],
+							// transform: [{ scale: bigDimensions }],
+							// scaleX: bigDimensions,
+							// scaleY: bigDimensions,
+							borderRadius: 700,
+						}}
+					/>
 				</View>
-			</Modal>
-			<Pressable
-				style={[styles.button, styles.buttonOpen]}
-				onPress={() => setModalVisible(true)}>
-				<Text style={styles.textStyle}>Show Modal</Text>
-			</Pressable> */}
-
-			<View style={{ padding: 10, backgroundColor: 'red' }}>
-				<SettingsMenuIcon
-					type='cross'
-					active={isOpen}
-					onPress={handleOpen}
-					underlayColor='transparent'
-					color={colors.text}
-				/>
 			</View>
-			<Button title='Hide modal' onPress={() => navigation.navigate('Other')} />
-			{/* <View style={styles.centeredView}>
-				
-			</View> */}
-		</SafeAreaView>
+		</View>
 	);
 }
-
-export const useModalState = (initialState: any) => {
-	const [modalVisible, setModalVisible] = useState(initialState);
-	const [forceModalVisible, setForceModalVisible] = useState(false);
-
-	const setModal = (modalState: any) => {
-		// tyring to open "already open" modal
-		if (modalState && modalVisible) {
-			setForceModalVisible(true);
-		}
-		setModalVisible(modalState);
-	};
-
-	useEffect(() => {
-		if (forceModalVisible && modalVisible) {
-			setModalVisible(false);
-		}
-		if (forceModalVisible && !modalVisible) {
-			setForceModalVisible(false);
-			setModalVisible(true);
-		}
-	}, [forceModalVisible, modalVisible]);
-
-	return [modalVisible, setModal];
-};
-
-const styles = StyleSheet.create({
-	centeredView: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		// marginTop: ,
-		backgroundColor: 'white',
-		borderTopLeftRadius: 20,
-		borderTopRightRadius: 20,
-	},
-	modalView: {
-		margin: 20,
-		backgroundColor: 'white',
-		borderRadius: 20,
-		padding: 35,
-		alignItems: 'center',
-		shadowColor: '#000',
-		shadowOffset: {
-			width: 0,
-			height: 2,
-		},
-		shadowOpacity: 0.25,
-		shadowRadius: 4,
-		elevation: 5,
-	},
-	button: {
-		borderRadius: 20,
-		padding: 10,
-		elevation: 2,
-		height: 50,
-	},
-	buttonOpen: {
-		backgroundColor: '#F194FF',
-	},
-	buttonClose: {
-		backgroundColor: '#2196F3',
-	},
-	textStyle: {
-		color: 'white',
-		fontWeight: 'bold',
-		textAlign: 'center',
-	},
-	modalText: {
-		marginBottom: 15,
-		textAlign: 'center',
-	},
-});

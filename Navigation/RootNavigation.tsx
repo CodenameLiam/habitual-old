@@ -1,21 +1,15 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-import {
-	createDrawerNavigator,
-	DrawerContentComponentProps,
-	DrawerContentOptions,
-} from '@react-navigation/drawer';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import AppNavigation from './AppNavigation';
 import Settings from '../Screens/Settings';
-import Home from '../Screens/Home';
 import { ThemeType } from '../Storage/ThemeController';
 
-export type RootStackParamList = {
+export type RootDrawerParamList = {
 	App: undefined;
 	Settings: undefined;
 };
 
-const Drawer = createDrawerNavigator<RootStackParamList>();
+const Drawer = createDrawerNavigator<RootDrawerParamList>();
 
 interface RootNavigationProps {
 	theme: ThemeType;
@@ -30,7 +24,8 @@ export default function RootNavigation({ theme, setTheme, toggleTheme }: RootNav
 			overlayColor={'none'}
 			drawerContent={() => (
 				<Settings theme={theme} setTheme={setTheme} toggleTheme={toggleTheme} />
-			)}>
+			)}
+		>
 			<Drawer.Screen name='App' component={AppNavigation} />
 		</Drawer.Navigator>
 	);

@@ -1,86 +1,101 @@
-import { DrawerNavigationProp, DrawerScreenProps, useIsDrawerOpen } from '@react-navigation/drawer';
-import { RouteProp, useTheme } from '@react-navigation/native';
+import { DrawerNavigationProp, useIsDrawerOpen } from '@react-navigation/drawer';
+import { useTheme } from '@react-navigation/native';
+import {
+	createStackNavigator,
+	StackNavigationProp,
+	TransitionPresets,
+} from '@react-navigation/stack';
 import React, { useEffect, useState } from 'react';
-import { View, Text } from 'react-native';
-import SettingsMenuIcon from './../Components/SettingsMenuIcon';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import RootNavigation, { RootStackParamList } from './RootNavigation';
-import AnimatedTabBar, {
-	TabsConfig,
-	BubbleTabBarItemConfig,
-	FlashyTabBarItemConfig,
-} from '@gorhom/animated-tabbar';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Feather } from '@expo/vector-icons';
+import { View, Button, StyleSheet, Text } from 'react-native';
+import { RootDrawerParamList } from './RootNavigation';
 import { Entypo } from '@expo/vector-icons';
-import Home from '../Screens/Home';
-import Calendar from '../Screens/Calendar';
-import HomeNavigation from './HomeNavigation';
+import SettingsMenuIcon from '../Components/SettingsMenuIcon';
+import TabNavigation from './TabNavigation';
+import { BlurView } from 'expo';
 
-const tabs: TabsConfig<FlashyTabBarItemConfig> = {
-	Home: {
-		labelStyle: {
-			color: '#ffafcc',
-		},
-		icon: {
-			component: () => <Feather name='home' size={20} color='#ffafcc' />,
-			color: '#ffafcc',
-		},
-	},
-	Calendar: {
-		labelStyle: {
-			color: '#f4a261',
-		},
-		icon: {
-			component: () => <Feather name='calendar' size={20} color='#f4a261' />,
-			color: '#f4a261',
-		},
-	},
-	Trends: {
-		labelStyle: {
-			color: '#fcbf49',
-		},
-		icon: {
-			component: () => <Entypo name='line-graph' size={20} color='#fcbf49' />,
-			color: '#fcbf49',
-		},
-	},
-	Awards: {
-		labelStyle: {
-			color: '#4cc9f0',
-		},
-		icon: {
-			component: () => <Feather name='award' size={20} color='#4cc9f0' />,
-			color: '#4cc9f0',
-		},
-	},
+export type AppStackParamList = {
+	Tabs: undefined;
+	Add: undefined;
+	Edit: undefined;
 };
 
-const Tab = createBottomTabNavigator();
+export type RootNavProps = DrawerNavigationProp<RootDrawerParamList, 'App'>;
+export type AppNavProps = StackNavigationProp<AppStackParamList, 'Tabs'>;
 
-export type AppNavigationProps = DrawerNavigationProp<RootStackParamList, 'App'>;
+const Stack = createStackNavigator<AppStackParamList>();
 
-interface AppProps {
-	navigation: AppNavigationProps;
+interface AppNavigationProps {
+	navigation: RootNavProps;
 }
 
-export default function AppNavigation({ navigation }: AppProps) {
+export default function AppNavigation({ navigation }: AppNavigationProps) {
 	const { colors } = useTheme();
+	const isDrawerOpen = useIsDrawerOpen();
+	const [isOpen, setOpen] = useState(false);
+
+	useEffect(() => {
+		setOpen(isDrawerOpen);
+	}, [isDrawerOpen]);
+
+	const handleOpen = () => {
+		setOpen(!isOpen);
+		navigation.toggleDrawer();
+	};
 
 	return (
-		<Tab.Navigator
-			tabBar={(props) => (
-				<AnimatedTabBar
-					tabs={tabs}
-					preset='flashy'
-					style={{ backgroundColor: colors.background }}
-					{...props}
-				/>
-			)}>
-			<Tab.Screen name='Home' component={HomeNavigation} />
-			<Tab.Screen name='Calendar' component={Calendar} />
-			<Tab.Screen name='Trends' component={Home} />
-			<Tab.Screen name='Awards' component={Calendar} />
-		</Tab.Navigator>
+		<Stack.Navigator
+			mode='modal'
+			screenOptions={{
+				...TransitionPresets.ModalPresentationIOS,
+				gestureEnabled: true,
+				cardOverlayEnabled: true,
+			}}
+		>
+			<Stack.Screen
+				name='Tabs'
+				component={TabNavigation}
+				options={({ navigation, route }) => ({
+					headerTitleStyle: styles.header,
+					headerBackground: () => <View />,
+					headerLeft: () => (
+						<View style={{ paddingLeft: 25 }}>
+							<SettingsMenuIcon
+								type='cross'
+								active={isOpen}
+								onPress={handleOpen}
+								underlayColor='transparent'
+								color={colors.text}
+							/>
+						</View>
+					),
+					headerRight: () => (
+						<View
+							style={{ paddingRight: 25 }}
+							onTouchEnd={() => navigation.push('Add')}
+						>
+							<Entypo name='plus' size={38} color={colors.text} />
+						</View>
+					),
+				})}
+			/>
+			<Stack.Screen name='Add' component={Modal} options={{ headerStatusBarHeight: 5 }} />
+		</Stack.Navigator>
 	);
 }
+
+interface ModalProps {
+	navigation: AppNavProps;
+}
+
+const Modal = ({ navigation }: ModalProps) => {
+	return (
+		<View>
+			<Text>Yeet</Text>
+			<Button onPress={() => navigation.pop()} title='Close Modal' color='coral' />
+		</View>
+	);
+};
+
+const styles = StyleSheet.create({
+	header: { fontFamily: 'Montserrat_700Bold', fontSize: 20 },
+});

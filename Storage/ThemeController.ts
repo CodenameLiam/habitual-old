@@ -5,12 +5,12 @@ import { getData, getValue, storeData, storeValue } from './StorageController';
 
 export type ThemeType = 'dark' | 'light';
 
-export const useTheme = () => {
+export const useCustomTheme = () => {
 	const systemTheme = useColorScheme();
 	const THEME_KEY = '@Theme';
 	const DEFAULT_THEME = systemTheme === 'dark' ? 'dark' : 'light';
 
-	const [theme, setCustomTheme] = useState<ThemeType>(DEFAULT_THEME);
+	const [theme, setCustomTheme] = useState<ThemeType | undefined>();
 
 	const toggleTheme = (theme: ThemeType) => {
 		return theme === 'dark' ? 'light' : 'dark';
@@ -51,6 +51,18 @@ export const CustomDarkTheme = {
 	colors: {
 		primary: '#FFFFFF',
 		text: '#FFFFFF',
+		background: '#0F2028',
+		border: '#0F2028',
+		card: '#0F2028',
+		notification: 'red',
+	},
+};
+
+export const CustomLightTheme = {
+	dark: true,
+	colors: {
+		primary: '#FFFFFF',
+		text: '#0F2028',
 		background: '#0F2028',
 		border: '#0F2028',
 		card: '#0F2028',

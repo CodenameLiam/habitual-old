@@ -1,14 +1,16 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import RootNavigation from './Navigation/RootNavigation';
-import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { AppearanceProvider } from 'react-native-appearance';
-import { CustomDarkTheme, useTheme } from './Storage/ThemeController';
-// import { configureTheme, getTheme } from './Storage/ThemeController';
+import { CustomDarkTheme, useCustomTheme } from './Storage/ThemeController';
+import { useCustomFonts } from './Storage/FontController';
+import AppLoading from 'expo-app-loading';
 
 export default function App() {
-	const { theme, setTheme, toggleTheme } = useTheme();
+	const { theme, setTheme, toggleTheme } = useCustomTheme();
+	const { fontsLoaded } = useCustomFonts();
+
+	if (!theme || !fontsLoaded) return <AppLoading />;
 
 	return (
 		<AppearanceProvider>
