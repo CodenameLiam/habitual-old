@@ -181,10 +181,12 @@ const Habit = ({ name, icon, colour, emoji }: HabitProps) => {
 			useNativeDriver: true,
 			easing: Easing.out(Easing.quad),
 		}).start();
+
+		growAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 18] });
 	};
 
 	const toggleComplete = () => {
-		setCount(complete ? 1 : 18);
+		setCount(complete ? 0 : 1);
 		setComplete(!complete);
 	};
 
