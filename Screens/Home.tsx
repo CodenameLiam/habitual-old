@@ -9,6 +9,9 @@ import Icon, { IconProps } from '../Components/Icon';
 import TextTicker from 'react-native-text-ticker';
 import Emoji from 'react-native-emoji';
 import { LinearGradient } from 'expo-linear-gradient';
+import { GradientColours, GradientType } from '../Styles/Colours';
+import { FontAwesome } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
 type HomeRouteProps = RouteProp<TabParamList, 'Home'>;
@@ -42,6 +45,7 @@ export default function Home({ navigation }: HomeProps) {
 						icon={habit.icon}
 						colour={habit.colour}
 						emoji={habit.emoji}
+						gradient={habit.gradient}
 					/>
 				))}
 			</View>
@@ -52,107 +56,51 @@ export default function Home({ navigation }: HomeProps) {
 const HabitMap: HabitProps[] = [
 	{
 		name: 'Read a Book for 15 minutes a day ',
-		colour: '#ffafcc',
-		icon: { family: 'fontawesome', name: 'book' },
+		icon: { family: 'feather', name: 'book' },
 		emoji: 'orange_book',
-	},
-	{
-		name: 'Work Out',
-		colour: '#f4a261',
-		icon: { family: 'fontawesome5', name: 'dumbbell' },
-		emoji: 'weight_lifter',
-	},
-	{
-		name: 'Work on App',
-		colour: '#fcbf49',
-		icon: { family: 'fontawesome5', name: 'apple' },
-		emoji: 'iphone',
-	},
-	{
-		name: 'Learn French',
-		colour: '#4cc9f0',
-		icon: { family: 'entypo', name: 'language' },
-		emoji: 'fr',
-	},
-	{
-		name: 'Read a Book',
-		colour: '#f25c54',
-		icon: { family: 'fontawesome', name: 'book' },
-		emoji: 'orange_book',
-	},
-	{
-		name: 'Work Out',
-		colour: '#f8961e',
-		icon: { family: 'fontawesome5', name: 'dumbbell' },
-		emoji: 'weight_lifter',
-	},
-	{
-		name: 'Work on App',
-		colour: '#ffbe0b',
-		icon: { family: 'fontawesome5', name: 'apple' },
-		emoji: 'iphone',
-	},
-	{
-		name: 'Learn French',
-		colour: '#b9e769',
-		icon: { family: 'entypo', name: 'language' },
-		emoji: 'fr',
-	},
-	{
-		name: 'Go for a Swim',
-		colour: '#00f5d4',
-		icon: { family: 'fontawesome5', name: 'swimmer' },
-		emoji: 'swimmer',
+		gradient: GradientColours.PURPLE,
 	},
 	{
 		name: 'Play Piano',
-		colour: '#ffd670',
 		icon: { family: 'materialcommunity', name: 'piano' },
 		emoji: 'musical_keyboard',
-	},
-	//
-	{
-		name: 'Work on App',
-		colour: '#ff9770',
-		icon: { family: 'fontawesome5', name: 'apple' },
-		emoji: 'iphone',
-	},
-	{
-		name: 'Learn French',
-		colour: '#ff70a6',
-		icon: { family: 'entypo', name: 'language' },
-		emoji: 'fr',
-	},
-	{
-		name: 'Go for a Swim',
-		colour: '#70d6ff',
-		icon: { family: 'fontawesome5', name: 'swimmer' },
-		emoji: 'swimmer',
-	},
-
-	{
-		name: 'Play Piano',
-		colour: '#9381ff',
-		icon: { family: 'materialcommunity', name: 'piano' },
-		emoji: 'musical_keyboard',
+		gradient: GradientColours.PINK,
 	},
 	{
 		name: 'Play Piano',
-		colour: '#fe6d73',
 		icon: { family: 'materialcommunity', name: 'piano' },
 		emoji: 'musical_keyboard',
+		gradient: GradientColours.RED,
 	},
 	{
 		name: 'Play Piano',
-		colour: '#1dd3b0',
 		icon: { family: 'materialcommunity', name: 'piano' },
 		emoji: 'musical_keyboard',
+		gradient: GradientColours.ORANGE,
 	},
 	{
 		name: 'Play Piano',
-		colour: '#5c95ff',
 		icon: { family: 'materialcommunity', name: 'piano' },
 		emoji: 'musical_keyboard',
+		gradient: GradientColours.BLUE,
+	},
+	{
+		name: 'Play Piano',
+		icon: { family: 'materialcommunity', name: 'piano' },
+		emoji: 'musical_keyboard',
+		gradient: GradientColours.VIOLET,
+	},
+	{
+		name: 'Play Piano',
+		icon: { family: 'materialcommunity', name: 'piano' },
+		emoji: 'musical_keyboard',
+		gradient: GradientColours.GREEN,
+	},
+	{
+		name: 'Play Piano',
+		icon: { family: 'materialcommunity', name: 'piano' },
+		emoji: 'musical_keyboard',
+		gradient: GradientColours.LIME,
 	},
 ];
 
@@ -160,12 +108,14 @@ interface HabitProps {
 	name: string;
 	icon: Partial<IconProps>;
 	emoji: string;
-	colour: string;
+	colour?: string;
+	gradient: GradientType;
 }
 
-const Habit = ({ name, icon, colour, emoji }: HabitProps) => {
+const Habit = ({ name, icon, colour, emoji, gradient }: HabitProps) => {
 	const growAnim = useRef(new Animated.Value(0)).current;
-	const [count, setCount] = useState(1);
+	const interpolatedSize = growAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 18] });
+	const [count, setCount] = useState(0);
 	const [complete, setComplete] = useState(false);
 
 	const { colors } = useTheme();
@@ -181,8 +131,6 @@ const Habit = ({ name, icon, colour, emoji }: HabitProps) => {
 			useNativeDriver: true,
 			easing: Easing.out(Easing.quad),
 		}).start();
-
-		growAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 18] });
 	};
 
 	const toggleComplete = () => {
@@ -205,16 +153,14 @@ const Habit = ({ name, icon, colour, emoji }: HabitProps) => {
 
 				justifyContent: 'space-between',
 				margin: 5,
-			}}
-		>
+			}}>
 			<View
 				style={{
 					display: 'flex',
 					flexDirection: 'row',
 					alignItems: 'center',
 					flex: 1,
-				}}
-			>
+				}}>
 				<View
 					style={{
 						display: 'flex',
@@ -224,30 +170,30 @@ const Habit = ({ name, icon, colour, emoji }: HabitProps) => {
 						width: dimensions,
 						borderRadius: dimensions,
 						margin: 15,
-					}}
-				>
-					<Emoji name={emoji} style={{ fontSize: 18, position: 'absolute', zIndex: 1 }} />
-					{/* <Icon
+					}}>
+					{/* <Emoji name={emoji} style={{ fontSize: 18, position: 'absolute', zIndex: 1 }} /> */}
+					<Icon
 						family={icon.family}
 						name={icon.name}
 						size={18}
 						colour={colors.text}
 						style={{ position: 'absolute', zIndex: 1 }}
-					/> */}
+					/>
 					<Animated.View
 						style={{
-							backgroundColor: colour,
+							backgroundColor: gradient.solid,
 							height: 35,
 							width: 35,
-							transform: [{ scale: growAnim }],
+							transform: [{ scale: interpolatedSize }],
 							overflow: 'hidden',
 							borderRadius: 700,
-						}}
-					>
+						}}>
 						<LinearGradient
-							// Background Linear Gradient
-							colors={['#f4a261', '#fcbf49']}
-							style={{ flex: 1 }}
+							colors={[gradient.start, gradient.end]}
+							locations={[0.5, 1]}
+							style={{
+								flex: 1,
+							}}
 							start={{ x: 0, y: 0 }}
 							end={{ x: 1, y: 0 }}
 						/>
@@ -257,8 +203,7 @@ const Habit = ({ name, icon, colour, emoji }: HabitProps) => {
 				<View
 					style={{
 						flex: 1,
-					}}
-				>
+					}}>
 					<TextTicker
 						style={{
 							fontFamily: 'Montserrat_500Medium',
@@ -281,7 +226,8 @@ const Habit = ({ name, icon, colour, emoji }: HabitProps) => {
 				{complete ? (
 					<Entypo name='check' size={20} color={colors.text} />
 				) : (
-					<Entypo name='circle' size={14} color={colors.text} />
+					<FontAwesome name='circle-o' size={14} color={colors.text} />
+					// <MaterialIcons name='timer' size={16} color='black' />
 				)}
 			</TouchableOpacity>
 		</View>

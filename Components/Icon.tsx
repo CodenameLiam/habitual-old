@@ -6,9 +6,16 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 
 export interface IconProps {
-	family?: 'fontawesome' | 'fontawesome5' | 'entypo' | 'material' | 'materialcommunity';
+	family?:
+		| 'fontawesome'
+		| 'fontawesome5'
+		| 'entypo'
+		| 'material'
+		| 'materialcommunity'
+		| 'feather';
 	name: any;
 	size: number;
 	colour: string;
@@ -27,6 +34,8 @@ export default function Icon({ family, name, size, colour, style }: IconProps) {
 			return <MaterialIcons name={name} size={size} color={colour} style={style} />;
 		case 'materialcommunity':
 			return <MaterialCommunityIcons name={name} size={size} color={colour} style={style} />;
+		case 'feather':
+			return <Feather name={name} size={size} color={colour} style={style} />;
 		default:
 			return <View />;
 	}

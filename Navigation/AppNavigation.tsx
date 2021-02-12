@@ -14,6 +14,7 @@ import TabNavigation from './TabNavigation';
 import { Feather } from '@expo/vector-icons';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
+import Add from '../Screens/Add';
 
 export type AppStackParamList = {
 	Tabs: undefined;
@@ -57,8 +58,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 				gestureEnabled: true,
 				cardOverlayEnabled: true,
 				headerTitleStyle: styles.header,
-			}}
-		>
+			}}>
 			<Stack.Screen
 				name='Tabs'
 				component={TabNavigation}
@@ -78,8 +78,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 					headerRight: () => (
 						<TouchableOpacity
 							style={{ paddingRight: 25 }}
-							onPress={() => navigation.push('Add')}
-						>
+							onPress={() => navigation.push('Add')}>
 							<Entypo name='plus' size={38} color={colors.text} />
 						</TouchableOpacity>
 					),
@@ -87,23 +86,21 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 			/>
 			<Stack.Screen
 				name='Add'
-				component={Modal}
+				component={Add}
 				options={({ navigation }) => ({
 					headerStatusBarHeight: 5,
 					title: 'Create Habit',
 					headerLeft: () => (
 						<TouchableOpacity
 							style={{ paddingLeft: 5 }}
-							onPress={() => navigation.goBack()}
-						>
+							onPress={() => navigation.goBack()}>
 							<Feather name='chevron-left' size={36} color={colors.text} />
 						</TouchableOpacity>
 					),
 					headerRight: () => (
 						<TouchableOpacity
 							style={{ paddingRight: 25 }}
-							onPress={() => handleSave(navigation)}
-						>
+							onPress={() => handleSave(navigation)}>
 							<Feather name='save' size={30} color={colors.text} />
 						</TouchableOpacity>
 					),
