@@ -1,85 +1,55 @@
 import { Montserrat_500Medium } from '@expo-google-fonts/montserrat';
 import { useTheme } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useState } from 'react';
-import { View, Text, ScrollView, Button, Dimensions, StyleSheet } from 'react-native';
-import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
-import { color } from 'react-native-reanimated';
+import {
+	View,
+	Text,
+	ScrollView,
+	Button,
+	Dimensions,
+	StyleSheet,
+	ViewComponent,
+} from 'react-native';
+import {
+	TextInput,
+	TouchableOpacity,
+	TouchableWithoutFeedback,
+} from 'react-native-gesture-handler';
+import Animated, { color } from 'react-native-reanimated';
 import { ColourPicker, randomGradient } from '../Components/ColourPicker';
-import Icon from '../Components/Icon';
+import Icon, { IconProps } from '../Components/Icon';
+import { GradientContext } from '../Context/GradientContext';
 import { AppNavProps } from '../Navigation/AppNavigation';
 import { GradientColours, GradientType, GreyColours } from '../Styles/Colours';
+import BottomSheet from 'reanimated-bottom-sheet';
+import { ColourButtonGroup } from '../Components/ColourButtonGroup';
+import {
+	DEFAULT_SCHEDULE,
+	EVERYDAY_SCHEDULE,
+	Scheduler,
+	ScheduleType,
+	WEEKDAY_SCHEDULE,
+	WEEKEND_SCHEDULE,
+} from '../Components/Scheduler';
 
 interface CreateProps {
 	navigation: AppNavProps;
 }
 
-type ScheduleTypeValue = 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN';
-
-interface ScheduleType {
-	MON: boolean;
-	TUE: boolean;
-	WED: boolean;
-	THU: boolean;
-	FRI: boolean;
-	SAT: boolean;
-	SUN: boolean;
-}
-
-const EVERYDAY_SCHEDULE: ScheduleType = {
-	MON: true,
-	TUE: true,
-	WED: true,
-	THU: true,
-	FRI: true,
-	SAT: true,
-	SUN: true,
-};
-
-const WEEKDAY_SCHEDULE: ScheduleType = {
-	MON: true,
-	TUE: true,
-	WED: true,
-	THU: true,
-	FRI: true,
-	SAT: false,
-	SUN: false,
-};
-
-const WEEKEND_SCHEDULE: ScheduleType = {
-	MON: false,
-	TUE: false,
-	WED: false,
-	THU: false,
-	FRI: false,
-	SAT: true,
-	SUN: true,
-};
-
 export default function CreateScreen({ navigation }: CreateProps) {
-	const [gradient, setGradient] = useState<GradientType>();
-	const [schedule, setSchedule] = useState<ScheduleType>(EVERYDAY_SCHEDULE);
+	const { gradient, setGradient } = useContext(GradientContext);
+	const [schedule, setSchedule] = useState<ScheduleType>({ ...DEFAULT_SCHEDULE });
 	const { colors } = useTheme();
 
 	useEffect(() => {
 		const gradient: GradientType = randomGradient();
-		updateGradient(gradient);
+		setGradient(gradient);
 	}, []);
 
-	const updateGradient = (gradient: GradientType) => {
-		setGradient(gradient);
-		navigation.setOptions({
-			headerBackground: () => (
-				<LinearGradient
-					colors={[gradient.start, gradient.end]}
-					style={globalStyles.gradient}
-					start={{ x: 0, y: 0 }}
-					end={{ x: 1, y: 0 }}
-				/>
-			),
-		});
-	};
+	const sheetRef = React.useRef<BottomSheet>(null);
+	let shadow = new Animated.Value(1);
 
 	const scheduleFunctions = [
 		() => setSchedule({ ...EVERYDAY_SCHEDULE }),
@@ -87,166 +57,244 @@ export default function CreateScreen({ navigation }: CreateProps) {
 		() => setSchedule({ ...WEEKEND_SCHEDULE }),
 	];
 
-	if (!gradient) return <View />;
-
-	return (
-		<ScrollView style={{ flex: 1 }} scrollEnabled={false}>
-			<View style={{ flex: 1, padding: 10 }}>
-				<View style={{ display: 'flex', flexDirection: 'row' }}>
-					<TouchableOpacity
-						style={[
-							globalStyles.card,
-							{
-								backgroundColor: colors.card,
-								display: 'flex',
-								justifyContent: 'center',
-								alignItems: 'center',
-								height: 50,
-								marginRight: 5,
-							},
-						]}>
-						<Icon
-							family='fontawesome5'
-							name='icons'
-							size={28}
-							colour={GreyColours.GREY2}
-						/>
-					</TouchableOpacity>
-
-					<TextInput
-						placeholder='Name'
-						placeholderTextColor={GreyColours.GREY2}
-						style={[
-							globalStyles.card,
-							globalStyles.cardText,
-							{
-								backgroundColor: colors.card,
-								color: gradient.solid,
-								height: 50,
-							},
-						]}
-					/>
-				</View>
-				<Card title='Colour'>
-					<ColourPicker updateGradient={updateGradient} />
-				</Card>
-				<Card title='Schedule'>
-					<Schedule schedule={schedule} setSchedule={setSchedule} gradient={gradient} />
-					<ColourButtonGroup
-						buttons={['Everyday', 'Weekdays', 'Weekend']}
-						buttonFunctions={scheduleFunctions}
-						colour={gradient.solid}
-					/>
-				</Card>
-			</View>
-		</ScrollView>
-	);
-}
-
-interface ScheduleProps {
-	gradient: GradientType;
-	schedule: ScheduleType;
-	setSchedule: React.Dispatch<React.SetStateAction<ScheduleType>>;
-}
-const Schedule = ({ gradient, schedule, setSchedule }: ScheduleProps) => {
-	const { colors } = useTheme();
-	const dimensions = Dimensions.get('window').width / 11;
-
-	const styles = StyleSheet.create({
-		container: {
-			display: 'flex',
-			flexDirection: 'row',
-			justifyContent: 'space-between',
-			padding: 5,
-			paddingBottom: 15,
-		},
-		schedule: {
-			backgroundColor: colors.background,
-			height: dimensions,
-			width: dimensions,
-			borderRadius: dimensions,
-			display: 'flex',
-			alignItems: 'center',
-			justifyContent: 'center',
-			overflow: 'hidden',
-		},
-		text: { fontFamily: 'Montserrat_600SemiBold', fontSize: 16 },
-	});
-
-	const handleSchedule = (day: ScheduleTypeValue) => {
-		const tempSchedule = schedule;
-		tempSchedule[day] = !tempSchedule[day];
-		setSchedule({ ...tempSchedule });
+	const openSheet = () => {
+		sheetRef.current && sheetRef.current.snapTo(0);
 	};
 
 	return (
-		<View style={styles.container}>
-			{Object.entries(schedule).map((day) => (
-				<TouchableOpacity
-					key={`${day[0]}- ${day[1]}`}
-					style={styles.schedule}
-					onPress={() => handleSchedule(day[0] as ScheduleTypeValue)}>
-					{day[1] && (
-						<LinearGradient
-							colors={[gradient.start, gradient.end]}
-							style={globalStyles.gradient}
-							start={{ x: 0, y: 0 }}
-							end={{ x: 1, y: 0 }}
+		<React.Fragment>
+			<ShadowModal shadow={shadow} />
+			<ScrollView style={{ flex: 1 }} scrollEnabled={false}>
+				<View style={{ flex: 1, padding: 10 }}>
+					<View style={{ display: 'flex', flexDirection: 'row' }}>
+						<TouchableOpacity
+							onPress={openSheet}
+							style={[
+								globalStyles.card,
+								{
+									backgroundColor: colors.card,
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									height: 50,
+									marginRight: 5,
+								},
+							]}
+						>
+							<Icon
+								family='fontawesome5'
+								name='icons'
+								size={28}
+								colour={GreyColours.GREY2}
+							/>
+						</TouchableOpacity>
+
+						<TextInput
+							placeholder='Name'
+							placeholderTextColor={GreyColours.GREY2}
+							returnKeyType='done'
+							// onChangeText={(text) => setstate(text)}
+							style={[
+								globalStyles.card,
+								globalStyles.cardText,
+								{
+									backgroundColor: colors.card,
+									color: gradient.solid,
+									height: 50,
+								},
+							]}
 						/>
-					)}
-					<Text
-						style={[
-							styles.text,
-							day[1] ? { color: '#fff' } : { color: GreyColours.GREY2 },
-						]}>
-						{day[0][0]}
-					</Text>
-				</TouchableOpacity>
-			))}
-		</View>
+					</View>
+					<Card title='Colour'>
+						<ColourPicker updateGradient={(gradient) => setGradient(gradient)} />
+					</Card>
+					<Card title='Schedule'>
+						<Scheduler
+							schedule={schedule}
+							setSchedule={setSchedule}
+							gradient={gradient}
+						/>
+						<ColourButtonGroup
+							buttons={['Everyday', 'Weekdays', 'Weekend']}
+							buttonFunctions={scheduleFunctions}
+							colour={gradient.solid}
+						/>
+					</Card>
+				</View>
+			</ScrollView>
+			<BottomSheet
+				ref={sheetRef}
+				snapPoints={['100%', 0]}
+				initialSnap={1}
+				renderContent={() => <IconModal />}
+				renderHeader={() => <HeaderModal sheetRef={sheetRef} />}
+				callbackNode={shadow}
+			/>
+		</React.Fragment>
+	);
+}
+
+const IconOptions: Partial<IconProps>[] = [
+	{ family: 'feather', name: 'book' },
+	{ family: 'feather', name: 'award' },
+	{ family: 'feather', name: 'book-open' },
+	{ family: 'feather', name: 'bookmark' },
+	{ family: 'feather', name: 'briefcase' },
+	{ family: 'feather', name: 'camera' },
+	{ family: 'feather', name: 'compass' },
+	{ family: 'feather', name: 'film' },
+	{ family: 'feather', name: 'gift' },
+	{ family: 'feather', name: 'headphones' },
+	{ family: 'feather', name: 'heart' },
+	{ family: 'feather', name: 'moon' },
+	{ family: 'feather', name: 'sun' },
+	{ family: 'feather', name: 'monitor' },
+	{ family: 'feather', name: 'music' },
+	{ family: 'feather', name: 'pen-tool' },
+	{ family: 'feather', name: 'smile' },
+	{ family: 'feather', name: 'tablet' },
+	{ family: 'feather', name: 'database' },
+	{ family: 'feather', name: 'server' },
+	{ family: 'feather', name: 'star' },
+	{ family: 'feather', name: 'thumbs-up' },
+	{ family: 'feather', name: 'phone' },
+	{ family: 'feather', name: 'tool' },
+	{ family: 'feather', name: 'tv' },
+	{ family: 'feather', name: 'twitch' },
+	{ family: 'feather', name: 'twitter' },
+	{ family: 'feather', name: 'instagram' },
+	{ family: 'feather', name: 'facebook' },
+	{ family: 'feather', name: 'linkedin' },
+	{ family: 'feather', name: 'youtube' },
+	{ family: 'feather', name: 'video' },
+	{ family: 'materialcommunity', name: 'saxophone' },
+	{ family: 'materialcommunity', name: 'piano' },
+	{ family: 'fontawesome5', name: 'guitar' },
+	{ family: 'fontawesome5', name: 'drum' },
+];
+
+const IconModal = () => {
+	const { colors } = useTheme();
+	const iconWidth = Dimensions.get('window').width / 6.6;
+	return (
+		<ScrollView
+			style={{
+				backgroundColor: colors.card,
+				padding: 16,
+				height: '100%',
+			}}
+			showsVerticalScrollIndicator={false}
+		>
+			<View
+				style={{
+					width: '100%',
+					display: 'flex',
+					flexDirection: 'row',
+					flexWrap: 'wrap',
+					// justifyContent: 'space-evenly',
+				}}
+			>
+				{IconOptions.map((icon, index) => (
+					<TouchableOpacity
+						key={index}
+						style={{
+							padding: 10,
+							width: iconWidth,
+							// backgroundColor: 'red',
+							display: 'flex',
+							alignItems: 'center',
+						}}
+					>
+						<Icon
+							family={icon.family}
+							name={icon.name}
+							colour={colors.text}
+							size={30}
+						/>
+					</TouchableOpacity>
+				))}
+			</View>
+		</ScrollView>
 	);
 };
 
-interface ColouredButtonGroupProps {
-	colour: string;
-	buttons: string[];
-	buttonFunctions: (() => void)[];
+interface ShadowModalProps {
+	shadow: Animated.Value<number>;
 }
 
-const ColourButtonGroup = ({ buttons, buttonFunctions, colour }: ColouredButtonGroupProps) => {
-	const width = 95 / buttons.length;
-
-	const styles = StyleSheet.create({
-		container: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between' },
-		button: {
-			backgroundColor: colour + '50',
-			width: `${width}%`,
-			borderRadius: 5,
-		},
-		touchable: {
-			flex: 1,
-			padding: 8,
-		},
-		text: {
-			textAlign: 'center',
-			fontFamily: 'Montserrat_600SemiBold',
-			color: colour,
-		},
+const ShadowModal = ({ shadow }: ShadowModalProps) => {
+	const animatedShadowOpacity = Animated.interpolate(shadow, {
+		inputRange: [0, 1],
+		outputRange: [0.5, 0],
 	});
 
 	return (
-		<View style={styles.container}>
-			{buttons.length == buttonFunctions.length &&
-				buttons.map((title, index) => (
-					<View key={index} style={styles.button}>
-						<TouchableOpacity style={styles.touchable} onPress={buttonFunctions[index]}>
-							<Text style={styles.text}>{title}</Text>
-						</TouchableOpacity>
-					</View>
-				))}
-		</View>
+		<Animated.View
+			pointerEvents='none'
+			style={[
+				modalStyles.shadowContainer,
+				{
+					opacity: animatedShadowOpacity,
+				},
+			]}
+		/>
 	);
 };
+
+interface HeaderModalProps {
+	sheetRef: React.RefObject<BottomSheet>;
+}
+
+const HeaderModal = ({ sheetRef }: HeaderModalProps) => {
+	const { colors } = useTheme();
+	const closeSheet = () => {
+		sheetRef.current && sheetRef.current.snapTo(1);
+	};
+
+	const { header } = modalStyles;
+	const headerBackground = { backgroundColor: colors.card };
+	const headerStyles = StyleSheet.flatten([header, headerBackground]);
+
+	return (
+		<TouchableWithoutFeedback style={modalStyles.headerTouchable} onPress={closeSheet}>
+			<View style={headerStyles}>
+				<View style={modalStyles.panelHeader}>
+					<View style={modalStyles.panelHandle} />
+				</View>
+			</View>
+		</TouchableWithoutFeedback>
+	);
+};
+
+const modalStyles = StyleSheet.create({
+	headerTouchable: {
+		height: 240,
+		display: 'flex',
+		justifyContent: 'flex-end',
+	},
+	header: {
+		height: 40,
+		shadowColor: '#000000',
+		paddingTop: 10,
+		borderTopLeftRadius: 20,
+		borderTopRightRadius: 20,
+	},
+	panelHeader: {
+		alignItems: 'center',
+	},
+	panelHandle: {
+		width: 40,
+		height: 8,
+		borderRadius: 4,
+		backgroundColor: '#00000040',
+		marginBottom: 10,
+	},
+	shadowContainer: {
+		...StyleSheet.absoluteFillObject,
+		backgroundColor: '#000',
+		zIndex: 2,
+	},
+});
 
 interface CardProps {
 	children?: React.ReactNode;

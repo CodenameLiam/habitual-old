@@ -26,9 +26,9 @@ export const GradientColours = {
 		solid: '#fd5785',
 	},
 	TANGERINE: {
-		start: '#f7a448',
-		end: '#efce6f',
-		solid: '#f5b053',
+		start: '#fab66b',
+		end: '#ffe187',
+		solid: '#fab66b',
 	},
 	ORANGE: {
 		start: '#f8ce8d',

@@ -5,7 +5,7 @@ import {
 	StackNavigationProp,
 	TransitionPresets,
 } from '@react-navigation/stack';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, Button, StyleSheet, Text } from 'react-native';
 import { RootDrawerParamList } from './RootNavigation';
 import { Entypo } from '@expo/vector-icons';
@@ -17,12 +17,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import CreateScreen from '../Screens/CreateScreen';
 import IconScreen from '../Components/Icon';
 import Icon from '../Components/Icon';
+import { GradientContext } from '../Context/GradientContext';
 
 export type AppStackParamList = {
 	Tabs: undefined;
 	Add: undefined;
 	Edit: undefined;
 	Icons: undefined;
+	Ideas: undefined;
 };
 
 export type RootNavProps = DrawerNavigationProp<RootDrawerParamList, 'App'>;
@@ -36,6 +38,7 @@ interface AppNavigationProps {
 
 export default function AppNavigation({ navigation }: AppNavigationProps) {
 	const { colors } = useTheme();
+	const { gradient } = useContext(GradientContext);
 	const isDrawerOpen = useIsDrawerOpen();
 	const [isOpen, setOpen] = useState(false);
 
@@ -56,7 +59,8 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 				gestureEnabled: true,
 				cardOverlayEnabled: true,
 				headerTitleStyle: styles.headerTitle,
-			}}>
+			}}
+		>
 			<Stack.Screen
 				name='Tabs'
 				component={TabNavigation}
@@ -76,7 +80,8 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 					headerRight: () => (
 						<TouchableOpacity
 							style={{ paddingRight: 25 }}
-							onPress={() => navigation.push('Add')}>
+							onPress={() => navigation.navigate('Add')}
+						>
 							<Entypo name='plus' size={38} color={colors.text} />
 						</TouchableOpacity>
 					),
@@ -89,12 +94,21 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 					headerStatusBarHeight: 2,
 					headerStyle: { height: 60 },
 					title: 'Create Habit',
+					headerBackground: () => (
+						<LinearGradient
+							colors={[gradient.start, gradient.end]}
+							style={styles.gradient}
+							start={{ x: 0, y: 0 }}
+							end={{ x: 1, y: 0 }}
+						/>
+					),
 					headerLeft: () => (
 						<TouchableOpacity
 							style={{
 								padding: 8,
 							}}
-							onPress={() => navigation.goBack()}>
+							onPress={() => navigation.goBack()}
+						>
 							<Feather name='chevron-left' size={34} color={colors.text} />
 						</TouchableOpacity>
 					),
@@ -104,7 +118,8 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 								padding: 10,
 								paddingRight: 12,
 							}}
-							onPress={() => navigation.push('Icons')}>
+							onPress={() => navigation.navigate('Ideas')}
+						>
 							<Icon
 								family='antdesign'
 								name='appstore-o'
@@ -122,31 +137,44 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 					headerStatusBarHeight: 2,
 					headerStyle: { height: 60 },
 					title: 'Select Icon',
-
+					headerBackground: () => (
+						<LinearGradient
+							colors={[gradient.start, gradient.end]}
+							style={styles.gradient}
+							start={{ x: 0, y: 0 }}
+							end={{ x: 1, y: 0 }}
+						/>
+					),
 					headerLeft: () => (
 						<TouchableOpacity
 							style={{
 								padding: 8,
 							}}
-							onPress={() => navigation.goBack()}>
+							onPress={() => navigation.goBack()}
+						>
 							<Feather name='chevron-left' size={34} color={colors.text} />
 						</TouchableOpacity>
 					),
-					// headerRight: () => (
-					// 	<TouchableOpacity
-					// 		style={{
-					// 			padding: 10,
-					// 			paddingRight: 12,
-					// 		}}
-					// 		onPress={() => handleSave(navigation)}>
-					// 		<Icon
-					// 			family='antdesign'
-					// 			name='appstore-o'
-					// 			size={28}
-					// 			colour={colors.text}
-					// 		/>
-					// 	</TouchableOpacity>
-					// ),
+				})}
+			/>
+			<Stack.Screen
+				name='Ideas'
+				component={IconScreen}
+				options={({ navigation }) => ({
+					headerStatusBarHeight: 2,
+					headerStyle: { height: 60 },
+					title: 'Habit Ideas',
+					headerBackground: () => <View />,
+					headerLeft: () => (
+						<TouchableOpacity
+							style={{
+								padding: 8,
+							}}
+							onPress={() => navigation.goBack()}
+						>
+							<Feather name='chevron-left' size={34} color={colors.text} />
+						</TouchableOpacity>
+					),
 				})}
 			/>
 		</Stack.Navigator>
@@ -155,4 +183,11 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 
 const styles = StyleSheet.create({
 	headerTitle: { fontFamily: 'Montserrat_700Bold', fontSize: 20 },
+	gradient: {
+		position: 'absolute',
+		left: 0,
+		right: 0,
+		top: 0,
+		bottom: 0,
+	},
 });

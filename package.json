@@ -34,6 +34,7 @@
 		"react-native-svg": "12.1.0",
 		"react-native-text-ticker": "^1.11.0",
 		"react-native-web": "~0.13.12",
+		"reanimated-bottom-sheet": "^1.0.0-alpha.22",
 		"yarn": "^1.22.10"
 	},
 	"devDependencies": {
