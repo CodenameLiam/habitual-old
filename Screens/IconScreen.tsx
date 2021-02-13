@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
-export default function Awards() {
+export default function IconScreen() {
 	return (
 		<View>
-			<Text>Awards</Text>
+			<Text>Icon</Text>
 		</View>
 	);
 }

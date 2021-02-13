@@ -3,7 +3,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { ScrollView, Switch } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ThemeType, useTheme } from '../Storage/ThemeController';
+import { ThemeType } from '../Storage/ThemeController';
 
 interface SettingsProps {
 	theme: ThemeType;
@@ -11,7 +11,7 @@ interface SettingsProps {
 	toggleTheme: (theme: ThemeType) => 'dark' | 'light';
 }
 
-export default function Settings({ theme, setTheme, toggleTheme }: SettingsProps) {
+export default function SettingsScreen({ theme, setTheme, toggleTheme }: SettingsProps) {
 	const toggleThemeSwitch = () => {
 		setTheme(toggleTheme(theme));
 	};

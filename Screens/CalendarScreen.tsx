@@ -11,7 +11,7 @@ interface CalendarProps {
 	route: RouteProps;
 }
 
-export default function Calendar({ navigation, route }: CalendarProps) {
+export default function CalendarScreen({ navigation, route }: CalendarProps) {
 	const [habit, setHabit] = useState('All');
 
 	useFocusEffect(

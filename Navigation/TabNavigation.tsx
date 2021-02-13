@@ -12,11 +12,11 @@ import AnimatedTabBar, { TabsConfig, FlashyTabBarItemConfig } from '@gorhom/anim
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Feather } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
-import Home from '../Screens/Home';
-import Calendar from '../Screens/Calendar';
+import HomeScreen from '../Screens/HomeScreen';
+import CalendarSreen from '../Screens/CalendarScreen';
 import { AppNavProps } from './AppNavigation';
-import Trends from '../Screens/Trends';
-import Awards from '../Screens/Awards';
+import TrendsScreen from '../Screens/Trends';
+import AwardsScreen from '../Screens/AwardsScreen';
 
 export type TabParamList = {
 	Home: undefined;
@@ -48,12 +48,11 @@ export default function TabNavigation({ navigation, route }: AppProps) {
 					style={{ backgroundColor: colors.background }}
 					{...props}
 				/>
-			)}
-		>
-			<Tab.Screen name='Home' component={Home} />
-			<Tab.Screen name='Calendar' component={Calendar} />
-			<Tab.Screen name='Trends' component={Trends} />
-			<Tab.Screen name='Awards' component={Awards} />
+			)}>
+			<Tab.Screen name='Home' component={HomeScreen} />
+			<Tab.Screen name='Calendar' component={CalendarSreen} />
+			<Tab.Screen name='Trends' component={TrendsScreen} />
+			<Tab.Screen name='Awards' component={AwardsScreen} />
 		</Tab.Navigator>
 	);
 }

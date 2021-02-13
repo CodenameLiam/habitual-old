@@ -21,7 +21,7 @@ interface HomeProps {
 	route: HomeRouteProps;
 }
 
-export default function Home({ navigation }: HomeProps) {
+export default function HomeScreen({ navigation }: HomeProps) {
 	const [day] = useState('Today');
 
 	useFocusEffect(
@@ -58,6 +58,12 @@ const HabitMap: HabitProps[] = [
 		name: 'Read a Book for 15 minutes a day ',
 		icon: { family: 'feather', name: 'book' },
 		emoji: 'orange_book',
+		gradient: GradientColours.MIDNIGHT,
+	},
+	{
+		name: 'Read a Book for 15 minutes a day ',
+		icon: { family: 'feather', name: 'book-open' },
+		emoji: 'orange_book',
 		gradient: GradientColours.PURPLE,
 	},
 	{
@@ -67,10 +73,22 @@ const HabitMap: HabitProps[] = [
 		gradient: GradientColours.PINK,
 	},
 	{
+		name: 'Play the Drums',
+		icon: { family: 'fontawesome5', name: 'drum' },
+		emoji: 'musical_keyboard',
+		gradient: GradientColours.RED,
+	},
+	{
+		name: 'Play Sax',
+		icon: { family: 'materialcommunity', name: 'saxophone' },
+		emoji: 'musical_keyboard',
+		gradient: GradientColours.PEACH,
+	},
+	{
 		name: 'Play Piano',
 		icon: { family: 'materialcommunity', name: 'piano' },
 		emoji: 'musical_keyboard',
-		gradient: GradientColours.RED,
+		gradient: GradientColours.TANGERINE,
 	},
 	{
 		name: 'Play Piano',
@@ -89,6 +107,12 @@ const HabitMap: HabitProps[] = [
 		icon: { family: 'materialcommunity', name: 'piano' },
 		emoji: 'musical_keyboard',
 		gradient: GradientColours.VIOLET,
+	},
+	{
+		name: 'Play Piano',
+		icon: { family: 'materialcommunity', name: 'piano' },
+		emoji: 'musical_keyboard',
+		gradient: GradientColours.SKY,
 	},
 	{
 		name: 'Play Piano',
@@ -206,7 +230,7 @@ const Habit = ({ name, icon, colour, emoji, gradient }: HabitProps) => {
 					}}>
 					<TextTicker
 						style={{
-							fontFamily: 'Montserrat_500Medium',
+							fontFamily: 'Montserrat_600SemiBold',
 							fontSize: 18,
 							color: colors.text,
 						}}
@@ -215,9 +239,7 @@ const Habit = ({ name, icon, colour, emoji, gradient }: HabitProps) => {
 						duration={3000}
 						bounceDelay={1500}
 						marqueeDelay={1000}
-						bouncePadding={{ left: 0, right: 0 }}
-						// repeatSpacer={10}
-					>
+						bouncePadding={{ left: 0, right: 0 }}>
 						{name}
 					</TextTicker>
 				</View>
@@ -227,7 +249,6 @@ const Habit = ({ name, icon, colour, emoji, gradient }: HabitProps) => {
 					<Entypo name='check' size={20} color={colors.text} />
 				) : (
 					<FontAwesome name='circle-o' size={14} color={colors.text} />
-					// <MaterialIcons name='timer' size={16} color='black' />
 				)}
 			</TouchableOpacity>
 		</View>

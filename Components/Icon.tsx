@@ -7,6 +7,7 @@ import { Entypo } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 
 export interface IconProps {
 	family?:
@@ -15,7 +16,9 @@ export interface IconProps {
 		| 'entypo'
 		| 'material'
 		| 'materialcommunity'
-		| 'feather';
+		| 'feather'
+		| 'antdesign';
+
 	name: any;
 	size: number;
 	colour: string;
@@ -36,6 +39,8 @@ export default function Icon({ family, name, size, colour, style }: IconProps) {
 			return <MaterialCommunityIcons name={name} size={size} color={colour} style={style} />;
 		case 'feather':
 			return <Feather name={name} size={size} color={colour} style={style} />;
+		case 'antdesign':
+			return <AntDesign name={name} size={size} color={colour} style={style} />;
 		default:
 			return <View />;
 	}

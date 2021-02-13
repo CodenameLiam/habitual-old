@@ -1,7 +1,7 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import AppNavigation from './AppNavigation';
-import Settings from '../Screens/Settings';
+import SettingsSreen from '../Screens/SettingsScreen';
 import { ThemeType } from '../Storage/ThemeController';
 
 export type RootDrawerParamList = {
@@ -23,9 +23,8 @@ export default function RootNavigation({ theme, setTheme, toggleTheme }: RootNav
 			drawerType='slide'
 			overlayColor={'none'}
 			drawerContent={() => (
-				<Settings theme={theme} setTheme={setTheme} toggleTheme={toggleTheme} />
-			)}
-		>
+				<SettingsSreen theme={theme} setTheme={setTheme} toggleTheme={toggleTheme} />
+			)}>
 			<Drawer.Screen name='App' component={AppNavigation} />
 		</Drawer.Navigator>
 	);

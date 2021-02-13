@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { useColorScheme } from 'react-native-appearance';
+import { GreyColours } from '../Styles/Colours';
 import { getData, getValue, storeData, storeValue } from './StorageController';
 
 export type ThemeType = 'dark' | 'light';

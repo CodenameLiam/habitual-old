@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
-export default function TrendsScreen() {
+export default function AwardsScreen() {
 	return (
 		<View>
-			<Text>Trends</Text>
+			<Text>Awards</Text>
 		</View>
 	);
 }
