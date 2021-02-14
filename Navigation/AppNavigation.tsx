@@ -6,7 +6,7 @@ import {
 	TransitionPresets,
 } from '@react-navigation/stack';
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Button, StyleSheet, Text } from 'react-native';
+import { View, Button, StyleSheet, Text, Vibration } from 'react-native';
 import { RootDrawerParamList } from './RootNavigation';
 import { Entypo } from '@expo/vector-icons';
 import SettingsMenuIcon from '../Components/SettingsMenuIcon';
@@ -18,6 +18,7 @@ import CreateScreen from '../Screens/CreateScreen';
 import IconScreen from '../Components/Icon';
 import Icon from '../Components/Icon';
 import { GradientContext } from '../Context/GradientContext';
+import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
 
 export type AppStackParamList = {
 	Tabs: undefined;
@@ -47,8 +48,14 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 	}, [isDrawerOpen]);
 
 	const handleOpen = () => {
+		impactAsync(ImpactFeedbackStyle.Light);
 		setOpen(!isOpen);
 		navigation.toggleDrawer();
+	};
+
+	const handleAdd = (navigation: AppNavProps) => {
+		impactAsync(ImpactFeedbackStyle.Medium);
+		navigation.navigate('Add');
 	};
 
 	return (
@@ -80,7 +87,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 					headerRight: () => (
 						<TouchableOpacity
 							style={{ paddingRight: 25 }}
-							onPress={() => navigation.navigate('Add')}
+							onPress={() => handleAdd(navigation)}
 						>
 							<Entypo name='plus' size={38} color={colors.text} />
 						</TouchableOpacity>

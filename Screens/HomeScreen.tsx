@@ -12,6 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { GradientColours, GradientType } from '../Styles/Colours';
 import { FontAwesome } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
+import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
 
 type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
 type HomeRouteProps = RouteProp<TabParamList, 'Home'>;
@@ -46,6 +47,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
 						colour={habit.colour}
 						emoji={habit.emoji}
 						gradient={habit.gradient}
+						progress={habit.progress}
 					/>
 				))}
 			</View>
@@ -58,88 +60,91 @@ const HabitMap: HabitProps[] = [
 		name: 'Read a Book for 15 minutes a day ',
 		icon: { family: 'feather', name: 'book' },
 		emoji: 'orange_book',
-		gradient: GradientColours.MIDNIGHT,
+		gradient: GradientColours.RED,
+		progress: 0.3,
 	},
 	{
 		name: 'Read a Book for 15 minutes a day ',
 		icon: { family: 'feather', name: 'book-open' },
 		emoji: 'orange_book',
 		gradient: GradientColours.PURPLE,
+		progress: 0.5,
 	},
-	{
-		name: 'Play Piano',
-		icon: { family: 'materialcommunity', name: 'piano' },
-		emoji: 'musical_keyboard',
-		gradient: GradientColours.PINK,
-	},
-	{
-		name: 'Play the Drums',
-		icon: { family: 'fontawesome5', name: 'drum' },
-		emoji: 'musical_keyboard',
-		gradient: GradientColours.RED,
-	},
-	{
-		name: 'Play Sax',
-		icon: { family: 'materialcommunity', name: 'saxophone' },
-		emoji: 'musical_keyboard',
-		gradient: GradientColours.PEACH,
-	},
-	{
-		name: 'Play Piano',
-		icon: { family: 'materialcommunity', name: 'piano' },
-		emoji: 'musical_keyboard',
-		gradient: GradientColours.TANGERINE,
-	},
-	{
-		name: 'Play Piano',
-		icon: { family: 'materialcommunity', name: 'piano' },
-		emoji: 'musical_keyboard',
-		gradient: GradientColours.ORANGE,
-	},
-	{
-		name: 'Play Piano',
-		icon: { family: 'materialcommunity', name: 'piano' },
-		emoji: 'musical_keyboard',
-		gradient: GradientColours.BLUE,
-	},
-	{
-		name: 'Play Piano',
-		icon: { family: 'materialcommunity', name: 'piano' },
-		emoji: 'musical_keyboard',
-		gradient: GradientColours.VIOLET,
-	},
-	{
-		name: 'Play Piano',
-		icon: { family: 'materialcommunity', name: 'piano' },
-		emoji: 'musical_keyboard',
-		gradient: GradientColours.SKY,
-	},
-	{
-		name: 'Play Piano',
-		icon: { family: 'materialcommunity', name: 'piano' },
-		emoji: 'musical_keyboard',
-		gradient: GradientColours.GREEN,
-	},
-	{
-		name: 'Play Piano',
-		icon: { family: 'materialcommunity', name: 'piano' },
-		emoji: 'musical_keyboard',
-		gradient: GradientColours.LIME,
-	},
+	// {
+	// 	name: 'Play Piano',
+	// 	icon: { family: 'materialcommunity', name: 'piano' },
+	// 	emoji: 'musical_keyboard',
+	// 	gradient: GradientColours.PINK,
+	// },
+	// {
+	// 	name: 'Play the Drums',
+	// 	icon: { family: 'fontawesome5', name: 'drum' },
+	// 	emoji: 'musical_keyboard',
+	// 	gradient: GradientColours.RED,
+	// },
+	// {
+	// 	name: 'Play Sax',
+	// 	icon: { family: 'materialcommunity', name: 'saxophone' },
+	// 	emoji: 'musical_keyboard',
+	// 	gradient: GradientColours.PEACH,
+	// },
+	// {
+	// 	name: 'Play Piano',
+	// 	icon: { family: 'materialcommunity', name: 'piano' },
+	// 	emoji: 'musical_keyboard',
+	// 	gradient: GradientColours.TANGERINE,
+	// },
+	// {
+	// 	name: 'Play Piano',
+	// 	icon: { family: 'materialcommunity', name: 'piano' },
+	// 	emoji: 'musical_keyboard',
+	// 	gradient: GradientColours.ORANGE,
+	// },
+	// {
+	// 	name: 'Play Piano',
+	// 	icon: { family: 'materialcommunity', name: 'piano' },
+	// 	emoji: 'musical_keyboard',
+	// 	gradient: GradientColours.BLUE,
+	// },
+	// {
+	// 	name: 'Play Piano',
+	// 	icon: { family: 'materialcommunity', name: 'piano' },
+	// 	emoji: 'musical_keyboard',
+	// 	gradient: GradientColours.VIOLET,
+	// },
+	// {
+	// 	name: 'Play Piano',
+	// 	icon: { family: 'materialcommunity', name: 'piano' },
+	// 	emoji: 'musical_keyboard',
+	// 	gradient: GradientColours.SKY,
+	// },
+	// {
+	// 	name: 'Play Piano',
+	// 	icon: { family: 'materialcommunity', name: 'piano' },
+	// 	emoji: 'musical_keyboard',
+	// 	gradient: GradientColours.GREEN,
+	// },
+	// {
+	// 	name: 'Play Piano',
+	// 	icon: { family: 'materialcommunity', name: 'piano' },
+	// 	emoji: 'musical_keyboard',
+	// 	gradient: GradientColours.LIME,
+	// },
 ];
 
 interface HabitProps {
 	name: string;
 	icon: Partial<IconProps>;
-	emoji: string;
+	emoji?: string;
 	colour?: string;
 	gradient: GradientType;
+	progress?: number;
 }
 
-const Habit = ({ name, icon, colour, emoji, gradient }: HabitProps) => {
+const Habit = ({ name, icon, colour, emoji, gradient, progress }: HabitProps) => {
 	const growAnim = useRef(new Animated.Value(0)).current;
 	const interpolatedSize = growAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 18] });
-	const [count, setCount] = useState(0);
+	const [count, setCount] = useState(progress ? progress : 0);
 	const [complete, setComplete] = useState(false);
 
 	const { colors } = useTheme();
@@ -158,6 +163,7 @@ const Habit = ({ name, icon, colour, emoji, gradient }: HabitProps) => {
 	};
 
 	const toggleComplete = () => {
+		if (!complete) impactAsync(ImpactFeedbackStyle.Heavy);
 		setCount(complete ? 0 : 1);
 		setComplete(!complete);
 	};
@@ -177,14 +183,16 @@ const Habit = ({ name, icon, colour, emoji, gradient }: HabitProps) => {
 
 				justifyContent: 'space-between',
 				margin: 5,
-			}}>
+			}}
+		>
 			<View
 				style={{
 					display: 'flex',
 					flexDirection: 'row',
 					alignItems: 'center',
 					flex: 1,
-				}}>
+				}}
+			>
 				<View
 					style={{
 						display: 'flex',
@@ -194,7 +202,8 @@ const Habit = ({ name, icon, colour, emoji, gradient }: HabitProps) => {
 						width: dimensions,
 						borderRadius: dimensions,
 						margin: 15,
-					}}>
+					}}
+				>
 					{/* <Emoji name={emoji} style={{ fontSize: 18, position: 'absolute', zIndex: 1 }} /> */}
 					<Icon
 						family={icon.family}
@@ -211,7 +220,8 @@ const Habit = ({ name, icon, colour, emoji, gradient }: HabitProps) => {
 							transform: [{ scale: interpolatedSize }],
 							overflow: 'hidden',
 							borderRadius: 700,
-						}}>
+						}}
+					>
 						<LinearGradient
 							colors={[gradient.start, gradient.end]}
 							locations={[0.5, 1]}
@@ -227,7 +237,8 @@ const Habit = ({ name, icon, colour, emoji, gradient }: HabitProps) => {
 				<View
 					style={{
 						flex: 1,
-					}}>
+					}}
+				>
 					<TextTicker
 						style={{
 							fontFamily: 'Montserrat_600SemiBold',
@@ -239,7 +250,8 @@ const Habit = ({ name, icon, colour, emoji, gradient }: HabitProps) => {
 						duration={3000}
 						bounceDelay={1500}
 						marqueeDelay={1000}
-						bouncePadding={{ left: 0, right: 0 }}>
+						bouncePadding={{ left: 0, right: 0 }}
+					>
 						{name}
 					</TextTicker>
 				</View>
