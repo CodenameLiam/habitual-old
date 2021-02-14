@@ -17,6 +17,7 @@ import CalendarSreen from '../Screens/CalendarScreen';
 import { AppNavProps } from './AppNavigation';
 import TrendsScreen from '../Screens/Trends';
 import AwardsScreen from '../Screens/AwardsScreen';
+import { GradientColours } from '../Styles/Colours';
 
 export type TabParamList = {
 	Home: undefined;
@@ -48,7 +49,8 @@ export default function TabNavigation({ navigation, route }: AppProps) {
 					style={{ backgroundColor: colors.background }}
 					{...props}
 				/>
-			)}>
+			)}
+		>
 			<Tab.Screen name='Home' component={HomeScreen} />
 			<Tab.Screen name='Calendar' component={CalendarSreen} />
 			<Tab.Screen name='Trends' component={TrendsScreen} />
@@ -57,41 +59,48 @@ export default function TabNavigation({ navigation, route }: AppProps) {
 	);
 }
 
+const tabColours = {
+	HOME: GradientColours.PURPLE.solid,
+	CALENDAR: GradientColours.PINK.solid,
+	TRENDS: GradientColours.ORANGE.solid,
+	AWARDS: GradientColours.BLUE.solid,
+};
+
 const tabs: TabsConfig<FlashyTabBarItemConfig> = {
 	Home: {
 		labelStyle: {
-			color: '#ffafcc',
+			color: tabColours.HOME,
 		},
 		icon: {
-			component: () => <Feather name='home' size={20} color='#ffafcc' />,
-			color: '#ffafcc',
+			component: () => <Feather name='home' size={20} color={tabColours.HOME} />,
+			color: tabColours.HOME,
 		},
 	},
 	Calendar: {
 		labelStyle: {
-			color: '#f4a261',
+			color: tabColours.CALENDAR,
 		},
 		icon: {
-			component: () => <Feather name='calendar' size={20} color='#f4a261' />,
-			color: '#f4a261',
+			component: () => <Feather name='calendar' size={20} color={tabColours.CALENDAR} />,
+			color: tabColours.CALENDAR,
 		},
 	},
 	Trends: {
 		labelStyle: {
-			color: '#fcbf49',
+			color: tabColours.TRENDS,
 		},
 		icon: {
-			component: () => <Entypo name='line-graph' size={20} color='#fcbf49' />,
-			color: '#fcbf49',
+			component: () => <Entypo name='line-graph' size={20} color={tabColours.TRENDS} />,
+			color: tabColours.TRENDS,
 		},
 	},
 	Awards: {
 		labelStyle: {
-			color: '#4cc9f0',
+			color: tabColours.AWARDS,
 		},
 		icon: {
-			component: () => <Feather name='award' size={20} color='#4cc9f0' />,
-			color: '#4cc9f0',
+			component: () => <Feather name='award' size={20} color={tabColours.AWARDS} />,
+			color: tabColours.AWARDS,
 		},
 	},
 };

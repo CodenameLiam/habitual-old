@@ -1,10 +1,25 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, Button, Animated, Easing, Text } from 'react-native';
+import React, { createRef, useCallback, useEffect, useRef, useState } from 'react';
+import {
+	View,
+	Button,
+	Animated,
+	Easing,
+	Text,
+	StyleSheet,
+	Dimensions,
+	TouchableWithoutFeedback,
+	TouchableOpacity,
+} from 'react-native';
 import { RouteProp, useFocusEffect, useTheme } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { TabParamList } from '../Navigation/TabNavigation';
 import { Entypo } from '@expo/vector-icons';
-import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import {
+	PanGestureHandler,
+	PanGestureHandlerGestureEvent,
+	RectButton,
+	ScrollView,
+} from 'react-native-gesture-handler';
 import Icon, { IconProps } from '../Components/Icon';
 import TextTicker from 'react-native-text-ticker';
 import Emoji from 'react-native-emoji';
@@ -13,6 +28,8 @@ import { GradientColours, GradientType } from '../Styles/Colours';
 import { FontAwesome } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
+import Swipeable from 'react-native-gesture-handler/Swipeable';
+import { round } from 'react-native-reanimated';
 
 type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
 type HomeRouteProps = RouteProp<TabParamList, 'Home'>;
@@ -44,10 +61,10 @@ export default function HomeScreen({ navigation }: HomeProps) {
 						key={index}
 						name={habit.name}
 						icon={habit.icon}
-						colour={habit.colour}
-						emoji={habit.emoji}
 						gradient={habit.gradient}
 						progress={habit.progress}
+						progressTotal={habit.progressTotal}
+						type={habit.type}
 					/>
 				))}
 			</View>
@@ -57,18 +74,28 @@ export default function HomeScreen({ navigation }: HomeProps) {
 
 const HabitMap: HabitProps[] = [
 	{
-		name: 'Read a Book for 15 minutes a day ',
+		name: 'Read',
 		icon: { family: 'feather', name: 'book' },
-		emoji: 'orange_book',
 		gradient: GradientColours.RED,
-		progress: 0.3,
+		progress: 1,
+		progressTotal: 1,
+		type: 'check',
 	},
 	{
-		name: 'Read a Book for 15 minutes a day ',
+		name: 'Eat Veggies',
 		icon: { family: 'feather', name: 'book-open' },
-		emoji: 'orange_book',
-		gradient: GradientColours.PURPLE,
-		progress: 0.5,
+		gradient: GradientColours.PEACH,
+		progress: 1,
+		progressTotal: 3,
+		type: 'count',
+	},
+	{
+		name: 'Eat Veggies',
+		icon: { family: 'feather', name: 'book-open' },
+		gradient: GradientColours.LIME,
+		progress: 0,
+		progressTotal: 6,
+		type: 'count',
 	},
 	// {
 	// 	name: 'Play Piano',
@@ -132,137 +159,263 @@ const HabitMap: HabitProps[] = [
 	// },
 ];
 
+type HabitType = 'check' | 'count' | 'timer';
+
 interface HabitProps {
 	name: string;
 	icon: Partial<IconProps>;
-	emoji?: string;
-	colour?: string;
 	gradient: GradientType;
-	progress?: number;
+	progress: number;
+	progressTotal: number;
+	type: HabitType;
 }
 
-const Habit = ({ name, icon, colour, emoji, gradient, progress }: HabitProps) => {
-	const growAnim = useRef(new Animated.Value(0)).current;
-	const interpolatedSize = growAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 18] });
-	const [count, setCount] = useState(progress ? progress : 0);
-	const [complete, setComplete] = useState(false);
+const HabitMaxInterpolation = Dimensions.get('window').width - 100;
 
+const Habit = ({ name, icon, gradient, progress, progressTotal, type }: HabitProps) => {
 	const { colors } = useTheme();
+	const [count, setCount] = useState(progress);
+	const [animatedCount, setAnimatedCount] = useState(progress);
+	const [complete, setComplete] = useState(false);
+	const [showCounter, setShowCounter] = useState(false);
+
+	const progressAnimation = useRef(new Animated.Value(0)).current;
+	const panRef = useRef<PanGestureHandler>(null);
+	let interpolatedSize = progressAnimation.interpolate({
+		inputRange: [0, progressTotal],
+		outputRange: [1, 18],
+	});
+
+	// console.log(stopPoints);
+	const [stopPoint, setStopPoint] = useState(progress + 0.5);
 
 	useEffect(() => {
-		grow();
+		animateProgress();
 	}, [count]);
 
-	const grow = () => {
-		Animated.timing(growAnim, {
+	const animateProgress = () => {
+		Animated.timing(progressAnimation, {
 			toValue: count,
 			duration: 500,
 			useNativeDriver: true,
 			easing: Easing.out(Easing.quad),
 		}).start();
+		count >= progressTotal ? setComplete(true) : setComplete(false);
+	};
+
+	const handlePress = () => {
+		if (type == 'count' && !complete) {
+			setCount(count + 1);
+			impactAsync(ImpactFeedbackStyle.Heavy);
+			setShowCounter(true);
+		} else {
+			toggleComplete();
+		}
 	};
 
 	const toggleComplete = () => {
-		if (!complete) impactAsync(ImpactFeedbackStyle.Heavy);
-		setCount(complete ? 0 : 1);
+		if (!complete) {
+			impactAsync(ImpactFeedbackStyle.Heavy);
+		}
+		setCount(complete ? 0 : progressTotal);
+		setAnimatedCount(complete ? 0 : progressTotal);
+		setStopPoint(complete ? 0.5 : stopPoint);
 		setComplete(!complete);
+		setShowCounter(false);
 	};
 
 	const dimensions = 35;
 
-	return (
-		<View
-			style={{
-				backgroundColor: colors.card,
-				height: 70,
-				borderRadius: 10,
-				overflow: 'hidden',
-				display: 'flex',
-				flexDirection: 'row',
-				alignItems: 'center',
-
-				justifyContent: 'space-between',
-				margin: 5,
-			}}
-		>
-			<View
+	const renderRightActions = (progress: Animated.AnimatedInterpolation) => {
+		const trans = progress.interpolate({
+			inputRange: [0, 1],
+			outputRange: [192, 0],
+			extrapolate: 'clamp',
+		});
+		return (
+			<Animated.View
 				style={{
-					display: 'flex',
 					flexDirection: 'row',
-					alignItems: 'center',
-					flex: 1,
+					transform: [{ translateX: trans }],
+					width: 192,
 				}}
 			>
-				<View
+				<RectButton style={[styles.rightAction]}>
+					<Text style={styles.actionText}>"Test</Text>
+				</RectButton>
+			</Animated.View>
+		);
+	};
+
+	const handleGesture = (event: PanGestureHandlerGestureEvent) => {
+		const interpolateX =
+			animatedCount +
+			(event.nativeEvent.translationX / HabitMaxInterpolation) * progressTotal;
+
+		// @ts-ignore
+		let value = Math.min(Math.max(interpolateX, 0), progressTotal);
+		progressAnimation.setValue(value);
+
+		if (value >= stopPoint && !complete && stopPoint == progressTotal - 0.5) {
+			impactAsync(ImpactFeedbackStyle.Heavy);
+			setComplete(true);
+			setCount(progressTotal);
+		}
+		if (complete && value < stopPoint && stopPoint == 0.5) {
+			setComplete(false);
+			setCount(progressTotal - 1);
+		}
+
+		if (type == 'count') {
+			if (value < stopPoint - 1) {
+				setCount(count - 1);
+				setStopPoint(stopPoint - 1);
+			}
+			if (value > stopPoint && stopPoint < progressTotal) {
+				setCount(count + 1);
+				setStopPoint(stopPoint + 1);
+				impactAsync(ImpactFeedbackStyle.Heavy);
+			}
+		}
+	};
+
+	const handleGestureEnd = (event: PanGestureHandlerGestureEvent) => {
+		if (event.nativeEvent.state == 5) {
+			animateProgress();
+			setAnimatedCount(count);
+		} else if (event.nativeEvent.state == 2 && type !== 'check') {
+			setShowCounter(true);
+		}
+	};
+
+	return (
+		<Swipeable renderRightActions={renderRightActions} waitFor={panRef}>
+			<PanGestureHandler
+				ref={panRef}
+				activeOffsetX={[-1000, 20]}
+				failOffsetX={[0, 1000]}
+				minDeltaX={0}
+				onGestureEvent={handleGesture}
+				onHandlerStateChange={handleGestureEnd}
+			>
+				<Animated.View
 					style={{
+						backgroundColor: colors.card,
+						height: 70,
+						borderRadius: 10,
+						overflow: 'hidden',
 						display: 'flex',
+						flexDirection: 'row',
 						alignItems: 'center',
-						justifyContent: 'center',
-						height: dimensions,
-						width: dimensions,
-						borderRadius: dimensions,
-						margin: 15,
+
+						justifyContent: 'space-between',
+						margin: 5,
 					}}
 				>
-					{/* <Emoji name={emoji} style={{ fontSize: 18, position: 'absolute', zIndex: 1 }} /> */}
-					<Icon
-						family={icon.family}
-						name={icon.name}
-						size={18}
-						colour={colors.text}
-						style={{ position: 'absolute', zIndex: 1 }}
-					/>
-					<Animated.View
+					<TouchableWithoutFeedback
+						onPress={() => console.log('Press')}
 						style={{
-							backgroundColor: gradient.solid,
-							height: 35,
-							width: 35,
-							transform: [{ scale: interpolatedSize }],
-							overflow: 'hidden',
-							borderRadius: 700,
+							flex: 1,
 						}}
 					>
-						<LinearGradient
-							colors={[gradient.start, gradient.end]}
-							locations={[0.5, 1]}
+						<View
 							style={{
+								display: 'flex',
+								flexDirection: 'row',
+								alignItems: 'center',
 								flex: 1,
 							}}
-							start={{ x: 0, y: 0 }}
-							end={{ x: 1, y: 0 }}
-						/>
-					</Animated.View>
-				</View>
+						>
+							<View
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									height: dimensions,
+									width: dimensions,
+									margin: 15,
+								}}
+							>
+								<Icon
+									family={icon.family}
+									name={icon.name}
+									size={18}
+									colour={colors.text}
+									style={{ position: 'absolute', zIndex: 1 }}
+								/>
+								<Animated.View
+									style={{
+										backgroundColor: gradient.solid,
+										height: 35,
+										width: 35,
+										transform: [{ scale: interpolatedSize }],
+										overflow: 'hidden',
+										borderRadius: 700,
+									}}
+								>
+									<LinearGradient
+										colors={[gradient.start, gradient.end]}
+										locations={[0.5, 1]}
+										style={{
+											flex: 1,
+										}}
+										start={{ x: 0, y: 0 }}
+										end={{ x: 1, y: 0 }}
+									/>
+								</Animated.View>
+							</View>
+							<TextTicker
+								style={{
+									fontFamily: 'Montserrat_600SemiBold',
+									fontSize: 18,
+									color: colors.text,
+								}}
+								scroll={false}
+								animationType='bounce'
+								duration={3000}
+								bounceDelay={1500}
+								marqueeDelay={1000}
+								bouncePadding={{ left: 0, right: 0 }}
+							>
+								{name}
+							</TextTicker>
+						</View>
+					</TouchableWithoutFeedback>
 
-				<View
-					style={{
-						flex: 1,
-					}}
-				>
-					<TextTicker
-						style={{
-							fontFamily: 'Montserrat_600SemiBold',
-							fontSize: 18,
-							color: colors.text,
-						}}
-						scroll
-						animationType='bounce'
-						duration={3000}
-						bounceDelay={1500}
-						marqueeDelay={1000}
-						bouncePadding={{ left: 0, right: 0 }}
-					>
-						{name}
-					</TextTicker>
-				</View>
-			</View>
-			<TouchableOpacity onPress={toggleComplete} style={{ padding: 26 }}>
-				{complete ? (
-					<Entypo name='check' size={20} color={colors.text} />
-				) : (
-					<FontAwesome name='circle-o' size={14} color={colors.text} />
-				)}
-			</TouchableOpacity>
-		</View>
+					<TouchableOpacity onPress={handlePress} style={{ padding: 26 }}>
+						{complete ? (
+							<Entypo name='check' size={20} color={colors.text} />
+						) : showCounter ? (
+							<Text
+								style={{ fontFamily: 'Montserrat_600SemiBold', color: colors.text }}
+							>
+								{type == 'count' ? `${count}/${progressTotal}` : 'Time'}
+							</Text>
+						) : (
+							<FontAwesome name='circle-o' size={14} color={colors.text} />
+						)}
+					</TouchableOpacity>
+				</Animated.View>
+			</PanGestureHandler>
+		</Swipeable>
 	);
 };
+
+const styles = StyleSheet.create({
+	leftAction: {
+		flex: 1,
+		backgroundColor: '#497AFC',
+		justifyContent: 'center',
+	},
+	actionText: {
+		color: 'white',
+		fontSize: 16,
+		backgroundColor: 'transparent',
+		padding: 10,
+	},
+	rightAction: {
+		alignItems: 'center',
+		flex: 1,
+		justifyContent: 'center',
+	},
+});
