@@ -65,6 +65,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
 						progress={habit.progress}
 						progressTotal={habit.progressTotal}
 						type={habit.type}
+						timeType={habit.timeType}
 					/>
 				))}
 			</View>
@@ -86,7 +87,7 @@ const HabitMap: HabitProps[] = [
 		icon: { family: 'feather', name: 'book-open' },
 		gradient: GradientColours.PEACH,
 		progress: 1,
-		progressTotal: 3,
+		progressTotal: 30,
 		type: 'count',
 	},
 	{
@@ -94,8 +95,8 @@ const HabitMap: HabitProps[] = [
 		icon: { family: 'feather', name: 'book-open' },
 		gradient: GradientColours.LIME,
 		progress: 0,
-		progressTotal: 6,
-		type: 'count',
+		progressTotal: 30,
+		type: 'timer',
 	},
 	// {
 	// 	name: 'Play Piano',
@@ -160,6 +161,7 @@ const HabitMap: HabitProps[] = [
 ];
 
 type HabitType = 'check' | 'count' | 'timer';
+type TimeType = 's' | 'm' | 'h';
 
 interface HabitProps {
 	name: string;
@@ -168,16 +170,17 @@ interface HabitProps {
 	progress: number;
 	progressTotal: number;
 	type: HabitType;
+	timeType?: TimeType;
 }
 
 const HabitMaxInterpolation = Dimensions.get('window').width - 100;
 
-const Habit = ({ name, icon, gradient, progress, progressTotal, type }: HabitProps) => {
+const Habit = ({ name, icon, gradient, progress, progressTotal, type, timeType }: HabitProps) => {
 	const { colors } = useTheme();
 	const [count, setCount] = useState(progress);
 	const [animatedCount, setAnimatedCount] = useState(progress);
 	const [complete, setComplete] = useState(false);
-	const [showCounter, setShowCounter] = useState(false);
+	const [showCounter, setShowCounter] = useState(progress > 0 ? true : false);
 
 	const progressAnimation = useRef(new Animated.Value(0)).current;
 	const panRef = useRef<PanGestureHandler>(null);
@@ -186,12 +189,21 @@ const Habit = ({ name, icon, gradient, progress, progressTotal, type }: HabitPro
 		outputRange: [1, 18],
 	});
 
-	// console.log(stopPoints);
 	const [stopPoint, setStopPoint] = useState(progress + 0.5);
+	const [timerStart, setTimerStart] = useState(false);
+	let interval: NodeJS.Timeout;
 
 	useEffect(() => {
 		animateProgress();
-	}, [count]);
+		if (timerStart && type == 'timer') {
+			interval = setInterval(() => {
+				setCount(count + 1);
+			}, 200);
+		}
+		return () => {
+			clearInterval(interval);
+		};
+	}, [count, timerStart]);
 
 	const animateProgress = () => {
 		Animated.timing(progressAnimation, {
@@ -200,7 +212,16 @@ const Habit = ({ name, icon, gradient, progress, progressTotal, type }: HabitPro
 			useNativeDriver: true,
 			easing: Easing.out(Easing.quad),
 		}).start();
-		count >= progressTotal ? setComplete(true) : setComplete(false);
+		checkComplete();
+	};
+
+	const checkComplete = () => {
+		if (count >= progressTotal) {
+			setComplete(true);
+			setTimerStart(false);
+		} else {
+			setComplete(false);
+		}
 	};
 
 	const handlePress = () => {
@@ -208,6 +229,16 @@ const Habit = ({ name, icon, gradient, progress, progressTotal, type }: HabitPro
 			setCount(count + 1);
 			impactAsync(ImpactFeedbackStyle.Heavy);
 			setShowCounter(true);
+		} else if (type == 'timer' && !complete) {
+			if (timerStart == false) {
+				impactAsync(ImpactFeedbackStyle.Heavy);
+				setShowCounter(true);
+				setTimerStart(true);
+			} else {
+				setTimerStart(false);
+				setStopPoint(count + 0.5);
+				setAnimatedCount(count);
+			}
 		} else {
 			toggleComplete();
 		}
@@ -222,6 +253,7 @@ const Habit = ({ name, icon, gradient, progress, progressTotal, type }: HabitPro
 		setStopPoint(complete ? 0.5 : stopPoint);
 		setComplete(!complete);
 		setShowCounter(false);
+		setTimerStart(false);
 	};
 
 	const dimensions = 35;
@@ -248,33 +280,68 @@ const Habit = ({ name, icon, gradient, progress, progressTotal, type }: HabitPro
 	};
 
 	const handleGesture = (event: PanGestureHandlerGestureEvent) => {
-		const interpolateX =
-			animatedCount +
-			(event.nativeEvent.translationX / HabitMaxInterpolation) * progressTotal;
-
-		// @ts-ignore
-		let value = Math.min(Math.max(interpolateX, 0), progressTotal);
-		progressAnimation.setValue(value);
-
-		if (value >= stopPoint && !complete && stopPoint == progressTotal - 0.5) {
+		if (event.nativeEvent.velocityX > 1000) {
 			impactAsync(ImpactFeedbackStyle.Heavy);
 			setComplete(true);
 			setCount(progressTotal);
-		}
-		if (complete && value < stopPoint && stopPoint == 0.5) {
-			setComplete(false);
-			setCount(progressTotal - 1);
-		}
-
-		if (type == 'count') {
-			if (value < stopPoint - 1) {
-				setCount(count - 1);
-				setStopPoint(stopPoint - 1);
+		} else {
+			if (showCounter == false) {
+				setShowCounter(true);
 			}
-			if (value > stopPoint && stopPoint < progressTotal) {
-				setCount(count + 1);
-				setStopPoint(stopPoint + 1);
+
+			if (timerStart) {
+				return;
+			}
+
+			console.log('Anim: :' + animatedCount);
+			console.log('Count: ' + count);
+
+			const interpolateX =
+				animatedCount +
+				(event.nativeEvent.translationX / HabitMaxInterpolation) * progressTotal;
+
+			// @ts-ignore
+			let value = Math.min(Math.max(interpolateX, 0), progressTotal);
+			progressAnimation.setValue(value);
+
+			if (value >= stopPoint && !complete && stopPoint == progressTotal - 0.5) {
 				impactAsync(ImpactFeedbackStyle.Heavy);
+				setComplete(true);
+				setCount(progressTotal);
+				setTimerStart(false);
+				return;
+			}
+			if (complete && value < stopPoint && stopPoint == 0.5) {
+				setComplete(false);
+				setCount(progressTotal - 1);
+				return;
+			}
+
+			if (type == 'count') {
+				if (value < stopPoint - 1) {
+					setCount(count - 1);
+					setStopPoint(stopPoint - 1);
+				}
+				if (value > stopPoint && stopPoint < progressTotal) {
+					setCount(count + 1);
+					setStopPoint(stopPoint + 1);
+					impactAsync(ImpactFeedbackStyle.Medium);
+				}
+				return;
+			}
+
+			if (type == 'timer') {
+				// console.log(count);
+				if (value < stopPoint - 1) {
+					setCount(count - 1);
+					setStopPoint(stopPoint - 1);
+				}
+				if (value > stopPoint && stopPoint < progressTotal) {
+					setCount(count + 1);
+					setStopPoint(stopPoint + 1);
+					impactAsync(ImpactFeedbackStyle.Light);
+				}
+				return;
 			}
 		}
 	};
@@ -284,7 +351,8 @@ const Habit = ({ name, icon, gradient, progress, progressTotal, type }: HabitPro
 			animateProgress();
 			setAnimatedCount(count);
 		} else if (event.nativeEvent.state == 2 && type !== 'check') {
-			setShowCounter(true);
+			// console.log(count);
+			// console.log(animatedCount);
 		}
 	};
 
@@ -389,8 +457,17 @@ const Habit = ({ name, icon, gradient, progress, progressTotal, type }: HabitPro
 							<Text
 								style={{ fontFamily: 'Montserrat_600SemiBold', color: colors.text }}
 							>
-								{type == 'count' ? `${count}/${progressTotal}` : 'Time'}
+								{type == 'count'
+									? `${count}/${progressTotal}`
+									: `${count}/${progressTotal}s`}
 							</Text>
+						) : type == 'timer' ? (
+							<Icon
+								family='antdesign'
+								name='clockcircle'
+								size={12}
+								colour={colors.text}
+							/>
 						) : (
 							<FontAwesome name='circle-o' size={14} color={colors.text} />
 						)}
