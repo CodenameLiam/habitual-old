@@ -10,13 +10,10 @@ import {
 	Button,
 	Dimensions,
 	StyleSheet,
-	ViewComponent,
-} from 'react-native';
-import {
-	TextInput,
 	TouchableOpacity,
-	TouchableWithoutFeedback,
-} from 'react-native-gesture-handler';
+	TouchableHighlight,
+} from 'react-native';
+import { TextInput, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Animated, { color } from 'react-native-reanimated';
 import { ColourPicker, randomGradient } from '../Components/ColourPicker';
 import Icon, { IconProps } from '../Components/Icon';
@@ -33,6 +30,9 @@ import {
 	WEEKDAY_SCHEDULE,
 	WEEKEND_SCHEDULE,
 } from '../Components/Scheduler';
+import { createHabit } from '../Storage/HabitController';
+import { HabitProps } from '../Components/Habit';
+import { getRandomBytes } from 'expo-random';
 
 interface CreateProps {
 	navigation: AppNavProps;
@@ -59,6 +59,21 @@ export default function CreateScreen({ navigation }: CreateProps) {
 
 	const openSheet = () => {
 		sheetRef.current && sheetRef.current.snapTo(0);
+	};
+
+	const handleSave = () => {
+		// console.log(getRandomBytes(8).join(''));
+
+		const habit: HabitProps = {
+			id: getRandomBytes(8).join(''),
+			name: 'Test',
+			icon: { family: 'feather', name: 'book' },
+			gradient: gradient,
+			progress: 0,
+			progressTotal: 1,
+			type: 'check',
+		};
+		createHabit(habit);
 	};
 
 	return (
@@ -120,6 +135,36 @@ export default function CreateScreen({ navigation }: CreateProps) {
 							colour={gradient.solid}
 						/>
 					</Card>
+
+					<TouchableOpacity
+						onPress={handleSave}
+						style={{
+							display: 'flex',
+							height: 50,
+							flex: 1,
+							borderRadius: 100,
+							overflow: 'hidden',
+							justifyContent: 'center',
+							alignItems: 'center',
+							margin: 10,
+						}}
+					>
+						<LinearGradient
+							colors={[gradient.start, gradient.end]}
+							style={globalStyles.gradient}
+							start={{ x: 0, y: 0 }}
+							end={{ x: 1, y: 0 }}
+						/>
+						<Text
+							style={{
+								fontFamily: 'Montserrat_600SemiBold',
+								fontSize: 20,
+								color: colors.text,
+							}}
+						>
+							Save
+						</Text>
+					</TouchableOpacity>
 				</View>
 			</ScrollView>
 			<BottomSheet

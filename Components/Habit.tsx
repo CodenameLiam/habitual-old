@@ -10,6 +10,7 @@ import {
 	Easing,
 	TouchableOpacity,
 	TouchableWithoutFeedback,
+	StyleSheet,
 } from 'react-native';
 import {
 	PanGestureHandler,
@@ -22,38 +23,38 @@ import { GradientColours, GradientType } from '../Styles/Colours';
 import Icon, { IconProps } from './Icon';
 
 const HabitMap: HabitProps[] = [
-	{
-		name: 'Read',
-		icon: { family: 'feather', name: 'book' },
-		gradient: GradientColours.RED,
-		progress: 0,
-		progressTotal: 1,
-		type: 'check',
-	},
-	{
-		name: 'Eat Veggies',
-		icon: { family: 'feather', name: 'book-open' },
-		gradient: GradientColours.PEACH,
-		progress: 1,
-		progressTotal: 4,
-		type: 'count',
-	},
-	{
-		name: 'Eat Veggies a really long string',
-		icon: { family: 'feather', name: 'book-open' },
-		gradient: GradientColours.LIME,
-		progress: 4,
-		progressTotal: 30,
-		type: 'timer',
-	},
-	{
-		name: 'Mediate',
-		icon: { family: 'feather', name: 'book-open' },
-		gradient: GradientColours.ORANGE,
-		progress: 0,
-		progressTotal: 120,
-		type: 'timer',
-	},
+	// {
+	// 	name: 'Read',
+	// 	icon: { family: 'feather', name: 'book' },
+	// 	gradient: GradientColours.RED,
+	// 	progress: 0,
+	// 	progressTotal: 1,
+	// 	type: 'check',
+	// },
+	// {
+	// 	name: 'Eat Veggies',
+	// 	icon: { family: 'feather', name: 'book-open' },
+	// 	gradient: GradientColours.PEACH,
+	// 	progress: 1,
+	// 	progressTotal: 4,
+	// 	type: 'count',
+	// },
+	// {
+	// 	name: 'Eat Veggies a really long string',
+	// 	icon: { family: 'feather', name: 'book-open' },
+	// 	gradient: GradientColours.LIME,
+	// 	progress: 4,
+	// 	progressTotal: 30,
+	// 	type: 'timer',
+	// },
+	// {
+	// 	name: 'Mediate',
+	// 	icon: { family: 'feather', name: 'book-open' },
+	// 	gradient: GradientColours.ORANGE,
+	// 	progress: 0,
+	// 	progressTotal: 120,
+	// 	type: 'timer',
+	// },
 	// {
 	// 	name: 'Play Piano',
 	// 	icon: { family: 'materialcommunity', name: 'piano' },
@@ -118,7 +119,8 @@ const HabitMap: HabitProps[] = [
 
 type HabitType = 'check' | 'count' | 'timer';
 
-interface HabitProps {
+export interface HabitProps {
+	id: string;
 	name: string;
 	icon: Partial<IconProps>;
 	gradient: GradientType;
@@ -416,7 +418,7 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 
 					<TouchableOpacity onPress={handlePress} style={{ padding: 26 }}>
 						{complete ? (
-							<Entypo name='check' size={18} color={colors.text} />
+							<Icon family='entypo' name='check' size={18} colour={colors.text} />
 						) : showCounter ? (
 							<Text
 								style={{ fontFamily: 'Montserrat_600SemiBold', color: colors.text }}

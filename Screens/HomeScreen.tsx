@@ -31,6 +31,8 @@ import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { round } from 'react-native-reanimated';
 import { Habit } from '../Components/Habit';
+import { useHabits } from '../Storage/HabitController';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
 type HomeRouteProps = RouteProp<TabParamList, 'Home'>;
@@ -41,7 +43,13 @@ interface HomeProps {
 }
 
 export default function HomeScreen({ navigation }: HomeProps) {
+	const { habits, setHabits, refetch } = useHabits();
+
+	console.log(habits);
+
 	const [day] = useState('Today');
+
+	// AsyncStorage.clear();
 
 	useFocusEffect(
 		useCallback(() => {
@@ -57,17 +65,20 @@ export default function HomeScreen({ navigation }: HomeProps) {
 	return (
 		<ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
 			<View style={{ flex: 1, padding: 10 }}>
-				{/* {HabitMap.map((habit, index) => (
-					<Habit
-						key={index}
-						name={habit.name}
-						icon={habit.icon}
-						gradient={habit.gradient}
-						progress={habit.progress}
-						progressTotal={habit.progressTotal}
-						type={habit.type}
-					/>
-				))} */}
+				<Button title='Refetch' onPress={() => refetch()} />
+				{habits &&
+					habits.map((habit) => (
+						<Habit
+							key={habit.id}
+							id={habit.id}
+							name={habit.name}
+							icon={habit.icon}
+							gradient={habit.gradient}
+							progress={habit.progress}
+							progressTotal={habit.progressTotal}
+							type={habit.type}
+						/>
+					))}
 			</View>
 		</ScrollView>
 	);
