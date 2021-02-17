@@ -14,9 +14,16 @@ export const GreyColours = {
 	GREY6: '#222222',
 };
 
+export const TabColours = {
+	HOME: '#edc7aa',
+	CALENDAR: '#e7b59f',
+	TRENDS: '#F1A7F1',
+	AWARDS: '#95c9d9',
+};
+
 export const GradientColours = {
 	MIDNIGHT: {
-		start: '#785df6',
+		start: '#8f79f8',
 		end: '#bf7df3',
 		solid: '#9268f5',
 	},
@@ -25,20 +32,22 @@ export const GradientColours = {
 		end: '#fd5e96',
 		solid: '#fd5785',
 	},
-	TANGERINE: {
-		start: '#fab66b',
-		end: '#ffe187',
-		solid: '#fab66b',
-	},
+
 	ORANGE: {
-		start: '#f8ce8d',
-		end: '#f9868b',
-		solid: '#f8b78c',
+		start: '#FB7BA2',
+		end: '#f7dc6e',
+		solid: '#f09a75',
+	},
+
+	TANGERINE: {
+		start: '#fbbf60',
+		end: '#fde293',
+		solid: '#fde293',
 	},
 	PEACH: {
-		start: '#f07890',
-		end: '#ffedbc',
-		solid: '#f59e9e',
+		start: '#F1A7F1',
+		end: '#FAD0C4',
+		solid: '#F1A7F1',
 	},
 	PINK: {
 		start: '#f6bde0',
@@ -53,26 +62,28 @@ export const GradientColours = {
 	BLUE: {
 		start: '#9faff8',
 		end: '#5772f7',
-		solid: '#a1c4fd',
-	},
-	VIOLET: {
-		start: '#b595f5',
-		end: '#89e4fe',
-		solid: '#b595f5',
+		solid: '#9faff8',
 	},
 	SKY: {
-		start: '#82b5fd',
-		end: '#89f7fe',
-		solid: '#81e5fe',
+		start: '#83EAF1',
+		end: '#63A4FF',
+		solid: '#83EAF1',
+	},
+	LIME: {
+		start: '#1cfdab',
+		end: '#CEF576',
+		solid: '#7af98f',
 	},
 	GREEN: {
 		start: '#49d7b4',
-		end: '#b7f8db',
-		solid: '#6fe3c1',
+		end: '#1cfdab',
+		solid: '#49d7b4',
 	},
-	LIME: {
-		start: '#a9ef6a',
-		end: '#70efa1',
-		solid: '#70efa1',
+	AQUA: {
+		start: '#39E5B6',
+		end: '#0499F2',
+		solid: '#2de5c9',
 	},
 };
+// background-color: #dbf26e;
+// background-image: linear-gradient(319deg, #dbf26e 0%, #61fa74 37%, #1cfdd6 100%);

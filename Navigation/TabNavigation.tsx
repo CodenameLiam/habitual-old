@@ -17,7 +17,7 @@ import CalendarSreen from '../Screens/CalendarScreen';
 import { AppNavProps } from './AppNavigation';
 import TrendsScreen from '../Screens/Trends';
 import AwardsScreen from '../Screens/AwardsScreen';
-import { GradientColours } from '../Styles/Colours';
+import { GradientColours, TabColours } from '../Styles/Colours';
 
 export type TabParamList = {
 	Home: undefined;
@@ -49,8 +49,7 @@ export default function TabNavigation({ navigation, route }: AppProps) {
 					style={{ backgroundColor: colors.background }}
 					{...props}
 				/>
-			)}
-		>
+			)}>
 			<Tab.Screen name='Home' component={HomeScreen} />
 			<Tab.Screen name='Calendar' component={CalendarSreen} />
 			<Tab.Screen name='Trends' component={TrendsScreen} />
@@ -59,48 +58,48 @@ export default function TabNavigation({ navigation, route }: AppProps) {
 	);
 }
 
-const tabColours = {
-	HOME: GradientColours.PURPLE.solid,
-	CALENDAR: GradientColours.PINK.solid,
-	TRENDS: GradientColours.ORANGE.solid,
-	AWARDS: GradientColours.BLUE.solid,
-};
+// const TabColours = {
+// 	HOME: GradientColours.PEACH.solid,
+// 	CALENDAR: GradientColours.PEACH.solid,
+// 	TRENDS: GradientColours.PEACH.solid,
+// 	AWARDS: GradientColours.PEACH.solid,
+// };
 
 const tabs: TabsConfig<FlashyTabBarItemConfig> = {
 	Home: {
 		labelStyle: {
-			color: tabColours.HOME,
+			color: TabColours.HOME,
 		},
 		icon: {
-			component: () => <Feather name='home' size={20} color={tabColours.HOME} />,
-			color: tabColours.HOME,
+			component: () => <Feather name='home' size={20} color={TabColours.HOME} />,
+			color: TabColours.HOME,
 		},
 	},
 	Calendar: {
 		labelStyle: {
-			color: tabColours.CALENDAR,
+			color: TabColours.CALENDAR,
 		},
 		icon: {
-			component: () => <Feather name='calendar' size={20} color={tabColours.CALENDAR} />,
-			color: tabColours.CALENDAR,
+			component: () => <Feather name='calendar' size={20} color={TabColours.CALENDAR} />,
+			color: TabColours.CALENDAR,
 		},
 	},
 	Trends: {
 		labelStyle: {
-			color: tabColours.TRENDS,
+			color: TabColours.TRENDS,
 		},
 		icon: {
-			component: () => <Entypo name='line-graph' size={20} color={tabColours.TRENDS} />,
-			color: tabColours.TRENDS,
+			component: () => <Entypo name='line-graph' size={20} color={TabColours.TRENDS} />,
+			color: TabColours.TRENDS,
 		},
 	},
 	Awards: {
 		labelStyle: {
-			color: tabColours.AWARDS,
+			color: TabColours.AWARDS,
 		},
 		icon: {
-			component: () => <Feather name='award' size={20} color={tabColours.AWARDS} />,
-			color: tabColours.AWARDS,
+			component: () => <Feather name='award' size={20} color={TabColours.AWARDS} />,
+			color: TabColours.AWARDS,
 		},
 	},
 };

@@ -1,6 +1,13 @@
 import { useTheme } from '@react-navigation/native';
-import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
+import {
+	impactAsync,
+	ImpactFeedbackStyle,
+	notificationAsync,
+	NotificationFeedbackType,
+	selectionAsync,
+} from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
+import { getRandomBytes } from 'expo-random';
 import React, { useEffect, useRef, useState } from 'react';
 import {
 	View,
@@ -22,99 +29,61 @@ import TextTicker from 'react-native-text-ticker';
 import { GradientColours, GradientType } from '../Styles/Colours';
 import Icon, { IconProps } from './Icon';
 
-const HabitMap: HabitProps[] = [
-	// {
-	// 	name: 'Read',
-	// 	icon: { family: 'feather', name: 'book' },
-	// 	gradient: GradientColours.RED,
-	// 	progress: 0,
-	// 	progressTotal: 1,
-	// 	type: 'check',
-	// },
-	// {
-	// 	name: 'Eat Veggies',
-	// 	icon: { family: 'feather', name: 'book-open' },
-	// 	gradient: GradientColours.PEACH,
-	// 	progress: 1,
-	// 	progressTotal: 4,
-	// 	type: 'count',
-	// },
-	// {
-	// 	name: 'Eat Veggies a really long string',
-	// 	icon: { family: 'feather', name: 'book-open' },
-	// 	gradient: GradientColours.LIME,
-	// 	progress: 4,
-	// 	progressTotal: 30,
-	// 	type: 'timer',
-	// },
-	// {
-	// 	name: 'Mediate',
-	// 	icon: { family: 'feather', name: 'book-open' },
-	// 	gradient: GradientColours.ORANGE,
-	// 	progress: 0,
-	// 	progressTotal: 120,
-	// 	type: 'timer',
-	// },
-	// {
-	// 	name: 'Play Piano',
-	// 	icon: { family: 'materialcommunity', name: 'piano' },
-	// 	emoji: 'musical_keyboard',
-	// 	gradient: GradientColours.PINK,
-	// },
-	// {
-	// 	name: 'Play the Drums',
-	// 	icon: { family: 'fontawesome5', name: 'drum' },
-	// 	emoji: 'musical_keyboard',
-	// 	gradient: GradientColours.RED,
-	// },
-	// {
-	// 	name: 'Play Sax',
-	// 	icon: { family: 'materialcommunity', name: 'saxophone' },
-	// 	emoji: 'musical_keyboard',
-	// 	gradient: GradientColours.PEACH,
-	// },
-	// {
-	// 	name: 'Play Piano',
-	// 	icon: { family: 'materialcommunity', name: 'piano' },
-	// 	emoji: 'musical_keyboard',
-	// 	gradient: GradientColours.TANGERINE,
-	// },
-	// {
-	// 	name: 'Play Piano',
-	// 	icon: { family: 'materialcommunity', name: 'piano' },
-	// 	emoji: 'musical_keyboard',
-	// 	gradient: GradientColours.ORANGE,
-	// },
-	// {
-	// 	name: 'Play Piano',
-	// 	icon: { family: 'materialcommunity', name: 'piano' },
-	// 	emoji: 'musical_keyboard',
-	// 	gradient: GradientColours.BLUE,
-	// },
-	// {
-	// 	name: 'Play Piano',
-	// 	icon: { family: 'materialcommunity', name: 'piano' },
-	// 	emoji: 'musical_keyboard',
-	// 	gradient: GradientColours.VIOLET,
-	// },
-	// {
-	// 	name: 'Play Piano',
-	// 	icon: { family: 'materialcommunity', name: 'piano' },
-	// 	emoji: 'musical_keyboard',
-	// 	gradient: GradientColours.SKY,
-	// },
-	// {
-	// 	name: 'Play Piano',
-	// 	icon: { family: 'materialcommunity', name: 'piano' },
-	// 	emoji: 'musical_keyboard',
-	// 	gradient: GradientColours.GREEN,
-	// },
-	// {
-	// 	name: 'Play Piano',
-	// 	icon: { family: 'materialcommunity', name: 'piano' },
-	// 	emoji: 'musical_keyboard',
-	// 	gradient: GradientColours.LIME,
-	// },
+export const HabitMap: HabitProps[] = [
+	{
+		id: getRandomBytes(8).join(''),
+		name: 'Read',
+		icon: { family: 'feather', name: 'book' },
+		gradient: GradientColours.PURPLE,
+		progress: 1,
+		progressTotal: 1,
+		type: 'check',
+	},
+	{
+		id: getRandomBytes(8).join(''),
+		name: 'Read',
+		icon: { family: 'feather', name: 'book' },
+		gradient: GradientColours.RED,
+		progress: 1,
+		progressTotal: 1,
+		type: 'check',
+	},
+	{
+		id: getRandomBytes(8).join(''),
+		name: 'Read',
+		icon: { family: 'feather', name: 'book' },
+		gradient: GradientColours.PEACH,
+		progress: 1,
+		progressTotal: 1,
+		type: 'check',
+	},
+	{
+		id: getRandomBytes(8).join(''),
+		name: 'Read',
+		icon: { family: 'feather', name: 'book' },
+		gradient: GradientColours.TANGERINE,
+		progress: 1,
+		progressTotal: 1,
+		type: 'check',
+	},
+	{
+		id: getRandomBytes(8).join(''),
+		name: 'Read',
+		icon: { family: 'feather', name: 'book' },
+		gradient: GradientColours.ORANGE,
+		progress: 1,
+		progressTotal: 1,
+		type: 'check',
+	},
+	{
+		id: getRandomBytes(8).join(''),
+		name: 'Read',
+		icon: { family: 'feather', name: 'book' },
+		gradient: GradientColours.PINK,
+		progress: 1,
+		progressTotal: 1,
+		type: 'check',
+	},
 ];
 
 type HabitType = 'check' | 'count' | 'timer';
@@ -180,7 +149,7 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 	const animateProgress = () => {
 		Animated.timing(progressAnimation, {
 			toValue: count,
-			duration: 800,
+			duration: 500,
 			useNativeDriver: true,
 			easing: Easing.out(Easing.quad),
 		}).start();
@@ -211,7 +180,7 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 
 	const hapticFeedback = (count: number) => {
 		if (count == progressTotal) {
-			impactAsync(ImpactFeedbackStyle.Heavy);
+			notificationAsync(NotificationFeedbackType.Success);
 		} else if (type !== 'timer') {
 			impactAsync(ImpactFeedbackStyle.Medium);
 		}
@@ -262,8 +231,7 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 					flexDirection: 'row',
 					transform: [{ translateX: trans }],
 					width: 192,
-				}}
-			>
+				}}>
 				<RectButton style={[styles.rightAction]}>
 					<Text style={styles.actionText}>"Test</Text>
 				</RectButton>
@@ -311,7 +279,7 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 			animateProgress();
 			setAnimatedCount(count);
 			if (complete == true) {
-				impactAsync(ImpactFeedbackStyle.Heavy);
+				notificationAsync(NotificationFeedbackType.Success);
 			}
 		}
 	};
@@ -324,8 +292,7 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 				failOffsetX={[0, 1000]}
 				minDeltaX={0}
 				onGestureEvent={handleGesture}
-				onHandlerStateChange={handleGestureEnd}
-			>
+				onHandlerStateChange={handleGestureEnd}>
 				<Animated.View
 					style={{
 						backgroundColor: colors.card,
@@ -338,22 +305,19 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 
 						justifyContent: 'space-between',
 						margin: 5,
-					}}
-				>
+					}}>
 					<TouchableWithoutFeedback
 						onPress={() => console.log('Press')}
 						style={{
 							flex: 1,
-						}}
-					>
+						}}>
 						<View
 							style={{
 								display: 'flex',
 								flexDirection: 'row',
 								alignItems: 'center',
 								flex: 1,
-							}}
-						>
+							}}>
 							<View
 								style={{
 									display: 'flex',
@@ -362,8 +326,7 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 									height: dimensions,
 									width: dimensions,
 									margin: 15,
-								}}
-							>
+								}}>
 								<Icon
 									family={icon.family}
 									name={icon.name}
@@ -379,11 +342,10 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 										transform: [{ scale: interpolatedSize }],
 										overflow: 'hidden',
 										borderRadius: 700,
-									}}
-								>
+									}}>
 									<LinearGradient
 										colors={[gradient.start, gradient.end]}
-										locations={[0.5, 1]}
+										locations={[0.3, 1]}
 										style={{
 											flex: 1,
 										}}
@@ -395,8 +357,7 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 							<View
 								style={{
 									flex: 1,
-								}}
-							>
+								}}>
 								<TextTicker
 									style={{
 										fontFamily: 'Montserrat_600SemiBold',
@@ -408,8 +369,7 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 									duration={3000}
 									bounceDelay={1500}
 									marqueeDelay={1000}
-									bouncePadding={{ left: 0, right: 0 }}
-								>
+									bouncePadding={{ left: 0, right: 0 }}>
 									{name}
 								</TextTicker>
 							</View>
@@ -421,8 +381,10 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 							<Icon family='entypo' name='check' size={18} colour={colors.text} />
 						) : showCounter ? (
 							<Text
-								style={{ fontFamily: 'Montserrat_600SemiBold', color: colors.text }}
-							>
+								style={{
+									fontFamily: 'Montserrat_600SemiBold',
+									color: colors.text,
+								}}>
 								{type == 'count'
 									? `${count}/${progressTotal}`
 									: getTimeString(count)}

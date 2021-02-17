@@ -29,10 +29,11 @@ import { FontAwesome } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
-import { round } from 'react-native-reanimated';
-import { Habit } from '../Components/Habit';
+import { color, round } from 'react-native-reanimated';
+import { Habit, HabitMap } from '../Components/Habit';
 import { useHabits } from '../Storage/HabitController';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getRandomBytes } from 'expo-random';
 
 type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
 type HomeRouteProps = RouteProp<TabParamList, 'Home'>;
@@ -41,6 +42,16 @@ interface HomeProps {
 	navigation: HomeNavProps;
 	route: HomeRouteProps;
 }
+
+const habit = {
+	id: getRandomBytes(8).join(''),
+	name: 'Read',
+	icon: { family: 'feather', name: 'book' },
+	// gradient: GradientColours.PURPLE,
+	progress: 1,
+	progressTotal: 1,
+	type: 'check',
+};
 
 export default function HomeScreen({ navigation }: HomeProps) {
 	const { habits, setHabits, refetch } = useHabits();
@@ -65,7 +76,25 @@ export default function HomeScreen({ navigation }: HomeProps) {
 	return (
 		<ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
 			<View style={{ flex: 1, padding: 10 }}>
-				<Button title='Refetch' onPress={() => refetch()} />
+				{Object.keys(GradientColours).map((color, index) => {
+					// @ts-ignore
+					return <Habit {...habit} gradient={GradientColours[color]} />;
+				})}
+
+				{/* <Button title='Refetch' onPress={() => refetch()} /> */}
+				{/* {HabitMap.map((habit) => (
+					<Habit
+						key={habit.id}
+						id={habit.id}
+						name={habit.name}
+						icon={habit.icon}
+						gradient={habit.gradient}
+						progress={habit.progress}
+						progressTotal={habit.progressTotal}
+						type={habit.type}
+					/>
+				))} */}
+
 				{habits &&
 					habits.map((habit) => (
 						<Habit
