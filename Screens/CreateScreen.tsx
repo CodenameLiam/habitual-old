@@ -12,9 +12,14 @@ import {
 	StyleSheet,
 	TouchableOpacity,
 	TouchableHighlight,
+	ViewComponent,
+	ViewStyle,
+	Keyboard,
+	KeyboardAvoidingView,
+	InputAccessoryView,
 } from 'react-native';
 import { TextInput, TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import Animated, { color } from 'react-native-reanimated';
+import Animated, { color, Easing, set } from 'react-native-reanimated';
 import { ColourPicker, randomGradient } from '../Components/ColourPicker';
 import Icon, { IconProps } from '../Components/Icon';
 import { GradientContext } from '../Context/GradientContext';
@@ -33,6 +38,8 @@ import {
 import { createHabit } from '../Storage/HabitController';
 import { HabitProps } from '../Components/Habit';
 import { getRandomBytes } from 'expo-random';
+import SegmentedControl from '@react-native-community/segmented-control';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 interface CreateProps {
 	navigation: AppNavProps;
@@ -40,16 +47,17 @@ interface CreateProps {
 
 export default function CreateScreen({ navigation }: CreateProps) {
 	const { gradient, setGradient } = useContext(GradientContext);
-	const [schedule, setSchedule] = useState<ScheduleType>({ ...DEFAULT_SCHEDULE });
 	const { colors } = useTheme();
-
-	useEffect(() => {
-		const gradient: GradientType = randomGradient();
-		setGradient(gradient);
-	}, []);
 
 	const sheetRef = React.useRef<BottomSheet>(null);
 	let shadow = new Animated.Value(1);
+
+	const [name, setName] = useState('');
+	const [count, setCount] = useState(1);
+
+	const [schedule, setSchedule] = useState<ScheduleType>({ ...DEFAULT_SCHEDULE });
+	const [countWidth, setCountWidth] = useState(40);
+	const inputAccessoryViewID = 'countID';
 
 	const scheduleFunctions = [
 		() => setSchedule({ ...EVERYDAY_SCHEDULE }),
@@ -62,23 +70,54 @@ export default function CreateScreen({ navigation }: CreateProps) {
 	};
 
 	const handleSave = () => {
-		// console.log(getRandomBytes(8).join(''));
-
 		const habit: HabitProps = {
 			id: getRandomBytes(8).join(''),
-			name: 'Test',
+			name: name,
 			icon: { family: 'feather', name: 'book' },
 			gradient: gradient,
 			progress: 0,
-			progressTotal: 1,
-			type: 'check',
+			progressTotal: count,
+			type: 'count',
 		};
 		createHabit(habit);
 	};
 
+	const [addActive, setAddActive] = useState(false);
+	const [minusActive, setMinusActive] = useState(false);
+
+	let interval: NodeJS.Timeout;
+	// let timeout: NodeJS.Timeout;
+
+	// useEffect(() => {
+	// 	incrementCount();
+	// 	return () => {
+	// 		clearInterval(interval);
+	// 		// clearTimeout(timeout);
+	// 	};
+	// }, [count, addActive, setMinusActive]);
+
+	// const incrementCount = () => {
+	// 	if (addActive) {
+	// 		interval = setInterval(() => {
+	// 			setCount(count + 1);
+	// 		}, 200);
+	// 	}
+	// 	if (minusActive && count > 1) {
+	// 		interval = setInterval(() => {
+	// 			setCount(count - 1);
+	// 		}, 200);
+	// 	}
+	// };
+
+	// const handlePressOut = () => {
+	// 	setAddActive(false);
+	// 	setMinusActive(false);
+	// };
+
 	return (
 		<React.Fragment>
 			<ShadowModal shadow={shadow} />
+
 			<ScrollView style={{ flex: 1 }} scrollEnabled={false}>
 				<View style={{ flex: 1, padding: 10 }}>
 					<View style={{ display: 'flex', flexDirection: 'row' }}>
@@ -108,7 +147,8 @@ export default function CreateScreen({ navigation }: CreateProps) {
 							placeholder='Name'
 							placeholderTextColor={GreyColours.GREY2}
 							returnKeyType='done'
-							// onChangeText={(text) => setstate(text)}
+							onChangeText={(name) => setName(name)}
+							value={name}
 							style={[
 								globalStyles.card,
 								globalStyles.cardText,
@@ -136,6 +176,127 @@ export default function CreateScreen({ navigation }: CreateProps) {
 						/>
 					</Card>
 
+					<View
+						style={{
+							display: 'flex',
+							flexDirection: 'row',
+						}}
+					>
+						<Card
+							title='Count'
+							style={{
+								flex: 1,
+								marginRight: 5,
+							}}
+						>
+							<View
+								style={{
+									flex: 1,
+									display: 'flex',
+									flexDirection: 'row',
+									justifyContent: 'space-between',
+								}}
+								onLayout={(event) => {
+									let { width } = event.nativeEvent.layout;
+									setCountWidth(width / 3 - 5);
+								}}
+							>
+								<View
+									style={{
+										height: countWidth,
+										width: countWidth,
+										borderRadius: 5,
+										backgroundColor: colors.background,
+										display: 'flex',
+										justifyContent: 'center',
+									}}
+								>
+									<Text
+										style={{
+											fontFamily: 'Montserrat_800ExtraBold',
+											fontSize: 20,
+											color: colors.text,
+											textAlign: 'center',
+										}}
+									>
+										{count}
+									</Text>
+								</View>
+
+								<TouchableOpacity
+									onPress={() => count > 1 && setCount(count - 1)}
+									// onPressIn={() => {
+									// 	count > 1 && setMinusActive(true);
+									// 	count > 1 && setCount(count - 1);
+									// }}
+									// onPressOut={handlePressOut}
+									style={{
+										backgroundColor:
+											Number(count) > 1
+												? gradient.solid + 50
+												: GreyColours.GREY2 + 50,
+										height: countWidth,
+										width: countWidth,
+										borderRadius: 5,
+										overflow: 'hidden',
+										justifyContent: 'center',
+										alignItems: 'center',
+									}}
+								>
+									<Icon
+										family='fontawesome'
+										name='minus'
+										size={20}
+										colour={
+											Number(count) > 1 ? gradient.solid : GreyColours.GREY2
+										}
+									/>
+								</TouchableOpacity>
+
+								<TouchableOpacity
+									onPress={() => setCount(count + 1)}
+									// onPressIn={() => {
+									// 	setAddActive(true);
+									// 	setCount(count + 1);
+									// }}
+									// onPressOut={handlePressOut}
+									style={{
+										backgroundColor: gradient.solid + 50,
+										height: countWidth,
+										width: countWidth,
+										borderRadius: 5,
+										overflow: 'hidden',
+										justifyContent: 'center',
+										alignItems: 'center',
+									}}
+								>
+									<Icon
+										family='fontawesome'
+										name='plus'
+										size={20}
+										colour={gradient.solid}
+									/>
+								</TouchableOpacity>
+							</View>
+						</Card>
+						<Card title='Reminder' style={{ flex: 1 }}></Card>
+					</View>
+				</View>
+				<View
+					style={{
+						// flex: 1,
+						// display: 'flex',
+						// justifyContent: 'flex-end',
+						// position: 'absolute',
+						// left: 10,
+						// right: 10,
+						// bottom: -20,
+						padding: 10,
+						paddingTop: 20,
+
+						// backgroundColor: 'red',
+					}}
+				>
 					<TouchableOpacity
 						onPress={handleSave}
 						style={{
@@ -147,6 +308,7 @@ export default function CreateScreen({ navigation }: CreateProps) {
 							justifyContent: 'center',
 							alignItems: 'center',
 							margin: 10,
+							// marginTop: 70,
 						}}
 					>
 						<LinearGradient
@@ -178,6 +340,29 @@ export default function CreateScreen({ navigation }: CreateProps) {
 		</React.Fragment>
 	);
 }
+
+interface ShadowModalProps {
+	shadow: Animated.Value<number>;
+}
+
+const ShadowModal = ({ shadow }: ShadowModalProps) => {
+	const animatedShadowOpacity = Animated.interpolate(shadow, {
+		inputRange: [0, 1],
+		outputRange: [0.5, 0],
+	});
+
+	return (
+		<Animated.View
+			pointerEvents='none'
+			style={[
+				modalStyles.shadowContainer,
+				{
+					opacity: animatedShadowOpacity,
+				},
+			]}
+		/>
+	);
+};
 
 const IconOptions: Partial<IconProps>[] = [
 	{ family: 'feather', name: 'book' },
@@ -263,29 +448,6 @@ const IconModal = () => {
 	);
 };
 
-interface ShadowModalProps {
-	shadow: Animated.Value<number>;
-}
-
-const ShadowModal = ({ shadow }: ShadowModalProps) => {
-	const animatedShadowOpacity = Animated.interpolate(shadow, {
-		inputRange: [0, 1],
-		outputRange: [0.5, 0],
-	});
-
-	return (
-		<Animated.View
-			pointerEvents='none'
-			style={[
-				modalStyles.shadowContainer,
-				{
-					opacity: animatedShadowOpacity,
-				},
-			]}
-		/>
-	);
-};
-
 interface HeaderModalProps {
 	sheetRef: React.RefObject<BottomSheet>;
 }
@@ -344,13 +506,20 @@ const modalStyles = StyleSheet.create({
 interface CardProps {
 	children?: React.ReactNode;
 	title: string;
+	style?: ViewStyle;
 }
 
-const Card = ({ children, title }: CardProps) => {
+const Card = ({ children, title, style }: CardProps) => {
 	const { colors } = useTheme();
 
 	const styles = StyleSheet.create({
-		card: { margin: 10, padding: 10, borderRadius: 5, backgroundColor: colors.card },
+		card: {
+			margin: 10,
+			marginBottom: 5,
+			padding: 10,
+			borderRadius: 5,
+			backgroundColor: colors.card,
+		},
 		title: {
 			paddingBottom: 10,
 			color: GreyColours.GREY2,
@@ -361,7 +530,7 @@ const Card = ({ children, title }: CardProps) => {
 	});
 
 	return (
-		<View style={styles.card}>
+		<View style={[styles.card, style]}>
 			<Text style={styles.title}>{title}</Text>
 			{children}
 		</View>
@@ -369,7 +538,7 @@ const Card = ({ children, title }: CardProps) => {
 };
 
 const globalStyles = StyleSheet.create({
-	card: { margin: 10, padding: 10, borderRadius: 5 },
+	card: { margin: 10, marginBottom: 5, padding: 10, borderRadius: 5 },
 	cardText: {
 		fontFamily: 'Montserrat_600SemiBold',
 		fontSize: 18,

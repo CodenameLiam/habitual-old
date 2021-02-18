@@ -19,6 +19,7 @@ import IconScreen from '../Components/Icon';
 import Icon from '../Components/Icon';
 import { GradientContext } from '../Context/GradientContext';
 import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
+import { randomGradient } from '../Components/ColourPicker';
 
 export type AppStackParamList = {
 	Tabs: undefined;
@@ -39,7 +40,7 @@ interface AppNavigationProps {
 
 export default function AppNavigation({ navigation }: AppNavigationProps) {
 	const { colors } = useTheme();
-	const { gradient } = useContext(GradientContext);
+	const { gradient, setGradient } = useContext(GradientContext);
 	const isDrawerOpen = useIsDrawerOpen();
 	const [isOpen, setOpen] = useState(false);
 
@@ -56,6 +57,11 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 	const handleAdd = (navigation: AppNavProps) => {
 		impactAsync(ImpactFeedbackStyle.Medium);
 		navigation.navigate('Add');
+	};
+
+	const handleBack = (navigation: AppNavProps) => {
+		navigation.navigate('Tabs');
+		setTimeout(() => setGradient(randomGradient), 200);
 	};
 
 	return (
@@ -114,7 +120,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 							style={{
 								padding: 8,
 							}}
-							onPress={() => navigation.goBack()}
+							onPress={() => handleBack(navigation)}
 						>
 							<Feather name='chevron-left' size={34} color={colors.text} />
 						</TouchableOpacity>

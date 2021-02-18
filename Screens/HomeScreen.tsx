@@ -44,13 +44,13 @@ interface HomeProps {
 }
 
 const habit = {
-	id: getRandomBytes(8).join(''),
+	// id: getRandomBytes(8).join(''),
 	name: 'Read',
 	icon: { family: 'feather', name: 'book' },
 	// gradient: GradientColours.PURPLE,
 	progress: 1,
-	progressTotal: 1,
-	type: 'check',
+	progressTotal: 4,
+	type: 'count',
 };
 
 export default function HomeScreen({ navigation }: HomeProps) {
@@ -77,8 +77,9 @@ export default function HomeScreen({ navigation }: HomeProps) {
 		<ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
 			<View style={{ flex: 1, padding: 10 }}>
 				{Object.keys(GradientColours).map((color, index) => {
+					const id = getRandomBytes(8).join('');
 					// @ts-ignore
-					return <Habit {...habit} gradient={GradientColours[color]} />;
+					return <Habit key={id} {...habit} id={id} gradient={GradientColours[color]} />;
 				})}
 
 				{/* <Button title='Refetch' onPress={() => refetch()} /> */}

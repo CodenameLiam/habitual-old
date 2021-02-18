@@ -231,7 +231,8 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 					flexDirection: 'row',
 					transform: [{ translateX: trans }],
 					width: 192,
-				}}>
+				}}
+			>
 				<RectButton style={[styles.rightAction]}>
 					<Text style={styles.actionText}>"Test</Text>
 				</RectButton>
@@ -259,7 +260,12 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 			return;
 		} else if (complete && progressNormalised <= progressTotal - progressOffset) {
 			setComplete(false);
+			setShowCounter(true);
 			return;
+		}
+
+		if (count > 0) {
+			setShowCounter(true);
 		}
 
 		if (progressNormalised <= 0) {
@@ -281,6 +287,9 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 			if (complete == true) {
 				notificationAsync(NotificationFeedbackType.Success);
 			}
+			if (count == 0) {
+				setShowCounter(false);
+			}
 		}
 	};
 
@@ -292,7 +301,8 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 				failOffsetX={[0, 1000]}
 				minDeltaX={0}
 				onGestureEvent={handleGesture}
-				onHandlerStateChange={handleGestureEnd}>
+				onHandlerStateChange={handleGestureEnd}
+			>
 				<Animated.View
 					style={{
 						backgroundColor: colors.card,
@@ -305,19 +315,22 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 
 						justifyContent: 'space-between',
 						margin: 5,
-					}}>
+					}}
+				>
 					<TouchableWithoutFeedback
 						onPress={() => console.log('Press')}
 						style={{
 							flex: 1,
-						}}>
+						}}
+					>
 						<View
 							style={{
 								display: 'flex',
 								flexDirection: 'row',
 								alignItems: 'center',
 								flex: 1,
-							}}>
+							}}
+						>
 							<View
 								style={{
 									display: 'flex',
@@ -326,7 +339,8 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 									height: dimensions,
 									width: dimensions,
 									margin: 15,
-								}}>
+								}}
+							>
 								<Icon
 									family={icon.family}
 									name={icon.name}
@@ -342,7 +356,8 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 										transform: [{ scale: interpolatedSize }],
 										overflow: 'hidden',
 										borderRadius: 700,
-									}}>
+									}}
+								>
 									<LinearGradient
 										colors={[gradient.start, gradient.end]}
 										locations={[0.3, 1]}
@@ -357,7 +372,8 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 							<View
 								style={{
 									flex: 1,
-								}}>
+								}}
+							>
 								<TextTicker
 									style={{
 										fontFamily: 'Montserrat_600SemiBold',
@@ -369,7 +385,8 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 									duration={3000}
 									bounceDelay={1500}
 									marqueeDelay={1000}
-									bouncePadding={{ left: 0, right: 0 }}>
+									bouncePadding={{ left: 0, right: 0 }}
+								>
 									{name}
 								</TextTicker>
 							</View>
@@ -384,7 +401,8 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 								style={{
 									fontFamily: 'Montserrat_600SemiBold',
 									color: colors.text,
-								}}>
+								}}
+							>
 								{type == 'count'
 									? `${count}/${progressTotal}`
 									: getTimeString(count)}
@@ -399,7 +417,7 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 						) : type == 'count' ? (
 							<Icon
 								family='fontawesome'
-								name='dot-circle-o'
+								name='circle-o'
 								size={12}
 								colour={colors.text}
 							/>
