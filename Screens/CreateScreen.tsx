@@ -1,7 +1,7 @@
 import { Montserrat_500Medium } from '@expo-google-fonts/montserrat';
 import { useTheme } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { useState } from 'react';
 import {
 	View,
@@ -15,8 +15,12 @@ import {
 	ViewComponent,
 	ViewStyle,
 	Keyboard,
+	KeyboardEvent,
 	KeyboardAvoidingView,
 	InputAccessoryView,
+	EmitterSubscription,
+	StyleProp,
+	TextStyle,
 } from 'react-native';
 import { TextInput, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Animated, { color, Easing, set } from 'react-native-reanimated';
@@ -114,12 +118,46 @@ export default function CreateScreen({ navigation }: CreateProps) {
 	// 	setMinusActive(false);
 	// };
 
+	// const [keyboardOffset, setKeyboardOffset] = useState(0);
+	// const onKeyboardShow = (event: KeyboardEvent) => setKeyboardOffset(event.endCoordinates.height);
+	// const onKeyboardHide = () => setKeyboardOffset(0);
+	// const keyboardDidShowListener = useRef<EmitterSubscription>();
+	// const keyboardDidHideListener = useRef<EmitterSubscription>();
+
+	// useEffect(() => {
+	// 	keyboardDidShowListener.current = Keyboard.addListener('keyboardWillShow', onKeyboardShow);
+	// 	keyboardDidHideListener.current = Keyboard.addListener('keyboardWillHide', onKeyboardHide);
+
+	// 	return () => {
+	// 		keyboardDidShowListener.current!.remove();
+	// 		keyboardDidHideListener.current!.remove();
+	// 	};
+	// }, []);
+
+	// const offsetStyle: StyleProp<ViewStyle> = {
+	// 	position: 'absolute',
+	// 	bottom: keyboardOffset,
+	// 	zIndex: 10,
+	// 	backgroundColor: 'red',
+	// 	height: 100,
+	// 	width: '100%',
+	// };
+	// const normalStyle: StyleProp<ViewStyle> = {
+	// 	position: 'relative',
+	// 	height: 100,
+	// 	backgroundColor: 'red',
+	// };
+
 	return (
 		<React.Fragment>
 			<ShadowModal shadow={shadow} />
-
-			<ScrollView style={{ flex: 1 }} scrollEnabled={false}>
+			<KeyboardAvoidingView></KeyboardAvoidingView>
+			<ScrollView style={{ flex: 1 }} scrollEnabled={true}>
 				<View style={{ flex: 1, padding: 10 }}>
+					{/* <View style={keyboardOffset > 0 ? offsetStyle : normalStyle}>
+						<Text>{keyboardOffset}</Text>
+					</View> */}
+
 					<View style={{ display: 'flex', flexDirection: 'row' }}>
 						<TouchableOpacity
 							onPress={openSheet}
@@ -133,8 +171,7 @@ export default function CreateScreen({ navigation }: CreateProps) {
 									height: 50,
 									marginRight: 5,
 								},
-							]}
-						>
+							]}>
 							<Icon
 								family='fontawesome5'
 								name='icons'
@@ -180,15 +217,13 @@ export default function CreateScreen({ navigation }: CreateProps) {
 						style={{
 							display: 'flex',
 							flexDirection: 'row',
-						}}
-					>
+						}}>
 						<Card
 							title='Count'
 							style={{
 								flex: 1,
 								marginRight: 5,
-							}}
-						>
+							}}>
 							<View
 								style={{
 									flex: 1,
@@ -199,8 +234,7 @@ export default function CreateScreen({ navigation }: CreateProps) {
 								onLayout={(event) => {
 									let { width } = event.nativeEvent.layout;
 									setCountWidth(width / 3 - 5);
-								}}
-							>
+								}}>
 								<View
 									style={{
 										height: countWidth,
@@ -209,18 +243,16 @@ export default function CreateScreen({ navigation }: CreateProps) {
 										backgroundColor: colors.background,
 										display: 'flex',
 										justifyContent: 'center',
-									}}
-								>
-									<Text
+									}}>
+									<TextInput
 										style={{
 											fontFamily: 'Montserrat_800ExtraBold',
 											fontSize: 20,
 											color: colors.text,
 											textAlign: 'center',
-										}}
-									>
+										}}>
 										{count}
-									</Text>
+									</TextInput>
 								</View>
 
 								<TouchableOpacity
@@ -241,8 +273,7 @@ export default function CreateScreen({ navigation }: CreateProps) {
 										overflow: 'hidden',
 										justifyContent: 'center',
 										alignItems: 'center',
-									}}
-								>
+									}}>
 									<Icon
 										family='fontawesome'
 										name='minus'
@@ -268,8 +299,7 @@ export default function CreateScreen({ navigation }: CreateProps) {
 										overflow: 'hidden',
 										justifyContent: 'center',
 										alignItems: 'center',
-									}}
-								>
+									}}>
 									<Icon
 										family='fontawesome'
 										name='plus'
@@ -295,8 +325,7 @@ export default function CreateScreen({ navigation }: CreateProps) {
 						paddingTop: 20,
 
 						// backgroundColor: 'red',
-					}}
-				>
+					}}>
 					<TouchableOpacity
 						onPress={handleSave}
 						style={{
@@ -309,8 +338,7 @@ export default function CreateScreen({ navigation }: CreateProps) {
 							alignItems: 'center',
 							margin: 10,
 							// marginTop: 70,
-						}}
-					>
+						}}>
 						<LinearGradient
 							colors={[gradient.start, gradient.end]}
 							style={globalStyles.gradient}
@@ -322,8 +350,7 @@ export default function CreateScreen({ navigation }: CreateProps) {
 								fontFamily: 'Montserrat_600SemiBold',
 								fontSize: 20,
 								color: colors.text,
-							}}
-						>
+							}}>
 							Save
 						</Text>
 					</TouchableOpacity>
@@ -413,8 +440,7 @@ const IconModal = () => {
 				padding: 16,
 				height: '100%',
 			}}
-			showsVerticalScrollIndicator={false}
-		>
+			showsVerticalScrollIndicator={false}>
 			<View
 				style={{
 					width: '100%',
@@ -422,8 +448,7 @@ const IconModal = () => {
 					flexDirection: 'row',
 					flexWrap: 'wrap',
 					// justifyContent: 'space-evenly',
-				}}
-			>
+				}}>
 				{IconOptions.map((icon, index) => (
 					<TouchableOpacity
 						key={index}
@@ -433,8 +458,7 @@ const IconModal = () => {
 							// backgroundColor: 'red',
 							display: 'flex',
 							alignItems: 'center',
-						}}
-					>
+						}}>
 						<Icon
 							family={icon.family}
 							name={icon.name}
