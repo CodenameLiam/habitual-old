@@ -29,7 +29,7 @@ export const useHabits = () => {
 
 	const parseHabits = async () => {
 		const allHabits = await getAllHabits();
-		setHabits(Object.values(allHabits));
+		allHabits && setHabits(Object.values(allHabits));
 		// console.log(Object.values(allHabits));
 	};
 

@@ -14,12 +14,7 @@ import { RouteProp, useFocusEffect, useTheme } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { TabParamList } from '../Navigation/TabNavigation';
 import { Entypo } from '@expo/vector-icons';
-import {
-	PanGestureHandler,
-	PanGestureHandlerGestureEvent,
-	RectButton,
-	ScrollView,
-} from 'react-native-gesture-handler';
+import { PanGestureHandler, PanGestureHandlerGestureEvent, RectButton, ScrollView } from 'react-native-gesture-handler';
 import Icon, { IconProps } from '../Components/Icon';
 import TextTicker from 'react-native-text-ticker';
 import Emoji from 'react-native-emoji';
@@ -76,11 +71,11 @@ export default function HomeScreen({ navigation }: HomeProps) {
 	return (
 		<ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
 			<View style={{ flex: 1, padding: 10 }}>
-				{Object.keys(GradientColours).map((color, index) => {
+				{/* {Object.keys(GradientColours).map((color, index) => {
 					const id = getRandomBytes(8).join('');
 					// @ts-ignore
 					return <Habit key={id} {...habit} id={id} gradient={GradientColours[color]} />;
-				})}
+				})} */}
 
 				{/* <Button title='Refetch' onPress={() => refetch()} /> */}
 				{/* {HabitMap.map((habit) => (

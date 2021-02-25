@@ -100,7 +100,7 @@ const getTimeOffset = (seconds: number): number => {
 	else return 0.5;
 };
 
-const getTimeString = (seconds: number): string => {
+export const getTimeString = (seconds: number): string => {
 	const h = Math.floor(seconds / 3600);
 	const m = Math.floor((seconds % 3600) / 60);
 	const s = seconds % 60;

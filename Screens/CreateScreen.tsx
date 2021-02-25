@@ -23,7 +23,7 @@ import {
 	TextStyle,
 } from 'react-native';
 import { TextInput, TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import Animated, { color, Easing, set } from 'react-native-reanimated';
+import Animated, { color, Easing, min, set } from 'react-native-reanimated';
 import { ColourPicker, randomGradient } from '../Components/ColourPicker';
 import Icon, { IconProps } from '../Components/Icon';
 import { GradientContext } from '../Context/GradientContext';
@@ -40,11 +40,13 @@ import {
 	WEEKEND_SCHEDULE,
 } from '../Components/Scheduler';
 import { createHabit } from '../Storage/HabitController';
-import { HabitProps, HabitType } from '../Components/Habit';
+import { getTimeString, HabitProps, HabitType } from '../Components/Habit';
 import { getRandomBytes } from 'expo-random';
 import SegmentedControl from '@react-native-community/segmented-control';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Card } from '../Components/Card';
+import { TimePicker } from '../Components/TimePicker';
+// import { TimePicker } from 'react-native-simple-time-picker';
 
 interface CreateProps {
 	navigation: AppNavProps;
@@ -55,15 +57,18 @@ export default function CreateScreen({ navigation }: CreateProps) {
 	const { colors } = useTheme();
 
 	let sheetRef = React.useRef<BottomSheet>(null);
-	let shadow = new Animated.Value(1);
+	let timeRef = React.useRef<BottomSheet>(null);
+	let shadow = useRef(new Animated.Value<number>(1)).current;
 
 	const [name, setName] = useState('');
 	const [count, setCount] = useState(1);
 	const [type, setType] = useState<HabitType>('count');
 	const [icon, setIcon] = useState<Partial<IconProps>>({ family: 'fontawesome5', name: 'icons' });
+	const [hours, setHours] = useState(0);
+	const [minutes, setMinutes] = useState(1);
 
 	const [schedule, setSchedule] = useState<ScheduleType>({ ...DEFAULT_SCHEDULE });
-	const [countWidth, setCountWidth] = useState(40);
+	// const [countWidth, setCountWidth] = useState(40);
 
 	const scheduleFunctions = [
 		() => setSchedule({ ...EVERYDAY_SCHEDULE }),
@@ -79,26 +84,44 @@ export default function CreateScreen({ navigation }: CreateProps) {
 		sheetRef.current && sheetRef.current.snapTo(1);
 	};
 
+	const openTime = () => {
+		timeRef.current && timeRef.current.snapTo(0);
+	};
+
 	const handleSave = () => {
-		const habit: HabitProps = {
-			id: getRandomBytes(8).join(''),
-			name: name,
-			icon: { family: 'feather', name: 'book' },
-			gradient: gradient,
-			progress: 0,
-			progressTotal: count,
-			type: 'count',
-		};
-		createHabit(habit);
+		if (name !== '') {
+			const habit: HabitProps = {
+				id: getRandomBytes(8).join(''),
+				name: name,
+				icon: icon,
+				gradient: gradient,
+				progress: 0,
+				progressTotal: count,
+				type: type,
+			};
+			createHabit(habit);
+		} else {
+			console.log('Name habit');
+		}
 	};
 
 	const handleCountType = (text: string) => {
 		setCount(Number(text));
 	};
 
+	const handleTimeType = (values: { hours: number; minutes: number }) => {
+		const { hours, minutes } = values;
+		setHours(hours);
+		setMinutes(minutes);
+		setCount(hours * 3600 + minutes * 60);
+		// shadow.setValue(0);
+	};
+
 	const handleCountChange = () => {
 		setCount(1);
 		setType('count');
+		setHours(0);
+		setMinutes(1);
 	};
 
 	const handleTimeChange = () => {
@@ -117,6 +140,18 @@ export default function CreateScreen({ navigation }: CreateProps) {
 			keyboardDidHideListener.current!.remove();
 		};
 	}, [count]);
+
+	const getFormattedTimeCount = () => {
+		const h = Math.floor(count / 3600);
+		const m = Math.floor((count % 3600) / 60);
+		// const s = seconds % 60;
+
+		const hString = h > 0 ? `${h} hr ` : '';
+		const mString = m > 0 ? `${m} m ` : '';
+		// const sString = s > 0 || (s == 0 && m == 0 && h == 0) ? `${s}s` : '';
+
+		return hString + mString;
+	};
 
 	return (
 		<KeyboardAwareScrollView contentContainerStyle={{ flex: 1 }} scrollEnabled={false} extraScrollHeight={60}>
@@ -248,45 +283,67 @@ export default function CreateScreen({ navigation }: CreateProps) {
 							</TouchableOpacity>
 						</View>
 					) : (
-						<Text>Clock</Text>
-					)}
-					{/* {type === 'count' &&
-					<View style={{ display: 'flex', flexDirection: 'row' }}>
-							<View
+						<TouchableOpacity
+							onPress={openTime}
+							style={{
+								flex: 1,
+								backgroundColor: colors.background,
+								borderRadius: 5,
+								display: 'flex',
+								justifyContent: 'center',
+							}}
+						>
+							<Text
 								style={{
-									flex: 1,
-									display: 'flex',
-									flexDirection: 'row',
-									justifyContent: 'space-between',
-								}}
-								onLayout={(event) => {
-									let { width } = event.nativeEvent.layout;
-									setCountWidth(width / 3 - 5);
+									color: gradient.solid,
+									textAlign: 'center',
+									fontFamily: 'Montserrat_800ExtraBold',
+									fontSize: 20,
 								}}
 							>
-								<View
-									style={{
-										height: countWidth,
-										width: countWidth,
-										borderRadius: 5,
-										backgroundColor: colors.background,
-										display: 'flex',
-										justifyContent: 'center',
-									}}
-								>
-									<TextInput
-										style={{
-											fontFamily: 'Montserrat_800ExtraBold',
-											fontSize: 20,
-											color: colors.text,
-											textAlign: 'center',
-										}}
-									>
-										{count}
-									</TextInput>
-								</View>
-					</View>  */}
+								{getFormattedTimeCount()}
+							</Text>
+						</TouchableOpacity>
+					)}
 				</Card>
+			</View>
+
+			<View
+				style={{
+					flex: 1,
+					justifyContent: 'center',
+					alignItems: 'center',
+					margin: 10,
+				}}
+			>
+				<TouchableOpacity
+					onPress={handleSave}
+					style={{
+						height: 60,
+						borderRadius: 100,
+						overflow: 'hidden',
+						justifyContent: 'center',
+						alignItems: 'center',
+						width: '100%',
+						margin: 10,
+					}}
+				>
+					<LinearGradient
+						colors={[gradient.start, gradient.end]}
+						style={globalStyles.gradient}
+						start={{ x: 0, y: 0 }}
+						end={{ x: 1, y: 0 }}
+					/>
+					<Text
+						style={{
+							fontFamily: 'Montserrat_600SemiBold',
+							fontSize: 20,
+							color: colors.text,
+						}}
+					>
+						Save
+					</Text>
+				</TouchableOpacity>
 			</View>
 
 			<BottomSheet
@@ -294,221 +351,18 @@ export default function CreateScreen({ navigation }: CreateProps) {
 				snapPoints={['100%', 0]}
 				initialSnap={1}
 				renderContent={() => <IconModal setIcon={setIcon} closeSheet={closeSheet} />}
-				renderHeader={() => <HeaderModal sheetRef={sheetRef} />}
+				renderHeader={() => <HeaderModal sheetRef={sheetRef} height={240} />}
+				callbackNode={shadow}
+			/>
+			<BottomSheet
+				ref={timeRef}
+				snapPoints={['100%', 0]}
+				initialSnap={1}
+				renderContent={() => <TimeModal minutes={minutes} hours={hours} handleTimeType={handleTimeType} />}
+				renderHeader={() => <HeaderModal sheetRef={timeRef} height={550} />}
 				callbackNode={shadow}
 			/>
 		</KeyboardAwareScrollView>
-	);
-
-	return (
-		<React.Fragment>
-			<KeyboardAvoidingView></KeyboardAvoidingView>
-			<ScrollView style={{ flex: 1 }} scrollEnabled={true}>
-				<View style={{ flex: 1, padding: 10 }}>
-					{/* <View style={keyboardOffset > 0 ? offsetStyle : normalStyle}>
-						<Text>{keyboardOffset}</Text>
-					</View> */}
-
-					<View style={{ display: 'flex', flexDirection: 'row' }}>
-						<TouchableOpacity
-							onPress={openSheet}
-							style={[
-								globalStyles.card,
-								{
-									backgroundColor: colors.card,
-									display: 'flex',
-									justifyContent: 'center',
-									alignItems: 'center',
-									height: 50,
-									marginRight: 5,
-								},
-							]}
-						>
-							<Icon family='fontawesome5' name='icons' size={28} colour={GreyColours.GREY2} />
-						</TouchableOpacity>
-
-						<TextInput
-							placeholder='Name'
-							placeholderTextColor={GreyColours.GREY2}
-							returnKeyType='done'
-							onChangeText={(name) => setName(name)}
-							value={name}
-							style={[
-								globalStyles.card,
-								globalStyles.cardText,
-								{
-									backgroundColor: colors.card,
-									color: gradient.solid,
-									height: 50,
-								},
-							]}
-						/>
-					</View>
-					<Card title='Colour'>
-						<ColourPicker updateGradient={(gradient) => setGradient(gradient)} />
-					</Card>
-					<Card title='Schedule'>
-						<Scheduler schedule={schedule} setSchedule={setSchedule} gradient={gradient} />
-						<ColourButtonGroup
-							buttons={['Everyday', 'Weekdays', 'Weekend']}
-							buttonFunctions={scheduleFunctions}
-							colour={gradient.solid}
-						/>
-					</Card>
-
-					<View
-						style={{
-							display: 'flex',
-							flexDirection: 'row',
-						}}
-					>
-						<Card
-							title='Count'
-							style={{
-								flex: 1,
-								marginRight: 5,
-							}}
-						>
-							<View
-								style={{
-									flex: 1,
-									display: 'flex',
-									flexDirection: 'row',
-									justifyContent: 'space-between',
-								}}
-								onLayout={(event) => {
-									let { width } = event.nativeEvent.layout;
-									setCountWidth(width / 3 - 5);
-								}}
-							>
-								<View
-									style={{
-										height: countWidth,
-										width: countWidth,
-										borderRadius: 5,
-										backgroundColor: colors.background,
-										display: 'flex',
-										justifyContent: 'center',
-									}}
-								>
-									<TextInput
-										style={{
-											fontFamily: 'Montserrat_800ExtraBold',
-											fontSize: 20,
-											color: colors.text,
-											textAlign: 'center',
-										}}
-									>
-										{count}
-									</TextInput>
-								</View>
-
-								<TouchableOpacity
-									onPress={() => count > 1 && setCount(count - 1)}
-									// onPressIn={() => {
-									// 	count > 1 && setMinusActive(true);
-									// 	count > 1 && setCount(count - 1);
-									// }}
-									// onPressOut={handlePressOut}
-									style={{
-										backgroundColor:
-											Number(count) > 1 ? gradient.solid + 50 : GreyColours.GREY2 + 50,
-										height: countWidth,
-										width: countWidth,
-										borderRadius: 5,
-										overflow: 'hidden',
-										justifyContent: 'center',
-										alignItems: 'center',
-									}}
-								>
-									<Icon
-										family='fontawesome'
-										name='minus'
-										size={20}
-										colour={Number(count) > 1 ? gradient.solid : GreyColours.GREY2}
-									/>
-								</TouchableOpacity>
-
-								<TouchableOpacity
-									onPress={() => setCount(count + 1)}
-									// onPressIn={() => {
-									// 	setAddActive(true);
-									// 	setCount(count + 1);
-									// }}
-									// onPressOut={handlePressOut}
-									style={{
-										backgroundColor: gradient.solid + 50,
-										height: countWidth,
-										width: countWidth,
-										borderRadius: 5,
-										overflow: 'hidden',
-										justifyContent: 'center',
-										alignItems: 'center',
-									}}
-								>
-									<Icon family='fontawesome' name='plus' size={20} colour={gradient.solid} />
-								</TouchableOpacity>
-							</View>
-						</Card>
-						<Card title='Reminder' style={{ flex: 1 }}></Card>
-					</View>
-				</View>
-				<View
-					style={{
-						// flex: 1,
-						// display: 'flex',
-						// justifyContent: 'flex-end',
-						// position: 'absolute',
-						// left: 10,
-						// right: 10,
-						// bottom: -20,
-						padding: 10,
-						paddingTop: 20,
-
-						// backgroundColor: 'red',
-					}}
-				>
-					<TouchableOpacity
-						onPress={handleSave}
-						style={{
-							display: 'flex',
-							height: 50,
-							flex: 1,
-							borderRadius: 100,
-							overflow: 'hidden',
-							justifyContent: 'center',
-							alignItems: 'center',
-							margin: 10,
-							// marginTop: 70,
-						}}
-					>
-						<LinearGradient
-							colors={[gradient.start, gradient.end]}
-							style={globalStyles.gradient}
-							start={{ x: 0, y: 0 }}
-							end={{ x: 1, y: 0 }}
-						/>
-						<Text
-							style={{
-								fontFamily: 'Montserrat_600SemiBold',
-								fontSize: 20,
-								color: colors.text,
-							}}
-						>
-							Save
-						</Text>
-					</TouchableOpacity>
-				</View>
-			</ScrollView>
-			<BottomSheet
-				ref={sheetRef}
-				snapPoints={['100%', 0]}
-				initialSnap={1}
-				renderContent={() => <IconModal />}
-				renderHeader={() => <HeaderModal sheetRef={sheetRef} />}
-				callbackNode={shadow}
-			/>
-		</React.Fragment>
 	);
 }
 
@@ -534,6 +388,32 @@ const ShadowModal = ({ shadow }: ShadowModalProps) => {
 		/>
 	);
 };
+
+interface TimeModalProps {
+	minutes: number;
+	hours: number;
+	handleTimeType: (values: { hours: number; minutes: number }) => void;
+}
+
+const TimeModal = ({ minutes, hours, handleTimeType }: TimeModalProps) => {
+	const { colors } = useTheme();
+
+	return (
+		<View
+			style={{
+				backgroundColor: colors.card,
+				padding: 16,
+				height: '100%',
+			}}
+		>
+			<TimePicker value={{ hours, minutes }} hoursUnit='hr' minutesUnit='m' onChange={handleTimeType} />
+		</View>
+	);
+};
+
+interface HeaderModalProps {
+	sheetRef: React.RefObject<BottomSheet>;
+}
 
 const IconOptions: Partial<IconProps>[] = [
 	{ family: 'feather', name: 'book' },
@@ -584,7 +464,6 @@ const IconModal = ({ setIcon, closeSheet }: IconModalProps) => {
 	const iconWidth = Dimensions.get('window').width / 6.6;
 
 	const handlePress = (icon: Partial<IconProps>) => {
-		console.log(icon);
 		setIcon(icon);
 		closeSheet();
 	};
@@ -628,9 +507,10 @@ const IconModal = ({ setIcon, closeSheet }: IconModalProps) => {
 
 interface HeaderModalProps {
 	sheetRef: React.RefObject<BottomSheet>;
+	height: number;
 }
 
-const HeaderModal = ({ sheetRef }: HeaderModalProps) => {
+const HeaderModal = ({ sheetRef, height }: HeaderModalProps) => {
 	const { colors } = useTheme();
 	const closeSheet = () => {
 		sheetRef.current && sheetRef.current.snapTo(1);
@@ -641,7 +521,7 @@ const HeaderModal = ({ sheetRef }: HeaderModalProps) => {
 	const headerStyles = StyleSheet.flatten([header, headerBackground]);
 
 	return (
-		<TouchableWithoutFeedback style={modalStyles.headerTouchable} onPress={closeSheet}>
+		<TouchableWithoutFeedback style={[modalStyles.headerTouchable, { height: height }]} onPress={closeSheet}>
 			<View style={headerStyles}>
 				<View style={modalStyles.panelHeader}>
 					<View style={modalStyles.panelHandle} />
@@ -653,7 +533,6 @@ const HeaderModal = ({ sheetRef }: HeaderModalProps) => {
 
 const modalStyles = StyleSheet.create({
 	headerTouchable: {
-		height: 240,
 		display: 'flex',
 		justifyContent: 'flex-end',
 	},
