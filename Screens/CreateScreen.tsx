@@ -40,7 +40,7 @@ import {
 	WEEKEND_SCHEDULE,
 } from '../Components/Scheduler';
 import { createHabit } from '../Storage/HabitController';
-import { HabitProps } from '../Components/Habit';
+import { HabitProps, HabitType } from '../Components/Habit';
 import { getRandomBytes } from 'expo-random';
 import SegmentedControl from '@react-native-community/segmented-control';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -54,15 +54,16 @@ export default function CreateScreen({ navigation }: CreateProps) {
 	const { gradient, setGradient } = useContext(GradientContext);
 	const { colors } = useTheme();
 
-	const sheetRef = React.useRef<BottomSheet>(null);
+	let sheetRef = React.useRef<BottomSheet>(null);
 	let shadow = new Animated.Value(1);
 
 	const [name, setName] = useState('');
 	const [count, setCount] = useState(1);
+	const [type, setType] = useState<HabitType>('count');
+	const [icon, setIcon] = useState<Partial<IconProps>>({ family: 'fontawesome5', name: 'icons' });
 
 	const [schedule, setSchedule] = useState<ScheduleType>({ ...DEFAULT_SCHEDULE });
 	const [countWidth, setCountWidth] = useState(40);
-	const inputAccessoryViewID = 'countID';
 
 	const scheduleFunctions = [
 		() => setSchedule({ ...EVERYDAY_SCHEDULE }),
@@ -72,6 +73,10 @@ export default function CreateScreen({ navigation }: CreateProps) {
 
 	const openSheet = () => {
 		sheetRef.current && sheetRef.current.snapTo(0);
+	};
+
+	const closeSheet = () => {
+		sheetRef.current && sheetRef.current.snapTo(1);
 	};
 
 	const handleSave = () => {
@@ -87,67 +92,31 @@ export default function CreateScreen({ navigation }: CreateProps) {
 		createHabit(habit);
 	};
 
-	const [addActive, setAddActive] = useState(false);
-	const [minusActive, setMinusActive] = useState(false);
+	const handleCountType = (text: string) => {
+		setCount(Number(text));
+	};
 
-	let interval: NodeJS.Timeout;
-	// let timeout: NodeJS.Timeout;
+	const handleCountChange = () => {
+		setCount(1);
+		setType('count');
+	};
 
-	// useEffect(() => {
-	// 	incrementCount();
-	// 	return () => {
-	// 		clearInterval(interval);
-	// 		// clearTimeout(timeout);
-	// 	};
-	// }, [count, addActive, setMinusActive]);
+	const handleTimeChange = () => {
+		setCount(60);
+		setType('timer');
+	};
 
-	// const incrementCount = () => {
-	// 	if (addActive) {
-	// 		interval = setInterval(() => {
-	// 			setCount(count + 1);
-	// 		}, 200);
-	// 	}
-	// 	if (minusActive && count > 1) {
-	// 		interval = setInterval(() => {
-	// 			setCount(count - 1);
-	// 		}, 200);
-	// 	}
-	// };
+	const keyboardDidHideListener = useRef<EmitterSubscription>();
+	const onKeyboardHide = () => {
+		count === 0 && setCount(1);
+	};
 
-	// const handlePressOut = () => {
-	// 	setAddActive(false);
-	// 	setMinusActive(false);
-	// };
-
-	// const [keyboardOffset, setKeyboardOffset] = useState(0);
-	// const onKeyboardShow = (event: KeyboardEvent) => setKeyboardOffset(event.endCoordinates.height);
-	// const onKeyboardHide = () => setKeyboardOffset(0);
-	// const keyboardDidShowListener = useRef<EmitterSubscription>();
-	// const keyboardDidHideListener = useRef<EmitterSubscription>();
-
-	// useEffect(() => {
-	// 	keyboardDidShowListener.current = Keyboard.addListener('keyboardWillShow', onKeyboardShow);
-	// 	keyboardDidHideListener.current = Keyboard.addListener('keyboardWillHide', onKeyboardHide);
-
-	// 	return () => {
-	// 		keyboardDidShowListener.current!.remove();
-	// 		keyboardDidHideListener.current!.remove();
-	// 	};
-	// }, []);
-
-	// const offsetStyle: StyleProp<ViewStyle> = {
-	// 	position: 'absolute',
-	// 	bottom: keyboardOffset,
-	// 	zIndex: 10,
-	// 	backgroundColor: 'red',
-	// 	height: 100,
-	// 	width: '100%',
-	// };
-	// const normalStyle: StyleProp<ViewStyle> = {
-	// 	position: 'relative',
-	// 	height: 100,
-	// 	backgroundColor: 'red',
-	// };
+	useEffect(() => {
+		keyboardDidHideListener.current = Keyboard.addListener('keyboardDidHide', onKeyboardHide);
+		return () => {
+			keyboardDidHideListener.current!.remove();
+		};
+	}, [count]);
 
 	return (
 		<KeyboardAwareScrollView contentContainerStyle={{ flex: 1 }} scrollEnabled={false} extraScrollHeight={60}>
@@ -155,7 +124,7 @@ export default function CreateScreen({ navigation }: CreateProps) {
 			<View style={{ display: 'flex', flexDirection: 'row' }}>
 				<TouchableOpacity onPress={openSheet}>
 					<Card>
-						<Icon family='fontawesome5' name='icons' size={28} colour={GreyColours.GREY2} />
+						<Icon family={icon.family} name={icon.name} size={28} colour={GreyColours.GREY2} />
 					</Card>
 				</TouchableOpacity>
 				<Card style={{ marginLeft: 0, flex: 1 }}>
@@ -190,46 +159,133 @@ export default function CreateScreen({ navigation }: CreateProps) {
 				<Card title='Type' style={{ marginRight: 0 }}>
 					<View style={{ display: 'flex', flexDirection: 'row' }}>
 						<TouchableOpacity
-							onPress={openSheet}
-							style={{
-								backgroundColor: colors.background,
-								padding: 10,
-								borderRadius: 5,
-								marginRight: 10,
-							}}
+							onPress={handleCountChange}
+							style={[
+								globalStyles.type,
+								{
+									backgroundColor: type === 'count' ? gradient.solid + 50 : GreyColours.GREY2 + 50,
+									marginRight: 10,
+								},
+							]}
 						>
-							<Icon family='fontawesome5' name='icons' size={28} colour={GreyColours.GREY2} />
+							<Icon
+								family='fontawesome'
+								name='plus'
+								size={24}
+								colour={type === 'count' ? gradient.solid : GreyColours.GREY2}
+								style={{ zIndex: 1 }}
+							/>
 						</TouchableOpacity>
 						<TouchableOpacity
-							onPress={openSheet}
-							style={{
-								backgroundColor: colors.background,
-								padding: 10,
-								borderRadius: 5,
-							}}
+							onPress={handleTimeChange}
+							style={[
+								globalStyles.type,
+								{
+									backgroundColor: type === 'timer' ? gradient.solid + 50 : GreyColours.GREY2 + 50,
+								},
+							]}
 						>
-							<Icon family='fontawesome5' name='icons' size={28} colour={GreyColours.GREY2} />
+							<Icon
+								family='antdesign'
+								name='clockcircle'
+								size={24}
+								colour={type === 'timer' ? gradient.solid : GreyColours.GREY2}
+								style={{ zIndex: 1 }}
+							/>
 						</TouchableOpacity>
 					</View>
 				</Card>
 				<Card title='Value' style={{ flex: 1 }}>
-					<TextInput
-						placeholder='Name'
-						placeholderTextColor={GreyColours.GREY2}
-						returnKeyType='done'
-						onChangeText={(name) => setName(name)}
-						value={name}
-						style={[
-							globalStyles.cardText,
-							{
-								color: gradient.solid,
-								flex: 1,
-								backgroundColor: colors.background,
-								paddingLeft: 10,
-								borderRadius: 5,
-							},
-						]}
-					/>
+					{type === 'count' ? (
+						<View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+							<TextInput
+								returnKeyType='done'
+								onChangeText={handleCountType}
+								value={count > 0 ? count.toString() : ''}
+								keyboardType='number-pad'
+								style={[
+									{
+										color: gradient.solid,
+										flex: 1,
+										backgroundColor: colors.background,
+										borderRadius: 5,
+										textAlign: 'center',
+										fontFamily: 'Montserrat_800ExtraBold',
+										fontSize: 20,
+									},
+								]}
+							/>
+							<TouchableOpacity
+								onPress={() => count > 1 && setCount(count - 1)}
+								style={[
+									globalStyles.count,
+									{
+										marginLeft: 10,
+										marginRight: 10,
+										backgroundColor:
+											Number(count) > 1 ? gradient.solid + 50 : GreyColours.GREY2 + 50,
+									},
+								]}
+							>
+								<Icon
+									family='fontawesome'
+									name='minus'
+									size={24}
+									colour={Number(count) > 1 ? gradient.solid : GreyColours.GREY2}
+								/>
+							</TouchableOpacity>
+
+							<TouchableOpacity
+								onPress={() => setCount(count + 1)}
+								style={[
+									globalStyles.count,
+									{
+										backgroundColor: gradient.solid + 50,
+									},
+								]}
+							>
+								<Icon family='fontawesome' name='plus' size={24} colour={gradient.solid} />
+							</TouchableOpacity>
+						</View>
+					) : (
+						<Text>Clock</Text>
+					)}
+					{/* {type === 'count' &&
+					<View style={{ display: 'flex', flexDirection: 'row' }}>
+							<View
+								style={{
+									flex: 1,
+									display: 'flex',
+									flexDirection: 'row',
+									justifyContent: 'space-between',
+								}}
+								onLayout={(event) => {
+									let { width } = event.nativeEvent.layout;
+									setCountWidth(width / 3 - 5);
+								}}
+							>
+								<View
+									style={{
+										height: countWidth,
+										width: countWidth,
+										borderRadius: 5,
+										backgroundColor: colors.background,
+										display: 'flex',
+										justifyContent: 'center',
+									}}
+								>
+									<TextInput
+										style={{
+											fontFamily: 'Montserrat_800ExtraBold',
+											fontSize: 20,
+											color: colors.text,
+											textAlign: 'center',
+										}}
+									>
+										{count}
+									</TextInput>
+								</View>
+					</View>  */}
 				</Card>
 			</View>
 
@@ -237,7 +293,7 @@ export default function CreateScreen({ navigation }: CreateProps) {
 				ref={sheetRef}
 				snapPoints={['100%', 0]}
 				initialSnap={1}
-				renderContent={() => <IconModal />}
+				renderContent={() => <IconModal setIcon={setIcon} closeSheet={closeSheet} />}
 				renderHeader={() => <HeaderModal sheetRef={sheetRef} />}
 				callbackNode={shadow}
 			/>
@@ -518,9 +574,20 @@ const IconOptions: Partial<IconProps>[] = [
 	{ family: 'fontawesome5', name: 'drum' },
 ];
 
-const IconModal = () => {
+interface IconModalProps {
+	setIcon: React.Dispatch<React.SetStateAction<Partial<IconProps>>>;
+	closeSheet: () => void;
+}
+
+const IconModal = ({ setIcon, closeSheet }: IconModalProps) => {
 	const { colors } = useTheme();
 	const iconWidth = Dimensions.get('window').width / 6.6;
+
+	const handlePress = (icon: Partial<IconProps>) => {
+		console.log(icon);
+		setIcon(icon);
+		closeSheet();
+	};
 	return (
 		<ScrollView
 			style={{
@@ -542,6 +609,7 @@ const IconModal = () => {
 				{IconOptions.map((icon, index) => (
 					<TouchableOpacity
 						key={index}
+						onPress={() => handlePress(icon)}
 						style={{
 							padding: 10,
 							width: iconWidth,
@@ -618,7 +686,24 @@ const globalStyles = StyleSheet.create({
 		fontFamily: 'Montserrat_600SemiBold',
 		fontSize: 18,
 	},
+	type: {
+		borderRadius: 5,
+		overflow: 'hidden',
+		height: 45,
+		width: 45,
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
 
+	count: {
+		height: 45,
+		width: 45,
+		borderRadius: 5,
+		overflow: 'hidden',
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
 	// cardTitle: {
 	// 	paddingBottom: 10,
 	// 	color: '#c5c5c5',

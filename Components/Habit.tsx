@@ -19,11 +19,7 @@ import {
 	TouchableWithoutFeedback,
 	StyleSheet,
 } from 'react-native';
-import {
-	PanGestureHandler,
-	RectButton,
-	PanGestureHandlerGestureEvent,
-} from 'react-native-gesture-handler';
+import { PanGestureHandler, RectButton, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import TextTicker from 'react-native-text-ticker';
 import { GradientColours, GradientType } from '../Styles/Colours';
@@ -86,7 +82,7 @@ export const HabitMap: HabitProps[] = [
 	},
 ];
 
-type HabitType = 'check' | 'count' | 'timer';
+export type HabitType = 'check' | 'count' | 'timer';
 
 export interface HabitProps {
 	id: string;
@@ -403,31 +399,14 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 									color: colors.text,
 								}}
 							>
-								{type == 'count'
-									? `${count}/${progressTotal}`
-									: getTimeString(count)}
+								{type == 'count' ? `${count}/${progressTotal}` : getTimeString(count)}
 							</Text>
 						) : type == 'timer' ? (
-							<Icon
-								family='fontawesome'
-								name='clock-o'
-								size={12}
-								colour={colors.text}
-							/>
+							<Icon family='fontawesome' name='clock-o' size={12} colour={colors.text} />
 						) : type == 'count' ? (
-							<Icon
-								family='fontawesome'
-								name='circle-o'
-								size={12}
-								colour={colors.text}
-							/>
+							<Icon family='fontawesome' name='circle-o' size={12} colour={colors.text} />
 						) : (
-							<Icon
-								family='fontawesome'
-								name='circle-o'
-								size={12}
-								colour={colors.text}
-							/>
+							<Icon family='fontawesome' name='circle-o' size={12} colour={colors.text} />
 						)}
 					</TouchableOpacity>
 				</Animated.View>
