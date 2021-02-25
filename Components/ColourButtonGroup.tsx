@@ -7,11 +7,7 @@ interface ColouredButtonGroupProps {
 	buttonFunctions: (() => void)[];
 }
 
-export const ColourButtonGroup = ({
-	buttons,
-	buttonFunctions,
-	colour,
-}: ColouredButtonGroupProps) => {
+export const ColourButtonGroup = ({ buttons, buttonFunctions, colour }: ColouredButtonGroupProps) => {
 	const width = 95 / buttons.length;
 
 	const styles = StyleSheet.create({
@@ -22,7 +18,6 @@ export const ColourButtonGroup = ({
 			borderRadius: 5,
 		},
 		touchable: {
-			flex: 1,
 			padding: 8,
 		},
 		text: {

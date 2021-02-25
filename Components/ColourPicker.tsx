@@ -39,10 +39,7 @@ export const ColourPicker = ({ updateGradient }: ColourPickerProps) => {
 			{combinedColours.map((half, index) => (
 				<View key={`Half${index}`} style={styles.container}>
 					{half.map((gradient, index) => (
-						<TouchableOpacity
-							key={index}
-							onPress={() => updateGradient(gradient)}
-							style={styles.swatch}>
+						<TouchableOpacity key={index} onPress={() => updateGradient(gradient)} style={styles.swatch}>
 							<LinearGradient
 								colors={[gradient.start, gradient.end]}
 								style={styles.gradient}

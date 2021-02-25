@@ -44,6 +44,7 @@ import { HabitProps } from '../Components/Habit';
 import { getRandomBytes } from 'expo-random';
 import SegmentedControl from '@react-native-community/segmented-control';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { Card } from '../Components/Card';
 
 interface CreateProps {
 	navigation: AppNavProps;
@@ -149,8 +150,102 @@ export default function CreateScreen({ navigation }: CreateProps) {
 	// };
 
 	return (
-		<React.Fragment>
+		<KeyboardAwareScrollView contentContainerStyle={{ flex: 1 }} scrollEnabled={false} extraScrollHeight={60}>
 			<ShadowModal shadow={shadow} />
+			<View style={{ display: 'flex', flexDirection: 'row' }}>
+				<TouchableOpacity onPress={openSheet}>
+					<Card>
+						<Icon family='fontawesome5' name='icons' size={28} colour={GreyColours.GREY2} />
+					</Card>
+				</TouchableOpacity>
+				<Card style={{ marginLeft: 0, flex: 1 }}>
+					<TextInput
+						placeholder='Name'
+						placeholderTextColor={GreyColours.GREY2}
+						returnKeyType='done'
+						onChangeText={(name) => setName(name)}
+						value={name}
+						style={[
+							globalStyles.cardText,
+							{
+								color: gradient.solid,
+								flex: 1,
+							},
+						]}
+					/>
+				</Card>
+			</View>
+			<Card title='Colour'>
+				<ColourPicker updateGradient={(gradient) => setGradient(gradient)} />
+			</Card>
+			<Card title='Schedule'>
+				<Scheduler schedule={schedule} setSchedule={setSchedule} gradient={gradient} />
+				<ColourButtonGroup
+					buttons={['Everyday', 'Weekdays', 'Weekend']}
+					buttonFunctions={scheduleFunctions}
+					colour={gradient.solid}
+				/>
+			</Card>
+			<View style={{ display: 'flex', flexDirection: 'row' }}>
+				<Card title='Type' style={{ marginRight: 0 }}>
+					<View style={{ display: 'flex', flexDirection: 'row' }}>
+						<TouchableOpacity
+							onPress={openSheet}
+							style={{
+								backgroundColor: colors.background,
+								padding: 10,
+								borderRadius: 5,
+								marginRight: 10,
+							}}
+						>
+							<Icon family='fontawesome5' name='icons' size={28} colour={GreyColours.GREY2} />
+						</TouchableOpacity>
+						<TouchableOpacity
+							onPress={openSheet}
+							style={{
+								backgroundColor: colors.background,
+								padding: 10,
+								borderRadius: 5,
+							}}
+						>
+							<Icon family='fontawesome5' name='icons' size={28} colour={GreyColours.GREY2} />
+						</TouchableOpacity>
+					</View>
+				</Card>
+				<Card title='Value' style={{ flex: 1 }}>
+					<TextInput
+						placeholder='Name'
+						placeholderTextColor={GreyColours.GREY2}
+						returnKeyType='done'
+						onChangeText={(name) => setName(name)}
+						value={name}
+						style={[
+							globalStyles.cardText,
+							{
+								color: gradient.solid,
+								flex: 1,
+								backgroundColor: colors.background,
+								paddingLeft: 10,
+								borderRadius: 5,
+							},
+						]}
+					/>
+				</Card>
+			</View>
+
+			<BottomSheet
+				ref={sheetRef}
+				snapPoints={['100%', 0]}
+				initialSnap={1}
+				renderContent={() => <IconModal />}
+				renderHeader={() => <HeaderModal sheetRef={sheetRef} />}
+				callbackNode={shadow}
+			/>
+		</KeyboardAwareScrollView>
+	);
+
+	return (
+		<React.Fragment>
 			<KeyboardAvoidingView></KeyboardAvoidingView>
 			<ScrollView style={{ flex: 1 }} scrollEnabled={true}>
 				<View style={{ flex: 1, padding: 10 }}>
@@ -171,13 +266,9 @@ export default function CreateScreen({ navigation }: CreateProps) {
 									height: 50,
 									marginRight: 5,
 								},
-							]}>
-							<Icon
-								family='fontawesome5'
-								name='icons'
-								size={28}
-								colour={GreyColours.GREY2}
-							/>
+							]}
+						>
+							<Icon family='fontawesome5' name='icons' size={28} colour={GreyColours.GREY2} />
 						</TouchableOpacity>
 
 						<TextInput
@@ -201,11 +292,7 @@ export default function CreateScreen({ navigation }: CreateProps) {
 						<ColourPicker updateGradient={(gradient) => setGradient(gradient)} />
 					</Card>
 					<Card title='Schedule'>
-						<Scheduler
-							schedule={schedule}
-							setSchedule={setSchedule}
-							gradient={gradient}
-						/>
+						<Scheduler schedule={schedule} setSchedule={setSchedule} gradient={gradient} />
 						<ColourButtonGroup
 							buttons={['Everyday', 'Weekdays', 'Weekend']}
 							buttonFunctions={scheduleFunctions}
@@ -217,13 +304,15 @@ export default function CreateScreen({ navigation }: CreateProps) {
 						style={{
 							display: 'flex',
 							flexDirection: 'row',
-						}}>
+						}}
+					>
 						<Card
 							title='Count'
 							style={{
 								flex: 1,
 								marginRight: 5,
-							}}>
+							}}
+						>
 							<View
 								style={{
 									flex: 1,
@@ -234,7 +323,8 @@ export default function CreateScreen({ navigation }: CreateProps) {
 								onLayout={(event) => {
 									let { width } = event.nativeEvent.layout;
 									setCountWidth(width / 3 - 5);
-								}}>
+								}}
+							>
 								<View
 									style={{
 										height: countWidth,
@@ -243,14 +333,16 @@ export default function CreateScreen({ navigation }: CreateProps) {
 										backgroundColor: colors.background,
 										display: 'flex',
 										justifyContent: 'center',
-									}}>
+									}}
+								>
 									<TextInput
 										style={{
 											fontFamily: 'Montserrat_800ExtraBold',
 											fontSize: 20,
 											color: colors.text,
 											textAlign: 'center',
-										}}>
+										}}
+									>
 										{count}
 									</TextInput>
 								</View>
@@ -264,23 +356,20 @@ export default function CreateScreen({ navigation }: CreateProps) {
 									// onPressOut={handlePressOut}
 									style={{
 										backgroundColor:
-											Number(count) > 1
-												? gradient.solid + 50
-												: GreyColours.GREY2 + 50,
+											Number(count) > 1 ? gradient.solid + 50 : GreyColours.GREY2 + 50,
 										height: countWidth,
 										width: countWidth,
 										borderRadius: 5,
 										overflow: 'hidden',
 										justifyContent: 'center',
 										alignItems: 'center',
-									}}>
+									}}
+								>
 									<Icon
 										family='fontawesome'
 										name='minus'
 										size={20}
-										colour={
-											Number(count) > 1 ? gradient.solid : GreyColours.GREY2
-										}
+										colour={Number(count) > 1 ? gradient.solid : GreyColours.GREY2}
 									/>
 								</TouchableOpacity>
 
@@ -299,13 +388,9 @@ export default function CreateScreen({ navigation }: CreateProps) {
 										overflow: 'hidden',
 										justifyContent: 'center',
 										alignItems: 'center',
-									}}>
-									<Icon
-										family='fontawesome'
-										name='plus'
-										size={20}
-										colour={gradient.solid}
-									/>
+									}}
+								>
+									<Icon family='fontawesome' name='plus' size={20} colour={gradient.solid} />
 								</TouchableOpacity>
 							</View>
 						</Card>
@@ -325,7 +410,8 @@ export default function CreateScreen({ navigation }: CreateProps) {
 						paddingTop: 20,
 
 						// backgroundColor: 'red',
-					}}>
+					}}
+				>
 					<TouchableOpacity
 						onPress={handleSave}
 						style={{
@@ -338,7 +424,8 @@ export default function CreateScreen({ navigation }: CreateProps) {
 							alignItems: 'center',
 							margin: 10,
 							// marginTop: 70,
-						}}>
+						}}
+					>
 						<LinearGradient
 							colors={[gradient.start, gradient.end]}
 							style={globalStyles.gradient}
@@ -350,7 +437,8 @@ export default function CreateScreen({ navigation }: CreateProps) {
 								fontFamily: 'Montserrat_600SemiBold',
 								fontSize: 20,
 								color: colors.text,
-							}}>
+							}}
+						>
 							Save
 						</Text>
 					</TouchableOpacity>
@@ -440,7 +528,8 @@ const IconModal = () => {
 				padding: 16,
 				height: '100%',
 			}}
-			showsVerticalScrollIndicator={false}>
+			showsVerticalScrollIndicator={false}
+		>
 			<View
 				style={{
 					width: '100%',
@@ -448,7 +537,8 @@ const IconModal = () => {
 					flexDirection: 'row',
 					flexWrap: 'wrap',
 					// justifyContent: 'space-evenly',
-				}}>
+				}}
+			>
 				{IconOptions.map((icon, index) => (
 					<TouchableOpacity
 						key={index}
@@ -458,13 +548,9 @@ const IconModal = () => {
 							// backgroundColor: 'red',
 							display: 'flex',
 							alignItems: 'center',
-						}}>
-						<Icon
-							family={icon.family}
-							name={icon.name}
-							colour={colors.text}
-							size={30}
-						/>
+						}}
+					>
+						<Icon family={icon.family} name={icon.name} colour={colors.text} size={30} />
 					</TouchableOpacity>
 				))}
 			</View>
@@ -527,54 +613,19 @@ const modalStyles = StyleSheet.create({
 	},
 });
 
-interface CardProps {
-	children?: React.ReactNode;
-	title: string;
-	style?: ViewStyle;
-}
-
-const Card = ({ children, title, style }: CardProps) => {
-	const { colors } = useTheme();
-
-	const styles = StyleSheet.create({
-		card: {
-			margin: 10,
-			marginBottom: 5,
-			padding: 10,
-			borderRadius: 5,
-			backgroundColor: colors.card,
-		},
-		title: {
-			paddingBottom: 10,
-			color: GreyColours.GREY2,
-			fontFamily: 'Montserrat_600SemiBold',
-			fontSize: 18,
-			flex: 1,
-		},
-	});
-
-	return (
-		<View style={[styles.card, style]}>
-			<Text style={styles.title}>{title}</Text>
-			{children}
-		</View>
-	);
-};
-
 const globalStyles = StyleSheet.create({
-	card: { margin: 10, marginBottom: 5, padding: 10, borderRadius: 5 },
 	cardText: {
 		fontFamily: 'Montserrat_600SemiBold',
 		fontSize: 18,
-		flex: 1,
 	},
-	cardTitle: {
-		paddingBottom: 10,
-		color: '#c5c5c5',
-		fontFamily: 'Montserrat_600SemiBold',
-		fontSize: 18,
-		flex: 1,
-	},
+
+	// cardTitle: {
+	// 	paddingBottom: 10,
+	// 	color: '#c5c5c5',
+	// 	fontFamily: 'Montserrat_600SemiBold',
+	// 	fontSize: 18,
+	// 	flex: 1,
+	// },
 	gradient: {
 		position: 'absolute',
 		left: 0,
