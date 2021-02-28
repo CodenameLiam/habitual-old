@@ -44,7 +44,7 @@ export function TimePicker({ value, onChange, hoursUnit, minutesUnit, zeroPaddin
 
 	const getMinutesItems = () => {
 		const items = [];
-		for (let i = 1; i <= MAX_MINUTES; i++) {
+		for (let i = 0; i <= MAX_MINUTES; i++) {
 			items.push(<Picker.Item key={i} value={i} label={getLabel(i, minutesUnit)} color={colors.text} />);
 		}
 		return items;

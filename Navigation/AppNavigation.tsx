@@ -1,10 +1,6 @@
 import { DrawerNavigationProp, useIsDrawerOpen } from '@react-navigation/drawer';
 import { useTheme } from '@react-navigation/native';
-import {
-	createStackNavigator,
-	StackNavigationProp,
-	TransitionPresets,
-} from '@react-navigation/stack';
+import { createStackNavigator, StackNavigationProp, TransitionPresets } from '@react-navigation/stack';
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Button, StyleSheet, Text, Vibration } from 'react-native';
 import { RootDrawerParamList } from './RootNavigation';
@@ -91,10 +87,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 						</TouchableOpacity>
 					),
 					headerRight: () => (
-						<TouchableOpacity
-							style={{ paddingRight: 25 }}
-							onPress={() => handleAdd(navigation)}
-						>
+						<TouchableOpacity style={{ paddingRight: 25 }} onPress={() => handleAdd(navigation)}>
 							<Entypo name='plus' size={38} color={colors.text} />
 						</TouchableOpacity>
 					),
@@ -133,12 +126,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 							}}
 							onPress={() => navigation.navigate('Ideas')}
 						>
-							<Icon
-								family='antdesign'
-								name='appstore-o'
-								size={28}
-								colour={colors.text}
-							/>
+							<Icon family='antdesign' name='appstore-o' size={28} colour={colors.text} />
 						</TouchableOpacity>
 					),
 				})}

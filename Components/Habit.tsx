@@ -8,7 +8,7 @@ import {
 } from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getRandomBytes } from 'expo-random';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
 	View,
 	Text,
@@ -22,76 +22,80 @@ import {
 import { PanGestureHandler, RectButton, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import TextTicker from 'react-native-text-ticker';
+import { AppContext } from '../Context/AppContext';
+import { useHabits } from '../Storage/HabitController';
 import { GradientColours, GradientType } from '../Styles/Colours';
 import Icon, { IconProps } from './Icon';
+import { ScheduleType } from './Scheduler';
 
-export const HabitMap: HabitProps[] = [
-	{
-		id: getRandomBytes(8).join(''),
-		name: 'Read',
-		icon: { family: 'feather', name: 'book' },
-		gradient: GradientColours.PURPLE,
-		progress: 1,
-		progressTotal: 1,
-		type: 'check',
-	},
-	{
-		id: getRandomBytes(8).join(''),
-		name: 'Read',
-		icon: { family: 'feather', name: 'book' },
-		gradient: GradientColours.RED,
-		progress: 1,
-		progressTotal: 1,
-		type: 'check',
-	},
-	{
-		id: getRandomBytes(8).join(''),
-		name: 'Read',
-		icon: { family: 'feather', name: 'book' },
-		gradient: GradientColours.PEACH,
-		progress: 1,
-		progressTotal: 1,
-		type: 'check',
-	},
-	{
-		id: getRandomBytes(8).join(''),
-		name: 'Read',
-		icon: { family: 'feather', name: 'book' },
-		gradient: GradientColours.TANGERINE,
-		progress: 1,
-		progressTotal: 1,
-		type: 'check',
-	},
-	{
-		id: getRandomBytes(8).join(''),
-		name: 'Read',
-		icon: { family: 'feather', name: 'book' },
-		gradient: GradientColours.ORANGE,
-		progress: 1,
-		progressTotal: 1,
-		type: 'check',
-	},
-	{
-		id: getRandomBytes(8).join(''),
-		name: 'Read',
-		icon: { family: 'feather', name: 'book' },
-		gradient: GradientColours.PINK,
-		progress: 1,
-		progressTotal: 1,
-		type: 'check',
-	},
-];
+// export const HabitMap: HabitProps[] = [
+// 	{
+// 		id: getRandomBytes(8).join(''),
+// 		name: 'Read',
+// 		icon: { family: 'feather', name: 'book' },
+// 		gradient: GradientColours.PURPLE,
+// 		progress: 1,
+// 		progressTotal: 1,
+// 		type: 'check',
+// 	},
+// 	{
+// 		id: getRandomBytes(8).join(''),
+// 		name: 'Read',
+// 		icon: { family: 'feather', name: 'book' },
+// 		gradient: GradientColours.RED,
+// 		progress: 1,
+// 		progressTotal: 1,
+// 		type: 'check',
+// 	},
+// 	{
+// 		id: getRandomBytes(8).join(''),
+// 		name: 'Read',
+// 		icon: { family: 'feather', name: 'book' },
+// 		gradient: GradientColours.PEACH,
+// 		progress: 1,
+// 		progressTotal: 1,
+// 		type: 'check',
+// 	},
+// 	{
+// 		id: getRandomBytes(8).join(''),
+// 		name: 'Read',
+// 		icon: { family: 'feather', name: 'book' },
+// 		gradient: GradientColours.TANGERINE,
+// 		progress: 1,
+// 		progressTotal: 1,
+// 		type: 'check',
+// 	},
+// 	{
+// 		id: getRandomBytes(8).join(''),
+// 		name: 'Read',
+// 		icon: { family: 'feather', name: 'book' },
+// 		gradient: GradientColours.ORANGE,
+// 		progress: 1,
+// 		progressTotal: 1,
+// 		type: 'check',
+// 	},
+// 	{
+// 		id: getRandomBytes(8).join(''),
+// 		name: 'Read',
+// 		icon: { family: 'feather', name: 'book' },
+// 		gradient: GradientColours.PINK,
+// 		progress: 1,
+// 		progressTotal: 1,
+// 		type: 'check',
+// 	},
+// ];
 
 export type HabitType = 'check' | 'count' | 'timer';
 
 export interface HabitProps {
-	id: string;
+	// id: string;
 	name: string;
 	icon: Partial<IconProps>;
 	gradient: GradientType;
 	progress: number;
 	progressTotal: number;
 	type: HabitType;
+	schedule: ScheduleType;
 }
 
 const getTimeOffset = (seconds: number): number => {
@@ -114,8 +118,10 @@ export const getTimeString = (seconds: number): string => {
 
 const HabitMaxInterpolation = Dimensions.get('window').width - 120;
 
-export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: HabitProps) => {
+export const Habit = ({ id, name, icon, gradient, progress, progressTotal, type, schedule }: HabitProps) => {
 	const { colors } = useTheme();
+	const { updateHabit } = useContext(AppContext);
+
 	const [count, setCount] = useState(progress);
 	const [animatedCount, setAnimatedCount] = useState(progress);
 	const [complete, setComplete] = useState(progress == progressTotal ? true : false);
@@ -161,17 +167,56 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 
 	const checkComplete = () => {
 		if (count >= progressTotal) {
-			setComplete(true);
-			setShowCounter(false);
-			setTimerActive(false);
+			handleComplete();
+			updateHabit({
+				id: id,
+				name: name,
+				icon: icon,
+				gradient: gradient,
+				progress: progressTotal,
+				progressTotal: progressTotal,
+				type: type,
+				schedule: schedule,
+			});
 		}
 	};
 
 	const addProgress = () => {
+		count + 1 !== progressTotal &&
+			updateHabit({
+				id: id,
+				name: name,
+				icon: icon,
+				gradient: gradient,
+				progress: count + 1,
+				progressTotal: progressTotal,
+				type: type,
+				schedule: schedule,
+			});
+
 		setShowCounter(true);
 		setCount(count + 1);
 		setAnimatedCount(count + 1);
 		hapticFeedback(count + 1);
+	};
+
+	const resetHabit = () => {
+		updateHabit({
+			id: id,
+			name: name,
+			icon: icon,
+			gradient: gradient,
+			progress: 0,
+			progressTotal: progressTotal,
+			type: type,
+			schedule: schedule,
+		});
+
+		setCount(0);
+		setAnimatedCount(0);
+		setComplete(false);
+		setTimerActive(false);
+		setShowCounter(false);
 	};
 
 	const hapticFeedback = (count: number) => {
@@ -188,16 +233,10 @@ export const Habit = ({ name, icon, gradient, progress, progressTotal, type }: H
 		impactAsync(ImpactFeedbackStyle.Medium);
 	};
 
-	const resetHabit = () => {
-		setCount(0);
-		setAnimatedCount(0);
-		setComplete(false);
-		setTimerActive(false);
-		setShowCounter(false);
-	};
-
 	const handleComplete = () => {
 		setComplete(true);
+		setShowCounter(false);
+		setTimerActive(false);
 		setCount(progressTotal);
 	};
 

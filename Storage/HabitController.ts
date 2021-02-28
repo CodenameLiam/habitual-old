@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { HabitProps } from '../Components/Habit';
+import { AppContext } from '../Context/AppContext';
 import { getData, storeData } from './StorageController';
 
 const HABITS_KEY = '@Habits';
@@ -10,18 +11,14 @@ export const createHabit = async (habit: HabitProps) => {
 	allHabits == null && (allHabits = {});
 	allHabits[habit.id] = habit;
 	await storeData(HABITS_KEY, allHabits);
-
-	// console.log('\n\n');
-	// console.log(allHabits);
 };
 
 const getAllHabits = async () => {
 	return await getData(HABITS_KEY);
-	// console.log(habits);
 };
 
-export const useHabits = () => {
-	const [habits, setHabits] = useState<HabitProps[]>();
+export const useInitialHabits = () => {
+	const [habits, setHabits] = useState<HabitProps[]>([]);
 
 	useEffect(() => {
 		parseHabits();
@@ -30,10 +27,39 @@ export const useHabits = () => {
 	const parseHabits = async () => {
 		const allHabits = await getAllHabits();
 		allHabits && setHabits(Object.values(allHabits));
-		// console.log(Object.values(allHabits));
 	};
 
-	const refetch = () => parseHabits();
+	return { habits, setHabits };
+};
 
-	return { habits, setHabits, refetch };
+export const useHabits = () => {
+	const [habits, setHabits] = useState<HabitProps[]>([]);
+
+	useEffect(() => {
+		parseHabits();
+	}, []);
+
+	const parseHabits = async () => {
+		const allHabits = await getAllHabits();
+		console.log(allHabits);
+		allHabits && setHabits(Object.values(allHabits));
+	};
+
+	const createHabit = async (habit: HabitProps) => {
+		setHabits([...habits, habit]);
+
+		let allHabits = await getAllHabits();
+		allHabits == null && (allHabits = {});
+		allHabits[habit.id] = habit;
+		await storeData(HABITS_KEY, allHabits);
+	};
+
+	const updateHabit = async (habit: HabitProps) => {
+		console.log(habits);
+
+		// console.log(habit);
+		// console.log('\n\n\n');
+	};
+
+	return { habits, setHabits, createHabit, updateHabit };
 };

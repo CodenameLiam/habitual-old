@@ -14,7 +14,7 @@ import { Feather } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import HomeScreen from '../Screens/HomeScreen';
 import CalendarSreen from '../Screens/CalendarScreen';
-import { AppNavProps } from './AppNavigation';
+import { AppNavProps, AppStackParamList } from './AppNavigation';
 import TrendsScreen from '../Screens/Trends';
 import AwardsScreen from '../Screens/AwardsScreen';
 import { GradientColours, TabColours } from '../Styles/Colours';
@@ -28,6 +28,8 @@ export type TabParamList = {
 
 const Tab = createBottomTabNavigator();
 
+// export type TabRouteProps = RouteProp<AppStackParamList, 'Tabs'>;
+
 interface AppProps {
 	navigation: AppNavProps;
 	route: any;
@@ -36,6 +38,8 @@ interface AppProps {
 export default function TabNavigation({ navigation, route }: AppProps) {
 	const { colors } = useTheme();
 
+	// console.log(route.params);
+
 	useLayoutEffect(() => {
 		navigation.setOptions({ headerTitle: getHeaderTitle(route) });
 	}, [navigation, route]);
@@ -43,13 +47,9 @@ export default function TabNavigation({ navigation, route }: AppProps) {
 	return (
 		<Tab.Navigator
 			tabBar={(props) => (
-				<AnimatedTabBar
-					tabs={tabs}
-					preset='flashy'
-					style={{ backgroundColor: colors.background }}
-					{...props}
-				/>
-			)}>
+				<AnimatedTabBar tabs={tabs} preset='flashy' style={{ backgroundColor: colors.background }} {...props} />
+			)}
+		>
 			<Tab.Screen name='Home' component={HomeScreen} />
 			<Tab.Screen name='Calendar' component={CalendarSreen} />
 			<Tab.Screen name='Trends' component={TrendsScreen} />

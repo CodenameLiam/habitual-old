@@ -1,4 +1,3 @@
-import { Montserrat_500Medium } from '@expo-google-fonts/montserrat';
 import { useTheme } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useContext, useEffect, useRef } from 'react';
@@ -7,28 +6,19 @@ import {
 	View,
 	Text,
 	ScrollView,
-	Button,
 	Dimensions,
 	StyleSheet,
 	TouchableOpacity,
-	TouchableHighlight,
-	ViewComponent,
-	ViewStyle,
 	Keyboard,
-	KeyboardEvent,
-	KeyboardAvoidingView,
-	InputAccessoryView,
 	EmitterSubscription,
-	StyleProp,
-	TextStyle,
 } from 'react-native';
 import { TextInput, TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import Animated, { color, Easing, min, set } from 'react-native-reanimated';
-import { ColourPicker, randomGradient } from '../Components/ColourPicker';
+import Animated from 'react-native-reanimated';
+import { ColourPicker } from '../Components/ColourPicker';
 import Icon, { IconProps } from '../Components/Icon';
 import { GradientContext } from '../Context/GradientContext';
-import { AppNavProps } from '../Navigation/AppNavigation';
-import { GradientColours, GradientType, GreyColours } from '../Styles/Colours';
+import { AppStackParamList } from '../Navigation/AppNavigation';
+import { GradientColours, GreyColours } from '../Styles/Colours';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { ColourButtonGroup } from '../Components/ColourButtonGroup';
 import {
@@ -39,21 +29,26 @@ import {
 	WEEKDAY_SCHEDULE,
 	WEEKEND_SCHEDULE,
 } from '../Components/Scheduler';
-import { createHabit } from '../Storage/HabitController';
-import { getTimeString, HabitProps, HabitType } from '../Components/Habit';
+import { useHabits } from '../Storage/HabitController';
+import { HabitProps, HabitType } from '../Components/Habit';
 import { getRandomBytes } from 'expo-random';
-import SegmentedControl from '@react-native-community/segmented-control';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Card } from '../Components/Card';
 import { TimePicker } from '../Components/TimePicker';
-// import { TimePicker } from 'react-native-simple-time-picker';
+import { StackNavigationProp } from '@react-navigation/stack';
+import Toast, { BaseToastProps, ToastProps } from 'react-native-toast-message';
+import { AppContext } from '../Context/AppContext';
+
+export type CreateNavProps = StackNavigationProp<AppStackParamList, 'Add'>;
 
 interface CreateProps {
-	navigation: AppNavProps;
+	navigation: CreateNavProps;
 }
 
 export default function CreateScreen({ navigation }: CreateProps) {
+	const { createHabit } = useContext(AppContext);
 	const { gradient, setGradient } = useContext(GradientContext);
+	// const { habits, setHabits } = useContext(AppContext);
 	const { colors } = useTheme();
 
 	let sheetRef = React.useRef<BottomSheet>(null);
@@ -68,6 +63,25 @@ export default function CreateScreen({ navigation }: CreateProps) {
 	const [minutes, setMinutes] = useState(1);
 
 	const [schedule, setSchedule] = useState<ScheduleType>({ ...DEFAULT_SCHEDULE });
+
+	const toastConfig = {
+		error: ({ text1, ...rest }: BaseToastProps) => (
+			<View
+				style={{
+					height: 40,
+					width: '90%',
+					borderRadius: 6,
+					backgroundColor: GradientColours.RED.solid,
+					flexDirection: 'row',
+					alignItems: 'center',
+					justifyContent: 'center',
+				}}
+			>
+				<Text style={{ color: colors.text, fontFamily: 'Montserrat_600SemiBold' }}>{text1}</Text>
+			</View>
+		),
+	};
+
 	// const [countWidth, setCountWidth] = useState(40);
 
 	const scheduleFunctions = [
@@ -88,8 +102,29 @@ export default function CreateScreen({ navigation }: CreateProps) {
 		timeRef.current && timeRef.current.snapTo(0);
 	};
 
-	const handleSave = () => {
-		if (name !== '') {
+	const handleSave = async () => {
+		if (name === '') {
+			Toast.show({
+				type: 'error',
+				text1: 'Please enter a name for your new habit',
+				position: 'bottom',
+				bottomOffset: 150,
+			});
+		} else if (Object.values(schedule).every((value) => value === false)) {
+			Toast.show({
+				type: 'error',
+				text1: 'Please schedule your habit for at least one day',
+				position: 'bottom',
+				bottomOffset: 150,
+			});
+		} else if (count === 0) {
+			Toast.show({
+				type: 'error',
+				text1: 'Please assign time to your habit',
+				position: 'bottom',
+				bottomOffset: 150,
+			});
+		} else {
 			const habit: HabitProps = {
 				id: getRandomBytes(8).join(''),
 				name: name,
@@ -98,10 +133,10 @@ export default function CreateScreen({ navigation }: CreateProps) {
 				progress: 0,
 				progressTotal: count,
 				type: type,
+				schedule: schedule,
 			};
 			createHabit(habit);
-		} else {
-			console.log('Name habit');
+			navigation.navigate('Tabs');
 		}
 	};
 
@@ -114,7 +149,6 @@ export default function CreateScreen({ navigation }: CreateProps) {
 		setHours(hours);
 		setMinutes(minutes);
 		setCount(hours * 3600 + minutes * 60);
-		// shadow.setValue(0);
 	};
 
 	const handleCountChange = () => {
@@ -144,225 +178,229 @@ export default function CreateScreen({ navigation }: CreateProps) {
 	const getFormattedTimeCount = () => {
 		const h = Math.floor(count / 3600);
 		const m = Math.floor((count % 3600) / 60);
-		// const s = seconds % 60;
 
 		const hString = h > 0 ? `${h} hr ` : '';
-		const mString = m > 0 ? `${m} m ` : '';
-		// const sString = s > 0 || (s == 0 && m == 0 && h == 0) ? `${s}s` : '';
+		const mString = m > 0 || (m == 0 && h == 0) ? `${m} m ` : '';
 
 		return hString + mString;
 	};
 
 	return (
-		<KeyboardAwareScrollView contentContainerStyle={{ flex: 1 }} scrollEnabled={false} extraScrollHeight={60}>
-			<ShadowModal shadow={shadow} />
-			<View style={{ display: 'flex', flexDirection: 'row' }}>
-				<TouchableOpacity onPress={openSheet}>
-					<Card>
-						<Icon family={icon.family} name={icon.name} size={28} colour={GreyColours.GREY2} />
+		<React.Fragment>
+			<KeyboardAwareScrollView contentContainerStyle={{ flex: 1 }} scrollEnabled={false} extraScrollHeight={60}>
+				<ShadowModal shadow={shadow} />
+
+				<View style={{ display: 'flex', flexDirection: 'row' }}>
+					<TouchableOpacity onPress={openSheet}>
+						<Card>
+							<Icon family={icon.family} name={icon.name} size={28} colour={GreyColours.GREY2} />
+						</Card>
+					</TouchableOpacity>
+					<Card style={{ marginLeft: 0, flex: 1 }}>
+						<TextInput
+							placeholder='Name'
+							placeholderTextColor={GreyColours.GREY2}
+							returnKeyType='done'
+							onChangeText={(name) => setName(name)}
+							value={name}
+							style={[
+								globalStyles.cardText,
+								{
+									color: gradient.solid,
+									flex: 1,
+								},
+							]}
+						/>
 					</Card>
-				</TouchableOpacity>
-				<Card style={{ marginLeft: 0, flex: 1 }}>
-					<TextInput
-						placeholder='Name'
-						placeholderTextColor={GreyColours.GREY2}
-						returnKeyType='done'
-						onChangeText={(name) => setName(name)}
-						value={name}
-						style={[
-							globalStyles.cardText,
-							{
-								color: gradient.solid,
-								flex: 1,
-							},
-						]}
+				</View>
+				<Card title='Colour'>
+					<ColourPicker updateGradient={(gradient) => setGradient(gradient)} />
+				</Card>
+				<Card title='Schedule'>
+					<Scheduler schedule={schedule} setSchedule={setSchedule} gradient={gradient} />
+					<ColourButtonGroup
+						buttons={['Everyday', 'Weekdays', 'Weekend']}
+						buttonFunctions={scheduleFunctions}
+						colour={gradient.solid}
 					/>
 				</Card>
-			</View>
-			<Card title='Colour'>
-				<ColourPicker updateGradient={(gradient) => setGradient(gradient)} />
-			</Card>
-			<Card title='Schedule'>
-				<Scheduler schedule={schedule} setSchedule={setSchedule} gradient={gradient} />
-				<ColourButtonGroup
-					buttons={['Everyday', 'Weekdays', 'Weekend']}
-					buttonFunctions={scheduleFunctions}
-					colour={gradient.solid}
-				/>
-			</Card>
-			<View style={{ display: 'flex', flexDirection: 'row' }}>
-				<Card title='Type' style={{ marginRight: 0 }}>
-					<View style={{ display: 'flex', flexDirection: 'row' }}>
-						<TouchableOpacity
-							onPress={handleCountChange}
-							style={[
-								globalStyles.type,
-								{
-									backgroundColor: type === 'count' ? gradient.solid + 50 : GreyColours.GREY2 + 50,
-									marginRight: 10,
-								},
-							]}
-						>
-							<Icon
-								family='fontawesome'
-								name='plus'
-								size={24}
-								colour={type === 'count' ? gradient.solid : GreyColours.GREY2}
-								style={{ zIndex: 1 }}
-							/>
-						</TouchableOpacity>
-						<TouchableOpacity
-							onPress={handleTimeChange}
-							style={[
-								globalStyles.type,
-								{
-									backgroundColor: type === 'timer' ? gradient.solid + 50 : GreyColours.GREY2 + 50,
-								},
-							]}
-						>
-							<Icon
-								family='antdesign'
-								name='clockcircle'
-								size={24}
-								colour={type === 'timer' ? gradient.solid : GreyColours.GREY2}
-								style={{ zIndex: 1 }}
-							/>
-						</TouchableOpacity>
-					</View>
-				</Card>
-				<Card title='Value' style={{ flex: 1 }}>
-					{type === 'count' ? (
-						<View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-							<TextInput
-								returnKeyType='done'
-								onChangeText={handleCountType}
-								value={count > 0 ? count.toString() : ''}
-								keyboardType='number-pad'
-								style={[
-									{
-										color: gradient.solid,
-										flex: 1,
-										backgroundColor: colors.background,
-										borderRadius: 5,
-										textAlign: 'center',
-										fontFamily: 'Montserrat_800ExtraBold',
-										fontSize: 20,
-									},
-								]}
-							/>
+				<View style={{ display: 'flex', flexDirection: 'row' }}>
+					<Card title='Type' style={{ marginRight: 0 }}>
+						<View style={{ display: 'flex', flexDirection: 'row' }}>
 							<TouchableOpacity
-								onPress={() => count > 1 && setCount(count - 1)}
+								onPress={handleCountChange}
 								style={[
-									globalStyles.count,
+									globalStyles.type,
 									{
-										marginLeft: 10,
-										marginRight: 10,
 										backgroundColor:
-											Number(count) > 1 ? gradient.solid + 50 : GreyColours.GREY2 + 50,
+											type === 'count' ? gradient.solid + 50 : GreyColours.GREY2 + 50,
+										marginRight: 10,
 									},
 								]}
 							>
 								<Icon
 									family='fontawesome'
-									name='minus'
+									name='plus'
 									size={24}
-									colour={Number(count) > 1 ? gradient.solid : GreyColours.GREY2}
+									colour={type === 'count' ? gradient.solid : GreyColours.GREY2}
+									style={{ zIndex: 1 }}
 								/>
 							</TouchableOpacity>
-
 							<TouchableOpacity
-								onPress={() => setCount(count + 1)}
+								onPress={handleTimeChange}
 								style={[
-									globalStyles.count,
+									globalStyles.type,
 									{
-										backgroundColor: gradient.solid + 50,
+										backgroundColor:
+											type === 'timer' ? gradient.solid + 50 : GreyColours.GREY2 + 50,
 									},
 								]}
 							>
-								<Icon family='fontawesome' name='plus' size={24} colour={gradient.solid} />
+								<Icon
+									family='antdesign'
+									name='clockcircle'
+									size={24}
+									colour={type === 'timer' ? gradient.solid : GreyColours.GREY2}
+									style={{ zIndex: 1 }}
+								/>
 							</TouchableOpacity>
 						</View>
-					) : (
-						<TouchableOpacity
-							onPress={openTime}
-							style={{
-								flex: 1,
-								backgroundColor: colors.background,
-								borderRadius: 5,
-								display: 'flex',
-								justifyContent: 'center',
-							}}
-						>
-							<Text
+					</Card>
+					<Card title='Value' style={{ flex: 1 }}>
+						{type === 'count' ? (
+							<View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+								<TextInput
+									returnKeyType='done'
+									onChangeText={handleCountType}
+									value={count > 0 ? count.toString() : ''}
+									keyboardType='number-pad'
+									style={[
+										{
+											color: gradient.solid,
+											flex: 1,
+											backgroundColor: colors.background,
+											borderRadius: 5,
+											textAlign: 'center',
+											fontFamily: 'Montserrat_800ExtraBold',
+											fontSize: 20,
+										},
+									]}
+								/>
+								<TouchableOpacity
+									onPress={() => count > 1 && setCount(count - 1)}
+									style={[
+										globalStyles.count,
+										{
+											marginLeft: 10,
+											marginRight: 10,
+											backgroundColor:
+												Number(count) > 1 ? gradient.solid + 50 : GreyColours.GREY2 + 50,
+										},
+									]}
+								>
+									<Icon
+										family='fontawesome'
+										name='minus'
+										size={24}
+										colour={Number(count) > 1 ? gradient.solid : GreyColours.GREY2}
+									/>
+								</TouchableOpacity>
+
+								<TouchableOpacity
+									onPress={() => setCount(count + 1)}
+									style={[
+										globalStyles.count,
+										{
+											backgroundColor: gradient.solid + 50,
+										},
+									]}
+								>
+									<Icon family='fontawesome' name='plus' size={24} colour={gradient.solid} />
+								</TouchableOpacity>
+							</View>
+						) : (
+							<TouchableOpacity
+								onPress={openTime}
 								style={{
-									color: gradient.solid,
-									textAlign: 'center',
-									fontFamily: 'Montserrat_800ExtraBold',
-									fontSize: 20,
+									flex: 1,
+									backgroundColor: colors.background,
+									borderRadius: 5,
+									display: 'flex',
+									justifyContent: 'center',
 								}}
 							>
-								{getFormattedTimeCount()}
-							</Text>
-						</TouchableOpacity>
-					)}
-				</Card>
-			</View>
+								<Text
+									style={{
+										color: gradient.solid,
+										textAlign: 'center',
+										fontFamily: 'Montserrat_800ExtraBold',
+										fontSize: 20,
+									}}
+								>
+									{getFormattedTimeCount()}
+								</Text>
+							</TouchableOpacity>
+						)}
+					</Card>
+				</View>
 
-			<View
-				style={{
-					flex: 1,
-					justifyContent: 'center',
-					alignItems: 'center',
-					margin: 10,
-				}}
-			>
-				<TouchableOpacity
-					onPress={handleSave}
+				<View
 					style={{
-						height: 60,
-						borderRadius: 100,
-						overflow: 'hidden',
+						flex: 1,
 						justifyContent: 'center',
 						alignItems: 'center',
-						width: '100%',
 						margin: 10,
 					}}
 				>
-					<LinearGradient
-						colors={[gradient.start, gradient.end]}
-						style={globalStyles.gradient}
-						start={{ x: 0, y: 0 }}
-						end={{ x: 1, y: 0 }}
-					/>
-					<Text
+					<TouchableOpacity
+						onPress={handleSave}
 						style={{
-							fontFamily: 'Montserrat_600SemiBold',
-							fontSize: 20,
-							color: colors.text,
+							height: 60,
+							borderRadius: 100,
+							overflow: 'hidden',
+							justifyContent: 'center',
+							alignItems: 'center',
+							width: '100%',
+							margin: 10,
 						}}
 					>
-						Save
-					</Text>
-				</TouchableOpacity>
-			</View>
+						<LinearGradient
+							colors={[gradient.start, gradient.end]}
+							style={globalStyles.gradient}
+							start={{ x: 0, y: 0 }}
+							end={{ x: 1, y: 0 }}
+						/>
+						<Text
+							style={{
+								fontFamily: 'Montserrat_600SemiBold',
+								fontSize: 20,
+								color: colors.text,
+							}}
+						>
+							Save
+						</Text>
+					</TouchableOpacity>
+				</View>
 
-			<BottomSheet
-				ref={sheetRef}
-				snapPoints={['100%', 0]}
-				initialSnap={1}
-				renderContent={() => <IconModal setIcon={setIcon} closeSheet={closeSheet} />}
-				renderHeader={() => <HeaderModal sheetRef={sheetRef} height={240} />}
-				callbackNode={shadow}
-			/>
-			<BottomSheet
-				ref={timeRef}
-				snapPoints={['100%', 0]}
-				initialSnap={1}
-				renderContent={() => <TimeModal minutes={minutes} hours={hours} handleTimeType={handleTimeType} />}
-				renderHeader={() => <HeaderModal sheetRef={timeRef} height={550} />}
-				callbackNode={shadow}
-			/>
-		</KeyboardAwareScrollView>
+				<BottomSheet
+					ref={sheetRef}
+					snapPoints={['100%', 0]}
+					initialSnap={1}
+					renderContent={() => <IconModal setIcon={setIcon} closeSheet={closeSheet} />}
+					renderHeader={() => <HeaderModal sheetRef={sheetRef} height={240} />}
+					callbackNode={shadow}
+				/>
+				<BottomSheet
+					ref={timeRef}
+					snapPoints={['100%', 0]}
+					initialSnap={1}
+					renderContent={() => <TimeModal minutes={minutes} hours={hours} handleTimeType={handleTimeType} />}
+					renderHeader={() => <HeaderModal sheetRef={timeRef} height={550} />}
+					callbackNode={shadow}
+				/>
+			</KeyboardAwareScrollView>
+			<Toast config={toastConfig} ref={(ref) => Toast.setRef(ref)} />
+		</React.Fragment>
 	);
 }
 
