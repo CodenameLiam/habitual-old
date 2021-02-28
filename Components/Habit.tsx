@@ -88,7 +88,7 @@ import { ScheduleType } from './Scheduler';
 export type HabitType = 'check' | 'count' | 'timer';
 
 export interface HabitProps {
-	// id: string;
+	id: string;
 	name: string;
 	icon: Partial<IconProps>;
 	gradient: GradientType;
@@ -161,6 +161,16 @@ export const Habit = ({ id, name, icon, gradient, progress, progressTotal, type,
 		if (timerActive && type == 'timer') {
 			interval = setInterval(() => {
 				setCount(count + 1);
+				updateHabit({
+					id: id,
+					name: name,
+					icon: icon,
+					gradient: gradient,
+					progress: count + 1,
+					progressTotal: progressTotal,
+					type: type,
+					schedule: schedule,
+				});
 			}, 1000);
 		}
 	};

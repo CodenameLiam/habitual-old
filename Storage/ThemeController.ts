@@ -35,6 +35,7 @@ export const useCustomTheme = () => {
 
 		if (!themeSettings) {
 			storeThemeSettings(DEFAULT_THEME);
+			setCustomTheme(DEFAULT_THEME);
 		} else {
 			setCustomTheme(themeSettings);
 		}

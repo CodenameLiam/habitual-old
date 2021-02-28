@@ -13,6 +13,7 @@ import { AppContext } from './Context/AppContext';
 import { useHabits } from './Storage/HabitController';
 import { HabitProps } from './Components/Habit';
 import { useContext } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function App() {
 	const { fontsLoaded } = useCustomFonts();

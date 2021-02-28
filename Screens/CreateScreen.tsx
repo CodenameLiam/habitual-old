@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { TextInput, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
-import { ColourPicker } from '../Components/ColourPicker';
+import { ColourPicker, randomGradient } from '../Components/ColourPicker';
 import Icon, { IconProps } from '../Components/Icon';
 import { GradientContext } from '../Context/GradientContext';
 import { AppStackParamList } from '../Navigation/AppNavigation';
@@ -137,6 +137,7 @@ export default function CreateScreen({ navigation }: CreateProps) {
 			};
 			createHabit(habit);
 			navigation.navigate('Tabs');
+			setTimeout(() => setGradient(randomGradient), 200);
 		}
 	};
 

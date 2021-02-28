@@ -53,6 +53,17 @@ interface HomeProps {
 export default function HomeScreen({ navigation, route }: HomeProps) {
 	const { habits } = useContext(AppContext);
 
+	const progress = Object.values(habits)
+		.map((habit): number => (habit.progress == habit.progressTotal ? 1 : 0))
+		.reduce((prev, curr) => (prev += curr));
+
+	const habitLength = Object.values(habits).length;
+
+	console.log(progress);
+	console.log(habitLength);
+
+	// console.log(habits);
+
 	// const { habits } = useHabits();
 	// AsyncStorage.clear();
 
@@ -125,19 +136,23 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 				))} */}
 
 				{habits &&
-					habits.map((habit) => (
-						<Habit
-							key={habit.id}
-							id={habit.id}
-							name={habit.name}
-							icon={habit.icon}
-							gradient={habit.gradient}
-							progress={habit.progress}
-							progressTotal={habit.progressTotal}
-							type={habit.type}
-							schedule={habit.schedule}
-						/>
-					))}
+					Object.values(habits).map((habit) => {
+						// console.log(habitKeyValue);
+						// const { habit } = habitKeyValue;
+						return (
+							<Habit
+								key={habit.id}
+								id={habit.id}
+								name={habit.name}
+								icon={habit.icon}
+								gradient={habit.gradient}
+								progress={habit.progress}
+								progressTotal={habit.progressTotal}
+								type={habit.type}
+								schedule={habit.schedule}
+							/>
+						);
+					})}
 			</View>
 		</ScrollView>
 	);

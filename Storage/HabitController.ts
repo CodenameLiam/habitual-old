@@ -17,23 +17,27 @@ const getAllHabits = async () => {
 	return await getData(HABITS_KEY);
 };
 
-export const useInitialHabits = () => {
-	const [habits, setHabits] = useState<HabitProps[]>([]);
+// export const useInitialHabits = () => {
+// 	const [habits, setHabits] = useState<HabitProps[]>([]);
 
-	useEffect(() => {
-		parseHabits();
-	}, []);
+// 	useEffect(() => {
+// 		parseHabits();
+// 	}, []);
 
-	const parseHabits = async () => {
-		const allHabits = await getAllHabits();
-		allHabits && setHabits(Object.values(allHabits));
-	};
+// 	const parseHabits = async () => {
+// 		const allHabits = await getAllHabits();
+// 		allHabits && setHabits(Object.values(allHabits));
+// 	};
 
-	return { habits, setHabits };
-};
+// 	return { habits, setHabits };
+// };
+
+export interface IHabitRecord {
+	[id: string]: HabitProps;
+}
 
 export const useHabits = () => {
-	const [habits, setHabits] = useState<HabitProps[]>([]);
+	const [habits, setHabits] = useState<IHabitRecord>({});
 
 	useEffect(() => {
 		parseHabits();
@@ -41,24 +45,23 @@ export const useHabits = () => {
 
 	const parseHabits = async () => {
 		const allHabits = await getAllHabits();
-		console.log(allHabits);
-		allHabits && setHabits(Object.values(allHabits));
+		allHabits && setHabits(allHabits);
 	};
 
 	const createHabit = async (habit: HabitProps) => {
-		setHabits([...habits, habit]);
+		let newHabits = { ...habits };
+		newHabits[habit.id] = habit;
 
-		let allHabits = await getAllHabits();
-		allHabits == null && (allHabits = {});
-		allHabits[habit.id] = habit;
-		await storeData(HABITS_KEY, allHabits);
+		setHabits(newHabits);
+		storeData(HABITS_KEY, newHabits);
 	};
 
 	const updateHabit = async (habit: HabitProps) => {
-		console.log(habits);
+		let newHabits = { ...habits };
+		newHabits[habit.id] = habit;
 
-		// console.log(habit);
-		// console.log('\n\n\n');
+		setHabits(newHabits);
+		storeData(HABITS_KEY, newHabits);
 	};
 
 	return { habits, setHabits, createHabit, updateHabit };
