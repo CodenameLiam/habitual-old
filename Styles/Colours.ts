@@ -27,62 +27,62 @@ export const GradientColours = {
 		end: '#bf7df3',
 		solid: '#9268f5',
 	},
+	PURPLE: {
+		start: '#C373F2',
+		end: '#F977CE',
+		solid: '#C373F2',
+	},
 	RED: {
 		start: '#fe4d6a',
 		end: '#fd5e96',
 		solid: '#fd5785',
 	},
-
 	ORANGE: {
+		start: '#FF748B',
+		end: '#FE7BB0',
+		solid: '#FE7BB0',
+	},
+	TANGERINE: {
 		start: '#FB7BA2',
 		end: '#f7dc6e',
 		solid: '#f09a75',
 	},
-
-	TANGERINE: {
+	YELLOW: {
 		start: '#fbbf60',
 		end: '#fde293',
-		solid: '#fde293',
+		solid: '#fbbf60',
 	},
-	PEACH: {
-		start: '#F1A7F1',
-		end: '#FAD0C4',
-		solid: '#F1A7F1',
-	},
-	PINK: {
-		start: '#f6bde0',
-		end: '#f96c91',
-		solid: '#f796ba',
-	},
-	PURPLE: {
-		start: '#96a3f5',
-		end: '#ce97f9',
-		solid: '#ce97f9',
-	},
+
 	BLUE: {
-		start: '#9faff8',
-		end: '#5772f7',
-		solid: '#9faff8',
+		start: '#09C6F9',
+		end: '#045DE9',
+		solid: '#0a94f0',
 	},
 	SKY: {
 		start: '#83EAF1',
 		end: '#63A4FF',
-		solid: '#83EAF1',
+		solid: '#63A4FF',
+	},
+	AQUA: {
+		start: '#39E5B6',
+		end: '#0499F2',
+		solid: '#2de5c9',
+	},
+
+	GREEN: {
+		start: '#49d7b4',
+		end: '#1cfdab',
+		solid: '#49d7b4',
 	},
 	LIME: {
 		start: '#1cfdab',
 		end: '#CEF576',
 		solid: '#7af98f',
 	},
-	GREEN: {
-		start: '#49d7b4',
-		end: '#1cfdab',
-		solid: '#49d7b4',
-	},
-	AQUA: {
-		start: '#39E5B6',
-		end: '#0499F2',
-		solid: '#2de5c9',
+	PINK: {
+		start: '#F1A7F1',
+		end: '#FAD0C4',
+		solid: '#F1A7F1',
 	},
 };
 // background-color: #dbf26e;

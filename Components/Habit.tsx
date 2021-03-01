@@ -84,8 +84,8 @@ export const Habit = ({ id, name, icon, gradient, progress, progressTotal, type,
 
 	useEffect(() => {
 		checkComplete();
-		animateProgress();
 		incrementTimer();
+		animateProgress();
 		return () => {
 			clearInterval(interval);
 		};
@@ -145,9 +145,9 @@ export const Habit = ({ id, name, icon, gradient, progress, progressTotal, type,
 				progressTotal: progressTotal,
 				type: type,
 				schedule: schedule,
-			});
+			}) &&
+			setShowCounter(true);
 
-		setShowCounter(true);
 		setCount(count + 1);
 		setAnimatedCount(count + 1);
 		hapticFeedback(count + 1);
@@ -233,6 +233,7 @@ export const Habit = ({ id, name, icon, gradient, progress, progressTotal, type,
 			handleComplete();
 			return;
 		}
+
 		if (timerActive) {
 			setTimerActive(false);
 		}

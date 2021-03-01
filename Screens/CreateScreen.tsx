@@ -38,6 +38,7 @@ import { TimePicker } from '../Components/TimePicker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Toast, { BaseToastProps, ToastProps } from 'react-native-toast-message';
 import { AppContext } from '../Context/AppContext';
+import { impactAsync, ImpactFeedbackStyle, notificationAsync, NotificationFeedbackType } from 'expo-haptics';
 
 export type CreateNavProps = StackNavigationProp<AppStackParamList, 'Add'>;
 
@@ -48,7 +49,6 @@ interface CreateProps {
 export default function CreateScreen({ navigation }: CreateProps) {
 	const { createHabit } = useContext(AppContext);
 	const { gradient, setGradient } = useContext(GradientContext);
-	// const { habits, setHabits } = useContext(AppContext);
 	const { colors } = useTheme();
 
 	let sheetRef = React.useRef<BottomSheet>(null);
@@ -82,12 +82,19 @@ export default function CreateScreen({ navigation }: CreateProps) {
 		),
 	};
 
-	// const [countWidth, setCountWidth] = useState(40);
-
 	const scheduleFunctions = [
-		() => setSchedule({ ...EVERYDAY_SCHEDULE }),
-		() => setSchedule({ ...WEEKDAY_SCHEDULE }),
-		() => setSchedule({ ...WEEKEND_SCHEDULE }),
+		() => {
+			setSchedule({ ...EVERYDAY_SCHEDULE });
+			impactAsync(ImpactFeedbackStyle.Light);
+		},
+		() => {
+			setSchedule({ ...WEEKDAY_SCHEDULE });
+			impactAsync(ImpactFeedbackStyle.Light);
+		},
+		() => {
+			setSchedule({ ...WEEKEND_SCHEDULE });
+			impactAsync(ImpactFeedbackStyle.Light);
+		},
 	];
 
 	const openSheet = () => {

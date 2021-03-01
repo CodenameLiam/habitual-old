@@ -31,6 +31,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getRandomBytes } from 'expo-random';
 import { AppStackParamList } from '../Navigation/AppNavigation';
 import { AppContext } from '../Context/AppContext';
+import { DEFAULT_SCHEDULE, ScheduleType, ScheduleTypeValue } from '../Components/Scheduler';
 
 type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
 type TabRouteProps = RouteProp<AppStackParamList, 'Tabs'>;
@@ -40,27 +41,29 @@ interface HomeProps {
 	route: TabRouteProps;
 }
 
-// const habit = {
-// 	// id: getRandomBytes(8).join(''),
-// 	name: 'Read',
-// 	icon: { family: 'feather', name: 'book' },
-// 	// gradient: GradientColours.PURPLE,
-// 	progress: 1,
-// 	progressTotal: 4,
-// 	type: 'count',
-// };
+const habit = {
+	// id: getRandomBytes(8).join(''),
+	name: 'Read',
+	icon: { family: 'feather', name: 'book' },
+	// gradient: GradientColours.PURPLE,
+	progress: 1,
+	progressTotal: 4,
+	type: 'count',
+};
 
 export default function HomeScreen({ navigation, route }: HomeProps) {
 	const { habits } = useContext(AppContext);
 
-	const progress = Object.values(habits)
-		.map((habit): number => (habit.progress == habit.progressTotal ? 1 : 0))
-		.reduce((prev, curr) => (prev += curr));
+	const habitArray = Object.values(habits);
 
-	const habitLength = Object.values(habits).length;
+	// const progress = Object.values(habits)
+	// 	.map((habit): number => (habit.progress == habit.progressTotal ? 1 : 0))
+	// 	.reduce((prev, curr) => (prev += curr));
 
-	console.log(progress);
-	console.log(habitLength);
+	// const habitLength = Object.values(habits).length;
+
+	// console.log(progress);
+	// console.log(habitLength);
 
 	// console.log(habits);
 
@@ -97,7 +100,7 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 
 	// console.log(habits);
 
-	const [day] = useState('Today');
+	const [day, setDay] = useState<ScheduleTypeValue>('SUN');
 
 	// AsyncStorage.clear();
 
@@ -113,16 +116,22 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 	);
 
 	return (
-		<ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-			<View style={{ flex: 1, padding: 10 }}>
-				{/* {Object.keys(GradientColours).map((color, index) => {
+		<View style={{ flex: 1 }}>
+			{Object.keys(DEFAULT_SCHEDULE).map((schedule, index) => (
+				<TouchableOpacity key={index} onPress={() => setDay(schedule as ScheduleTypeValue)}>
+					<Text>{schedule}</Text>
+				</TouchableOpacity>
+			))}
+			<ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+				<View style={{ flex: 1, padding: 10 }}>
+					{/* {Object.keys(GradientColours).map((color, index) => {
 					const id = getRandomBytes(8).join('');
 					// @ts-ignore
 					return <Habit key={id} {...habit} id={id} gradient={GradientColours[color]} />;
 				})} */}
 
-				{/* <Button title='Refetch' onPress={() => refetch()} /> */}
-				{/* {HabitMap.map((habit) => (
+					{/* <Button title='Refetch' onPress={() => refetch()} /> */}
+					{/* {HabitMap.map((habit) => (
 					<Habit
 						key={habit.id}
 						id={habit.id}
@@ -135,25 +144,26 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 					/>
 				))} */}
 
-				{habits &&
-					Object.values(habits).map((habit) => {
-						// console.log(habitKeyValue);
-						// const { habit } = habitKeyValue;
-						return (
-							<Habit
-								key={habit.id}
-								id={habit.id}
-								name={habit.name}
-								icon={habit.icon}
-								gradient={habit.gradient}
-								progress={habit.progress}
-								progressTotal={habit.progressTotal}
-								type={habit.type}
-								schedule={habit.schedule}
-							/>
-						);
-					})}
-			</View>
-		</ScrollView>
+					{habits &&
+						habitArray.map((habit) => {
+							if (habit.schedule[day]) {
+								return (
+									<Habit
+										key={habit.id}
+										id={habit.id}
+										name={habit.name}
+										icon={habit.icon}
+										gradient={habit.gradient}
+										progress={habit.progress}
+										progressTotal={habit.progressTotal}
+										type={habit.type}
+										schedule={habit.schedule}
+									/>
+								);
+							}
+						})}
+				</View>
+			</ScrollView>
+		</View>
 	);
 }

@@ -1,4 +1,5 @@
 import { useTheme } from '@react-navigation/native';
+import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { View, Text, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
@@ -46,6 +47,7 @@ export const Scheduler = ({ gradient, schedule, setSchedule }: ScheduleProps) =>
 		const tempSchedule = schedule;
 		tempSchedule[day] = !tempSchedule[day];
 		setSchedule({ ...tempSchedule });
+		impactAsync(ImpactFeedbackStyle.Light);
 	};
 
 	return (
@@ -64,12 +66,7 @@ export const Scheduler = ({ gradient, schedule, setSchedule }: ScheduleProps) =>
 							end={{ x: 1, y: 0 }}
 						/>
 					)}
-					<Text
-						style={[
-							styles.text,
-							day[1] ? { color: '#fff' } : { color: GreyColours.GREY2 },
-						]}
-					>
+					<Text style={[styles.text, day[1] ? { color: '#fff' } : { color: GreyColours.GREY2 }]}>
 						{day[0][0]}
 					</Text>
 				</TouchableOpacity>
@@ -78,7 +75,7 @@ export const Scheduler = ({ gradient, schedule, setSchedule }: ScheduleProps) =>
 	);
 };
 
-type ScheduleTypeValue = 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN';
+export type ScheduleTypeValue = 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN';
 
 export interface ScheduleType {
 	MON: boolean;

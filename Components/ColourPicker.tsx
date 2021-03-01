@@ -1,3 +1,4 @@
+import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
@@ -34,12 +35,17 @@ export const ColourPicker = ({ updateGradient }: ColourPickerProps) => {
 		},
 	});
 
+	const handlePress = (gradient: GradientType) => {
+		updateGradient(gradient);
+		impactAsync(ImpactFeedbackStyle.Light);
+	};
+
 	return (
 		<View>
 			{combinedColours.map((half, index) => (
 				<View key={`Half${index}`} style={styles.container}>
 					{half.map((gradient, index) => (
-						<TouchableOpacity key={index} onPress={() => updateGradient(gradient)} style={styles.swatch}>
+						<TouchableOpacity key={index} onPress={() => handlePress(gradient)} style={styles.swatch}>
 							<LinearGradient
 								colors={[gradient.start, gradient.end]}
 								style={styles.gradient}
