@@ -61,7 +61,7 @@ export const CustomDarkTheme = {
 };
 
 export const CustomLightTheme = {
-	dark: true,
+	dark: false,
 	colors: {
 		primary: '#FFFFFF',
 		text: '#0F2028',

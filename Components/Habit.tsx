@@ -28,63 +28,6 @@ import { GradientColours, GradientType } from '../Styles/Colours';
 import Icon, { IconProps } from './Icon';
 import { ScheduleType } from './Scheduler';
 
-// export const HabitMap: HabitProps[] = [
-// 	{
-// 		id: getRandomBytes(8).join(''),
-// 		name: 'Read',
-// 		icon: { family: 'feather', name: 'book' },
-// 		gradient: GradientColours.PURPLE,
-// 		progress: 1,
-// 		progressTotal: 1,
-// 		type: 'check',
-// 	},
-// 	{
-// 		id: getRandomBytes(8).join(''),
-// 		name: 'Read',
-// 		icon: { family: 'feather', name: 'book' },
-// 		gradient: GradientColours.RED,
-// 		progress: 1,
-// 		progressTotal: 1,
-// 		type: 'check',
-// 	},
-// 	{
-// 		id: getRandomBytes(8).join(''),
-// 		name: 'Read',
-// 		icon: { family: 'feather', name: 'book' },
-// 		gradient: GradientColours.PEACH,
-// 		progress: 1,
-// 		progressTotal: 1,
-// 		type: 'check',
-// 	},
-// 	{
-// 		id: getRandomBytes(8).join(''),
-// 		name: 'Read',
-// 		icon: { family: 'feather', name: 'book' },
-// 		gradient: GradientColours.TANGERINE,
-// 		progress: 1,
-// 		progressTotal: 1,
-// 		type: 'check',
-// 	},
-// 	{
-// 		id: getRandomBytes(8).join(''),
-// 		name: 'Read',
-// 		icon: { family: 'feather', name: 'book' },
-// 		gradient: GradientColours.ORANGE,
-// 		progress: 1,
-// 		progressTotal: 1,
-// 		type: 'check',
-// 	},
-// 	{
-// 		id: getRandomBytes(8).join(''),
-// 		name: 'Read',
-// 		icon: { family: 'feather', name: 'book' },
-// 		gradient: GradientColours.PINK,
-// 		progress: 1,
-// 		progressTotal: 1,
-// 		type: 'check',
-// 	},
-// ];
-
 export type HabitType = 'check' | 'count' | 'timer';
 
 export interface HabitProps {
