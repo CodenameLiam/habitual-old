@@ -170,21 +170,6 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 							<Feather name='chevron-left' size={34} color={colors.text} />
 						</TouchableOpacity>
 					),
-					// headerRight: () => (
-					// 	<TouchableOpacity
-					// 		style={{
-					// 			padding: 10,
-					// 			paddingRight: 12,
-					// 		}}
-					// 		onPress={() => navigation.navigate('Ideas')}>
-					// 		<Icon
-					// 			family='antdesign'
-					// 			name='appstore-o'
-					// 			size={28}
-					// 			colour={colors.text}
-					// 		/>
-					// 	</TouchableOpacity>
-					// ),
 				})}
 			/>
 			<Stack.Screen

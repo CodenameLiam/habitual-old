@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { View, Text, Dimensions, TouchableOpacity } from 'react-native';
 import { RouteProp, useFocusEffect, useTheme } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -9,6 +9,8 @@ import { AppNavProps, AppStackParamList, RootNavProps } from '../Navigation/AppN
 import { AppContext } from '../Context/AppContext';
 import { DEFAULT_SCHEDULE, ScheduleTypeValue } from '../Components/Scheduler';
 import moment from 'moment';
+import Svg, { Circle } from 'react-native-svg';
+import { GradientColours, GreyColours } from '../Styles/Colours';
 
 export type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
 interface HomeProps {
@@ -51,7 +53,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
 		else return moment().subtract(index, 'd').format('MMMM Do');
 	};
 
-	const dayDimensions = Dimensions.get('window').width / 9.5;
+	const dayDimensions = Dimensions.get('window').width / 9;
 
 	return (
 		<View style={{ flex: 1 }}>
@@ -63,38 +65,66 @@ export default function HomeScreen({ navigation }: HomeProps) {
 					padding: 20,
 					paddingBottom: 0,
 				}}>
-				{displayDays.map((schedule, index) => (
-					<TouchableOpacity
-						key={index}
-						onPress={() => hanndleDayChange(schedule as ScheduleTypeValue, 6 - index)}
-						style={{
-							width: dayDimensions,
-							height: dayDimensions,
-							backgroundColor: colors.card,
-							justifyContent: 'center',
-							alignItems: 'center',
-							borderRadius: 100,
-						}}>
-						<Text
+				{displayDays.map((displayDay, index) => {
+					let habitDayLength = 0;
+					let habitDayCompleteLength = 0;
+
+					habitArray.forEach((habit) => {
+						if (habit.schedule[displayDay as ScheduleTypeValue]) {
+							habitDayLength += 1;
+
+							const progress = habit.dates[date] ?? 0;
+							if (progress === habit.progressTotal) habitDayCompleteLength += 1;
+						}
+					});
+
+					return (
+						<TouchableOpacity
+							key={index}
+							onPress={() =>
+								hanndleDayChange(displayDay as ScheduleTypeValue, 6 - index)
+							}
 							style={{
-								fontFamily: 'Montserrat_600SemiBold',
-								fontSize: 20,
-								color: colors.text,
+								width: dayDimensions,
+								height: dayDimensions,
+								// backgroundColor: colors.card,
+								justifyContent: 'center',
+								alignItems: 'center',
+								borderRadius: 100,
 							}}>
-							{moment()
-								.subtract(6 - index, 'd')
-								.format('D')}
-						</Text>
-						<Text
-							style={{
-								fontFamily: 'Montserrat_600SemiBold',
-								fontSize: 8,
-								color: colors.text,
-							}}>
-							{schedule}
-						</Text>
-					</TouchableOpacity>
-				))}
+							<Text
+								style={{
+									fontFamily: 'Montserrat_600SemiBold',
+									// fontSize: 18,
+									color: displayDay === day ? colors.text : colors.border,
+								}}>
+								{moment()
+									.subtract(6 - index, 'd')
+									.format('D')}
+							</Text>
+							<Text
+								style={{
+									fontFamily: 'Montserrat_600SemiBold',
+									fontSize: 8,
+									color: displayDay === day ? colors.text : colors.border,
+								}}>
+								{displayDay}
+							</Text>
+							<View style={{ position: 'absolute' }}>
+								<Svg width={dayDimensions} height={dayDimensions}>
+									<Circle
+										stroke={GradientColours.TANGERINE.solid + '50'}
+										// fill='red'
+										cx={dayDimensions / 2}
+										cy={dayDimensions / 2}
+										r={dayDimensions / 2 - 2}
+										strokeWidth={3}
+									/>
+								</Svg>
+							</View>
+						</TouchableOpacity>
+					);
+				})}
 			</View>
 
 			<ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
@@ -103,6 +133,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
 						habitArray.map((habit) => {
 							if (habit.schedule[day]) {
 								const progress = habit.dates[date] ?? 0;
+
 								return (
 									<Habit
 										key={habit.id + date + habit.progressTotal}
