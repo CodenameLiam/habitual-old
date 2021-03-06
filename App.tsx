@@ -1,31 +1,28 @@
-import React, { createContext, useState } from 'react';
+import React, { useState } from 'react';
 import RootNavigation from './Navigation/RootNavigation';
-import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { AppearanceProvider } from 'react-native-appearance';
 import { CustomDarkTheme, CustomLightTheme, useCustomTheme } from './Storage/ThemeController';
 import { useCustomFonts } from './Storage/FontController';
 import AppLoading from 'expo-app-loading';
 import { StatusBar } from 'react-native';
-import { GradientColours, GradientShape, GradientType } from './Styles/Colours';
+import { GradientType } from './Styles/Colours';
 import { randomGradient } from './Components/ColourPicker';
 import { GradientContext } from './Context/GradientContext';
 import { AppContext } from './Context/AppContext';
 import { useHabits } from './Storage/HabitController';
-import { HabitProps } from './Components/Habit';
-import { useContext } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function App() {
 	const { fontsLoaded } = useCustomFonts();
-	const { theme, setTheme, toggleTheme } = useCustomTheme();
+	const { theme, setTheme, toggleTheme, colour, setColour } = useCustomTheme();
 
 	const [gradient, setGradient] = useState<GradientType>(randomGradient());
-	const gradientValue = { gradient, setGradient };
+	const gradientValue = { gradient, setGradient, colour, setColour };
 
 	const { habits, setHabits, createHabit, updateHabit, deleteHabit } = useHabits();
 	const appValue = { habits, setHabits, createHabit, updateHabit, deleteHabit };
 
-	if (!theme || !fontsLoaded) return <AppLoading />;
+	if (!theme || !colour || !fontsLoaded) return <AppLoading />;
 
 	return (
 		<AppearanceProvider>
@@ -38,6 +35,7 @@ export default function App() {
 							theme={theme}
 							setTheme={setTheme}
 							toggleTheme={toggleTheme}
+							setColour={setColour}
 						/>
 					</NavigationContainer>
 				</GradientContext.Provider>

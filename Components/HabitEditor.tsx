@@ -11,6 +11,7 @@ import {
 	TouchableOpacity,
 	Keyboard,
 	EmitterSubscription,
+	InteractionManager,
 } from 'react-native';
 import { TextInput, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
@@ -58,6 +59,14 @@ export default function HabitEdtor({ navigation, habit }: EditProps) {
 	const { solid: gradientSolid, start: gradientStart, end: gradientEnd } = GradientColours[
 		gradient
 	];
+
+	const [isReady, setIsReady] = useState(false);
+
+	useEffect(() => {
+		InteractionManager.runAfterInteractions(() => {
+			setIsReady(true);
+		});
+	}, []);
 
 	let sheetRef = React.useRef<BottomSheet>(null);
 	let timeRef = React.useRef<BottomSheet>(null);
@@ -426,28 +435,34 @@ export default function HabitEdtor({ navigation, habit }: EditProps) {
 					</TouchableOpacity>
 				</View>
 
-				<BottomSheet
-					ref={sheetRef}
-					snapPoints={['100%', 0]}
-					initialSnap={1}
-					renderContent={() => <IconModal setIcon={setIcon} closeSheet={closeSheet} />}
-					renderHeader={() => <HeaderModal sheetRef={sheetRef} height={240} />}
-					callbackNode={shadow}
-				/>
-				<BottomSheet
-					ref={timeRef}
-					snapPoints={['100%', 0]}
-					initialSnap={1}
-					renderContent={() => (
-						<TimeModal
-							minutes={minutes}
-							hours={hours}
-							handleTimeType={handleTimeType}
+				{isReady && (
+					<React.Fragment>
+						<BottomSheet
+							ref={sheetRef}
+							snapPoints={['100%', 0]}
+							initialSnap={1}
+							renderContent={() => (
+								<IconModal setIcon={setIcon} closeSheet={closeSheet} />
+							)}
+							renderHeader={() => <HeaderModal sheetRef={sheetRef} height={240} />}
+							callbackNode={shadow}
 						/>
-					)}
-					renderHeader={() => <HeaderModal sheetRef={timeRef} height={550} />}
-					callbackNode={shadow}
-				/>
+						<BottomSheet
+							ref={timeRef}
+							snapPoints={['100%', 0]}
+							initialSnap={1}
+							renderContent={() => (
+								<TimeModal
+									minutes={minutes}
+									hours={hours}
+									handleTimeType={handleTimeType}
+								/>
+							)}
+							renderHeader={() => <HeaderModal sheetRef={timeRef} height={550} />}
+							callbackNode={shadow}
+						/>
+					</React.Fragment>
+				)}
 			</KeyboardAwareScrollView>
 			<Toast config={toastConfig} ref={(ref) => Toast.setRef(ref)} />
 		</React.Fragment>

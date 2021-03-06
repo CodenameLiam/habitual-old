@@ -283,6 +283,8 @@ export const Habit = ({
 			setTimerActive(false);
 		}
 
+		// const progressNormalised = 1;
+
 		const interpolateX = event.nativeEvent.translationX / HabitMaxInterpolation;
 		const scaledX = interpolateX * progressTotal;
 		const progress = animatedCount + scaledX;

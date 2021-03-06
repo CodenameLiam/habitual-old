@@ -1,5 +1,5 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { View, Text, Dimensions, TouchableOpacity } from 'react-native';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { View, Text, Dimensions, TouchableOpacity, Animated, Button } from 'react-native';
 import { RouteProp, useFocusEffect, useTheme } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { TabParamList } from '../Navigation/TabNavigation';
@@ -11,6 +11,7 @@ import { DEFAULT_SCHEDULE, ScheduleTypeValue } from '../Components/Scheduler';
 import moment from 'moment';
 import Svg, { Circle } from 'react-native-svg';
 import { GradientColours, GreyColours } from '../Styles/Colours';
+import { GradientContext } from '../Context/GradientContext';
 
 export type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
 interface HomeProps {
@@ -20,11 +21,12 @@ interface HomeProps {
 export default function HomeScreen({ navigation }: HomeProps) {
 	const { colors } = useTheme();
 	const { habits } = useContext(AppContext);
+	const { colour } = useContext(GradientContext);
 	const habitArray = Object.values(habits);
 	const rootNavigation: AppNavProps = navigation.dangerouslyGetParent();
 
 	let days = Object.keys(DEFAULT_SCHEDULE);
-	const dayIndex = moment().day() - 1;
+	const dayIndex = moment().subtract(1, 'd').day();
 	const displayDays = days.slice(dayIndex + 1, days.length).concat(days.slice(0, dayIndex + 1));
 
 	const [day, setDay] = useState<ScheduleTypeValue>(days[dayIndex] as ScheduleTypeValue);
@@ -73,10 +75,22 @@ export default function HomeScreen({ navigation }: HomeProps) {
 						if (habit.schedule[displayDay as ScheduleTypeValue]) {
 							habitDayLength += 1;
 
-							const progress = habit.dates[date] ?? 0;
+							const progress =
+								habit.dates[
+									moment()
+										.subtract(6 - index, 'd')
+										.format('YYYY-MM-DD')
+								] ?? 0;
 							if (progress === habit.progressTotal) habitDayCompleteLength += 1;
 						}
 					});
+
+					const radius = dayDimensions / 2 - 2;
+					const circumference = radius * 2 * Math.PI;
+					const alpha =
+						habitDayCompleteLength === 0
+							? 1
+							: 1 - habitDayCompleteLength / habitDayLength;
 
 					return (
 						<TouchableOpacity
@@ -87,7 +101,6 @@ export default function HomeScreen({ navigation }: HomeProps) {
 							style={{
 								width: dayDimensions,
 								height: dayDimensions,
-								// backgroundColor: colors.card,
 								justifyContent: 'center',
 								alignItems: 'center',
 								borderRadius: 100,
@@ -95,7 +108,6 @@ export default function HomeScreen({ navigation }: HomeProps) {
 							<Text
 								style={{
 									fontFamily: 'Montserrat_600SemiBold',
-									// fontSize: 18,
 									color: displayDay === day ? colors.text : colors.border,
 								}}>
 								{moment()
@@ -113,12 +125,28 @@ export default function HomeScreen({ navigation }: HomeProps) {
 							<View style={{ position: 'absolute' }}>
 								<Svg width={dayDimensions} height={dayDimensions}>
 									<Circle
-										stroke={GradientColours.TANGERINE.solid + '50'}
-										// fill='red'
+										stroke={GradientColours[colour].solid + '50'}
 										cx={dayDimensions / 2}
 										cy={dayDimensions / 2}
-										r={dayDimensions / 2 - 2}
+										r={radius}
 										strokeWidth={3}
+									/>
+								</Svg>
+								<Svg
+									width={dayDimensions}
+									height={dayDimensions}
+									style={{
+										position: 'absolute',
+										transform: [{ rotate: '-90deg' }],
+									}}>
+									<Circle
+										stroke={GradientColours[colour].solid}
+										cx={dayDimensions / 2}
+										cy={dayDimensions / 2}
+										r={radius}
+										strokeWidth={3}
+										strokeDashoffset={alpha * radius * Math.PI * 2}
+										strokeDasharray={[circumference, circumference]}
 									/>
 								</Svg>
 							</View>

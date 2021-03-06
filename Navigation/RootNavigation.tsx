@@ -3,6 +3,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import AppNavigation from './AppNavigation';
 import SettingsSreen from '../Screens/SettingsScreen';
 import { ThemeType } from '../Storage/ThemeController';
+import { GradientType } from '../Styles/Colours';
 
 export type RootDrawerParamList = {
 	App: undefined;
@@ -15,15 +16,26 @@ interface RootNavigationProps {
 	theme: ThemeType;
 	setTheme: (theme: ThemeType) => void;
 	toggleTheme: (theme: ThemeType) => 'dark' | 'light';
+	setColour: (colour: GradientType) => void;
 }
 
-export default function RootNavigation({ theme, setTheme, toggleTheme }: RootNavigationProps) {
+export default function RootNavigation({
+	theme,
+	setTheme,
+	toggleTheme,
+	setColour,
+}: RootNavigationProps) {
 	return (
 		<Drawer.Navigator
 			drawerType='slide'
 			overlayColor={'none'}
 			drawerContent={() => (
-				<SettingsSreen theme={theme} setTheme={setTheme} toggleTheme={toggleTheme} />
+				<SettingsSreen
+					theme={theme}
+					setTheme={setTheme}
+					toggleTheme={toggleTheme}
+					setColour={setColour}
+				/>
 			)}>
 			<Drawer.Screen name='App' component={AppNavigation} />
 		</Drawer.Navigator>
