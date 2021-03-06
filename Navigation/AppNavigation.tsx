@@ -22,10 +22,12 @@ import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
 import { randomGradient } from '../Components/ColourPicker';
 import { GradientColours } from '../Styles/Colours';
 import EditScreen from '../Screens/EditScreen';
+import ViewScreen from '../Screens/ViewScreen';
 
 export type AppStackParamList = {
 	Tabs: undefined;
 	Create: undefined;
+	View: { id: string };
 	Edit: { id: string };
 	Ideas: undefined;
 };
@@ -130,7 +132,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 						<TouchableOpacity
 							style={{
 								padding: 10,
-								paddingRight: 12,
+								paddingRight: 16,
 							}}
 							onPress={() => navigation.navigate('Ideas')}>
 							<Icon
@@ -139,6 +141,45 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 								size={28}
 								colour={colors.text}
 							/>
+						</TouchableOpacity>
+					),
+				})}
+			/>
+			<Stack.Screen
+				name='View'
+				component={ViewScreen}
+				options={({ navigation, route }) => ({
+					headerStatusBarHeight: 2,
+					headerStyle: { height: 60 },
+					title: 'View Habit',
+					headerBackground: () => (
+						<LinearGradient
+							colors={[
+								GradientColours[gradient].start,
+								GradientColours[gradient].end,
+							]}
+							style={styles.gradient}
+							start={{ x: 0, y: 0 }}
+							end={{ x: 1, y: 0 }}
+						/>
+					),
+					headerLeft: () => (
+						<TouchableOpacity
+							style={{
+								padding: 8,
+							}}
+							onPress={() => handleBack(navigation)}>
+							<Feather name='chevron-left' size={34} color={colors.text} />
+						</TouchableOpacity>
+					),
+					headerRight: () => (
+						<TouchableOpacity
+							style={{
+								padding: 10,
+								paddingRight: 16,
+							}}
+							onPress={() => navigation.navigate('Edit', { id: route.params.id })}>
+							<Icon family='feather' name='edit' size={28} colour={colors.text} />
 						</TouchableOpacity>
 					),
 				})}
@@ -166,7 +207,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 							style={{
 								padding: 8,
 							}}
-							onPress={() => handleBack(navigation)}>
+							onPress={() => navigation.goBack()}>
 							<Feather name='chevron-left' size={34} color={colors.text} />
 						</TouchableOpacity>
 					),

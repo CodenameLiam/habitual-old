@@ -65,7 +65,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
 					flexDirection: 'row',
 					justifyContent: 'space-between',
 					padding: 20,
-					paddingBottom: 0,
+					paddingBottom: 10,
 				}}>
 				{displayDays.map((displayDay, index) => {
 					let habitDayLength = 0;
@@ -156,7 +156,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
 			</View>
 
 			<ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-				<View style={{ flex: 1, padding: 10 }}>
+				<View style={{ flex: 1, padding: 10, paddingTop: 0 }}>
 					{habits &&
 						habitArray.map((habit) => {
 							if (habit.schedule[day]) {

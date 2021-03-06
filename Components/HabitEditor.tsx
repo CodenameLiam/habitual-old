@@ -18,7 +18,7 @@ import Animated from 'react-native-reanimated';
 import { ColourPicker, randomGradient } from '../Components/ColourPicker';
 import Icon, { IconProps } from '../Components/Icon';
 import { GradientContext } from '../Context/GradientContext';
-import { AppStackParamList } from '../Navigation/AppNavigation';
+import { AppNavProps, AppStackParamList } from '../Navigation/AppNavigation';
 import { GradientColours, GreyColours } from '../Styles/Colours';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { ColourButtonGroup } from '../Components/ColourButtonGroup';

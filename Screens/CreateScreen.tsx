@@ -9,5 +9,4 @@ interface CreateProps {
 
 export default function CreateScreen({ navigation }: CreateProps) {
 	return <HabitEdtor navigation={navigation} />;
-	// return <View></View>;
 }
