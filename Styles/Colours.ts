@@ -8,13 +8,6 @@ export const GreyColours = {
 	GREY6: '#222222',
 };
 
-export const TabColours = {
-	HOME: '#edc7aa',
-	CALENDAR: '#e7b59f',
-	TRENDS: '#F1A7F1',
-	AWARDS: '#95c9d9',
-};
-
 export type GradientType =
 	| 'MIDNIGHT'
 	| 'PURPLE'
@@ -96,6 +89,13 @@ export const GradientColours: { [key in GradientType]: GradientShape } = {
 		end: '#FAD0C4',
 		solid: '#F1A7F1',
 	},
+};
+
+export const TabColours = {
+	HOME: GradientColours.PURPLE.solid,
+	CALENDAR: GradientColours.RED.solid,
+	TRENDS: GradientColours.GREEN.solid,
+	AWARDS: GradientColours.YELLOW.solid,
 };
 // background-color: #dbf26e;
 // background-image: linear-gradient(319deg, #dbf26e 0%, #61fa74 37%, #1cfdd6 100%);

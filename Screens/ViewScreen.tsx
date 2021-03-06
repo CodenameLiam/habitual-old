@@ -1,10 +1,14 @@
-import { RouteProp, useFocusEffect } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useCallback, useContext } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Dimensions } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+import { Card } from '../Components/Card';
 import { AppContext } from '../Context/AppContext';
 import { AppStackParamList } from '../Navigation/AppNavigation';
 import { EditNavProps, EditRoute } from './EditScreen';
+import CalendarStrip from 'react-native-calendar-strip';
+import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
 
 export type ViewNavProps = StackNavigationProp<AppStackParamList, 'View'>;
 export type ViewRoute = RouteProp<AppStackParamList, 'View'>;
@@ -16,6 +20,7 @@ interface EditProps {
 
 export default function ViewScreen({ navigation, route }: EditProps) {
 	// const rootNavigation: ViewNavProps = navigation.dangerouslyGetParent();
+	const { colors } = useTheme();
 	const { habits } = useContext(AppContext);
 	const { id } = route.params;
 
@@ -34,8 +39,28 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	);
 
 	return (
-		<View>
-			<Text>View</Text>
-		</View>
+		<ScrollView contentContainerStyle={{ flex: 1 }}>
+			<CalendarList
+				// Enable horizontal scrolling, default = false
+				horizontal={true}
+				// Enable paging on horizontal, default = false
+				pagingEnabled={true}
+				theme={{
+					calendarBackground: colors.card,
+					monthTextColor: colors.text,
+					dayTextColor: colors.text,
+					textMonthFontFamily: 'Montserrat_600SemiBold',
+					textDayFontFamily: 'Montserrat_600SemiBold',
+					textDayHeaderFontFamily: 'Montserrat_600SemiBold',
+					// todayTextColor: 'red',
+					// monthTextColor: 'blue',
+				}}
+
+				// Set custom calendarWidth.
+				// calendarWidth={Dimensions.get('window').width - 25}
+				//   ...calendarListParams
+				//   ...calendarParams
+			/>
+		</ScrollView>
 	);
 }

@@ -18,6 +18,8 @@ import { AppNavProps, AppStackParamList } from './AppNavigation';
 import TrendsScreen from '../Screens/Trends';
 import AwardsScreen from '../Screens/AwardsScreen';
 import { GradientColours, TabColours } from '../Styles/Colours';
+import { color } from 'react-native-reanimated';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 export type TabParamList = {
 	Home: undefined;
@@ -41,6 +43,45 @@ export default function TabNavigation({ navigation, route }: AppProps) {
 	useLayoutEffect(() => {
 		navigation.setOptions({ headerTitle: getHeaderTitle(route) });
 	}, [navigation, route]);
+
+	const tabs: TabsConfig<FlashyTabBarItemConfig> = {
+		Home: {
+			labelStyle: {
+				color: TabColours.HOME,
+			},
+			icon: {
+				component: () => <Feather name='home' size={20} color={colors.text} />,
+				color: TabColours.HOME,
+			},
+		},
+		Calendar: {
+			labelStyle: {
+				color: TabColours.CALENDAR,
+			},
+			icon: {
+				component: () => <Feather name='calendar' size={20} color={colors.text} />,
+				color: TabColours.CALENDAR,
+			},
+		},
+		Trends: {
+			labelStyle: {
+				color: TabColours.TRENDS,
+			},
+			icon: {
+				component: () => <Entypo name='line-graph' size={20} color={colors.text} />,
+				color: TabColours.TRENDS,
+			},
+		},
+		Awards: {
+			labelStyle: {
+				color: TabColours.AWARDS,
+			},
+			icon: {
+				component: () => <Feather name='award' size={20} color={colors.text} />,
+				color: TabColours.AWARDS,
+			},
+		},
+	};
 
 	return (
 		<Tab.Navigator
@@ -66,45 +107,6 @@ export default function TabNavigation({ navigation, route }: AppProps) {
 // 	TRENDS: GradientColours.PEACH.solid,
 // 	AWARDS: GradientColours.PEACH.solid,
 // };
-
-const tabs: TabsConfig<FlashyTabBarItemConfig> = {
-	Home: {
-		labelStyle: {
-			color: TabColours.HOME,
-		},
-		icon: {
-			component: () => <Feather name='home' size={20} color={TabColours.HOME} />,
-			color: TabColours.HOME,
-		},
-	},
-	Calendar: {
-		labelStyle: {
-			color: TabColours.CALENDAR,
-		},
-		icon: {
-			component: () => <Feather name='calendar' size={20} color={TabColours.CALENDAR} />,
-			color: TabColours.CALENDAR,
-		},
-	},
-	Trends: {
-		labelStyle: {
-			color: TabColours.TRENDS,
-		},
-		icon: {
-			component: () => <Entypo name='line-graph' size={20} color={TabColours.TRENDS} />,
-			color: TabColours.TRENDS,
-		},
-	},
-	Awards: {
-		labelStyle: {
-			color: TabColours.AWARDS,
-		},
-		icon: {
-			component: () => <Feather name='award' size={20} color={TabColours.AWARDS} />,
-			color: TabColours.AWARDS,
-		},
-	},
-};
 
 const getHeaderTitle = (route: RouteProp<TabParamList, 'Home'>) => {
 	const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
