@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { View, Text, Dimensions, TouchableOpacity } from 'react-native';
-import { RouteProp, useFocusEffect } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useTheme } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { TabParamList } from '../Navigation/TabNavigation';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -16,6 +16,7 @@ interface HomeProps {
 }
 
 export default function HomeScreen({ navigation }: HomeProps) {
+	const { colors } = useTheme();
 	const { habits } = useContext(AppContext);
 	const habitArray = Object.values(habits);
 	const rootNavigation: AppNavProps = navigation.dangerouslyGetParent();
@@ -25,24 +26,32 @@ export default function HomeScreen({ navigation }: HomeProps) {
 	const displayDays = days.slice(dayIndex + 1, days.length).concat(days.slice(0, dayIndex + 1));
 
 	const [day, setDay] = useState<ScheduleTypeValue>(days[dayIndex] as ScheduleTypeValue);
+	const [dayString, setDayString] = useState<string>('Today');
 	const [date, setDate] = useState<string>(moment().format('YYYY-MM-DD'));
 
 	useFocusEffect(
 		useCallback(() => {
 			if (rootNavigation) {
 				rootNavigation.setOptions({
-					title: day,
+					title: dayString,
 				});
 			}
-		}, [navigation, day])
+		}, [navigation, dayString])
 	);
 
 	const hanndleDayChange = (day: ScheduleTypeValue, index: number) => {
 		setDay(day);
+		setDayString(getDayString(index));
 		setDate(moment().subtract(index, 'd').format('YYYY-MM-DD'));
 	};
 
-	const dayDimensions = Dimensions.get('window').width / 10;
+	const getDayString = (index: number) => {
+		if (index == 0) return 'Today';
+		else if (index == 1) return 'Yesterday';
+		else return moment().subtract(index, 'd').format('MMMM Do');
+	};
+
+	const dayDimensions = Dimensions.get('window').width / 9.5;
 
 	return (
 		<View style={{ flex: 1 }}>
@@ -61,9 +70,29 @@ export default function HomeScreen({ navigation }: HomeProps) {
 						style={{
 							width: dayDimensions,
 							height: dayDimensions,
-							backgroundColor: 'red',
+							backgroundColor: colors.card,
+							justifyContent: 'center',
+							alignItems: 'center',
+							borderRadius: 100,
 						}}>
-						<Text>{schedule}</Text>
+						<Text
+							style={{
+								fontFamily: 'Montserrat_600SemiBold',
+								fontSize: 20,
+								color: colors.text,
+							}}>
+							{moment()
+								.subtract(6 - index, 'd')
+								.format('D')}
+						</Text>
+						<Text
+							style={{
+								fontFamily: 'Montserrat_600SemiBold',
+								fontSize: 8,
+								color: colors.text,
+							}}>
+							{schedule}
+						</Text>
 					</TouchableOpacity>
 				))}
 			</View>
