@@ -7,6 +7,7 @@ interface IAppContext {
 	setHabits: React.Dispatch<React.SetStateAction<IHabitRecord>>;
 	createHabit: (habit: IHabit) => Promise<void>;
 	updateHabit: (habit: IHabit) => Promise<void>;
+	deleteHabit: (id: string) => Promise<void>;
 }
 
 const DEFAULT_VALUE = {
@@ -14,6 +15,7 @@ const DEFAULT_VALUE = {
 	setHabits: () => {},
 	createHabit: async () => {},
 	updateHabit: async () => {},
+	deleteHabit: async () => {},
 };
 
 export const AppContext = createContext<IAppContext>(DEFAULT_VALUE);

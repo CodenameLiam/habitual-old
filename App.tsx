@@ -22,8 +22,8 @@ export default function App() {
 	const [gradient, setGradient] = useState<GradientType>(randomGradient());
 	const gradientValue = { gradient, setGradient };
 
-	const { habits, setHabits, createHabit, updateHabit } = useHabits();
-	const appValue = { habits, setHabits, createHabit, updateHabit };
+	const { habits, setHabits, createHabit, updateHabit, deleteHabit } = useHabits();
+	const appValue = { habits, setHabits, createHabit, updateHabit, deleteHabit };
 
 	if (!theme || !fontsLoaded) return <AppLoading />;
 

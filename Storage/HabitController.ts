@@ -60,7 +60,15 @@ export const useHabits = () => {
 		storeData(HABITS_KEY, newHabits);
 	};
 
-	return { habits, setHabits, createHabit, updateHabit };
+	const deleteHabit = async (id: string) => {
+		let newHabits = { ...habits };
+		delete newHabits[id];
+
+		setHabits(newHabits);
+		storeData(HABITS_KEY, newHabits);
+	};
+
+	return { habits, setHabits, createHabit, updateHabit, deleteHabit };
 };
 
 export const mergeDates = (dates: IHabitDate, date: string, progress: number) => {

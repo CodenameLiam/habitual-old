@@ -18,6 +18,7 @@ import {
 	TouchableOpacity,
 	TouchableWithoutFeedback,
 	StyleSheet,
+	Alert,
 } from 'react-native';
 import {
 	PanGestureHandler,
@@ -84,7 +85,7 @@ export const Habit = ({
 	dates,
 }: HabitProps) => {
 	const { colors } = useTheme();
-	const { updateHabit } = useContext(AppContext);
+	const { updateHabit, deleteHabit } = useContext(AppContext);
 	const { setGradient } = useContext(GradientContext);
 
 	const [count, setCount] = useState(progress);
@@ -241,16 +242,33 @@ export const Habit = ({
 			outputRange: [192, 0],
 			extrapolate: 'clamp',
 		});
+
+		const handleDelete = () => {
+			Alert.alert(
+				'Delete',
+				'Are you sure you want to delete this habit?',
+				[
+					{
+						text: 'Cancel',
+						style: 'cancel',
+					},
+					{ text: 'Yes', onPress: () => deleteHabit(id) },
+				],
+				{ cancelable: false }
+			);
+		};
 		return (
 			<Animated.View
 				style={{
 					flexDirection: 'row',
 					transform: [{ translateX: trans }],
-					width: 192,
+					width: 80,
 				}}>
-				<RectButton style={[styles.rightAction]}>
-					<Text style={styles.actionText}>"Test</Text>
-				</RectButton>
+				<TouchableOpacity
+					onPress={handleDelete}
+					style={[styles.rightAction, { backgroundColor: colors.card }]}>
+					<Icon family='feather' name='trash-2' size={30} colour={colors.text} />
+				</TouchableOpacity>
 			</Animated.View>
 		);
 	};
@@ -462,5 +480,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		flex: 1,
 		justifyContent: 'center',
+		margin: 5,
+		borderRadius: 10,
 	},
 });
