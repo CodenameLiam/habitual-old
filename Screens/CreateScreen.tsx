@@ -29,7 +29,7 @@ import {
 	WEEKDAY_SCHEDULE,
 	WEEKEND_SCHEDULE,
 } from '../Components/Scheduler';
-import { useHabits } from '../Storage/HabitController';
+import { IHabit, useHabits } from '../Storage/HabitController';
 import { HabitProps, HabitType } from '../Components/Habit';
 import { getRandomBytes } from 'expo-random';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -38,7 +38,12 @@ import { TimePicker } from '../Components/TimePicker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Toast, { BaseToastProps, ToastProps } from 'react-native-toast-message';
 import { AppContext } from '../Context/AppContext';
-import { impactAsync, ImpactFeedbackStyle, notificationAsync, NotificationFeedbackType } from 'expo-haptics';
+import {
+	impactAsync,
+	ImpactFeedbackStyle,
+	notificationAsync,
+	NotificationFeedbackType,
+} from 'expo-haptics';
 
 export type CreateNavProps = StackNavigationProp<AppStackParamList, 'Add'>;
 
@@ -47,9 +52,14 @@ interface CreateProps {
 }
 
 export default function CreateScreen({ navigation }: CreateProps) {
+	const { colors } = useTheme();
 	const { createHabit } = useContext(AppContext);
 	const { gradient, setGradient } = useContext(GradientContext);
-	const { colors } = useTheme();
+	const { solid: gradientSolid, start: gradientStart, end: gradientEnd } = GradientColours[
+		gradient
+	];
+
+	console.log(gradient);
 
 	let sheetRef = React.useRef<BottomSheet>(null);
 	let timeRef = React.useRef<BottomSheet>(null);
@@ -75,9 +85,10 @@ export default function CreateScreen({ navigation }: CreateProps) {
 					flexDirection: 'row',
 					alignItems: 'center',
 					justifyContent: 'center',
-				}}
-			>
-				<Text style={{ color: colors.text, fontFamily: 'Montserrat_600SemiBold' }}>{text1}</Text>
+				}}>
+				<Text style={{ color: colors.text, fontFamily: 'Montserrat_600SemiBold' }}>
+					{text1}
+				</Text>
 			</View>
 		),
 	};
@@ -132,15 +143,15 @@ export default function CreateScreen({ navigation }: CreateProps) {
 				bottomOffset: 150,
 			});
 		} else {
-			const habit: HabitProps = {
+			const habit: IHabit = {
 				id: getRandomBytes(8).join(''),
 				name: name,
 				icon: icon,
 				gradient: gradient,
-				progress: 0,
 				progressTotal: count,
 				type: type,
 				schedule: schedule,
+				dates: {},
 			};
 			createHabit(habit);
 			navigation.navigate('Tabs');
@@ -195,13 +206,21 @@ export default function CreateScreen({ navigation }: CreateProps) {
 
 	return (
 		<React.Fragment>
-			<KeyboardAwareScrollView contentContainerStyle={{ flex: 1 }} scrollEnabled={false} extraScrollHeight={60}>
+			<KeyboardAwareScrollView
+				contentContainerStyle={{ flex: 1 }}
+				scrollEnabled={false}
+				extraScrollHeight={60}>
 				<ShadowModal shadow={shadow} />
 
 				<View style={{ display: 'flex', flexDirection: 'row' }}>
 					<TouchableOpacity onPress={openSheet}>
 						<Card>
-							<Icon family={icon.family} name={icon.name} size={28} colour={GreyColours.GREY2} />
+							<Icon
+								family={icon.family}
+								name={icon.name}
+								size={28}
+								colour={GreyColours.GREY2}
+							/>
 						</Card>
 					</TouchableOpacity>
 					<Card style={{ marginLeft: 0, flex: 1 }}>
@@ -214,7 +233,7 @@ export default function CreateScreen({ navigation }: CreateProps) {
 							style={[
 								globalStyles.cardText,
 								{
-									color: gradient.solid,
+									color: gradientSolid,
 									flex: 1,
 								},
 							]}
@@ -225,11 +244,15 @@ export default function CreateScreen({ navigation }: CreateProps) {
 					<ColourPicker updateGradient={(gradient) => setGradient(gradient)} />
 				</Card>
 				<Card title='Schedule'>
-					<Scheduler schedule={schedule} setSchedule={setSchedule} gradient={gradient} />
+					<Scheduler
+						schedule={schedule}
+						setSchedule={setSchedule}
+						gradient={GradientColours[gradient]}
+					/>
 					<ColourButtonGroup
 						buttons={['Everyday', 'Weekdays', 'Weekend']}
 						buttonFunctions={scheduleFunctions}
-						colour={gradient.solid}
+						colour={gradientSolid}
 					/>
 				</Card>
 				<View style={{ display: 'flex', flexDirection: 'row' }}>
@@ -241,16 +264,17 @@ export default function CreateScreen({ navigation }: CreateProps) {
 									globalStyles.type,
 									{
 										backgroundColor:
-											type === 'count' ? gradient.solid + 50 : GreyColours.GREY2 + 50,
+											type === 'count'
+												? gradientSolid + 50
+												: GreyColours.GREY2 + 50,
 										marginRight: 10,
 									},
-								]}
-							>
+								]}>
 								<Icon
 									family='fontawesome'
 									name='plus'
 									size={24}
-									colour={type === 'count' ? gradient.solid : GreyColours.GREY2}
+									colour={type === 'count' ? gradientSolid : GreyColours.GREY2}
 									style={{ zIndex: 1 }}
 								/>
 							</TouchableOpacity>
@@ -260,15 +284,16 @@ export default function CreateScreen({ navigation }: CreateProps) {
 									globalStyles.type,
 									{
 										backgroundColor:
-											type === 'timer' ? gradient.solid + 50 : GreyColours.GREY2 + 50,
+											type === 'timer'
+												? gradientSolid + 50
+												: GreyColours.GREY2 + 50,
 									},
-								]}
-							>
+								]}>
 								<Icon
 									family='antdesign'
 									name='clockcircle'
 									size={24}
-									colour={type === 'timer' ? gradient.solid : GreyColours.GREY2}
+									colour={type === 'timer' ? gradientSolid : GreyColours.GREY2}
 									style={{ zIndex: 1 }}
 								/>
 							</TouchableOpacity>
@@ -276,7 +301,12 @@ export default function CreateScreen({ navigation }: CreateProps) {
 					</Card>
 					<Card title='Value' style={{ flex: 1 }}>
 						{type === 'count' ? (
-							<View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+							<View
+								style={{
+									display: 'flex',
+									flexDirection: 'row',
+									justifyContent: 'space-between',
+								}}>
 								<TextInput
 									returnKeyType='done'
 									onChangeText={handleCountType}
@@ -284,7 +314,7 @@ export default function CreateScreen({ navigation }: CreateProps) {
 									keyboardType='number-pad'
 									style={[
 										{
-											color: gradient.solid,
+											color: gradientSolid,
 											flex: 1,
 											backgroundColor: colors.background,
 											borderRadius: 5,
@@ -302,15 +332,18 @@ export default function CreateScreen({ navigation }: CreateProps) {
 											marginLeft: 10,
 											marginRight: 10,
 											backgroundColor:
-												Number(count) > 1 ? gradient.solid + 50 : GreyColours.GREY2 + 50,
+												Number(count) > 1
+													? gradientSolid + 50
+													: GreyColours.GREY2 + 50,
 										},
-									]}
-								>
+									]}>
 									<Icon
 										family='fontawesome'
 										name='minus'
 										size={24}
-										colour={Number(count) > 1 ? gradient.solid : GreyColours.GREY2}
+										colour={
+											Number(count) > 1 ? gradientSolid : GreyColours.GREY2
+										}
 									/>
 								</TouchableOpacity>
 
@@ -319,11 +352,15 @@ export default function CreateScreen({ navigation }: CreateProps) {
 									style={[
 										globalStyles.count,
 										{
-											backgroundColor: gradient.solid + 50,
+											backgroundColor: gradientSolid + 50,
 										},
-									]}
-								>
-									<Icon family='fontawesome' name='plus' size={24} colour={gradient.solid} />
+									]}>
+									<Icon
+										family='fontawesome'
+										name='plus'
+										size={24}
+										colour={gradientSolid}
+									/>
 								</TouchableOpacity>
 							</View>
 						) : (
@@ -335,16 +372,14 @@ export default function CreateScreen({ navigation }: CreateProps) {
 									borderRadius: 5,
 									display: 'flex',
 									justifyContent: 'center',
-								}}
-							>
+								}}>
 								<Text
 									style={{
-										color: gradient.solid,
+										color: gradientSolid,
 										textAlign: 'center',
 										fontFamily: 'Montserrat_800ExtraBold',
 										fontSize: 20,
-									}}
-								>
+									}}>
 									{getFormattedTimeCount()}
 								</Text>
 							</TouchableOpacity>
@@ -358,8 +393,7 @@ export default function CreateScreen({ navigation }: CreateProps) {
 						justifyContent: 'center',
 						alignItems: 'center',
 						margin: 10,
-					}}
-				>
+					}}>
 					<TouchableOpacity
 						onPress={handleSave}
 						style={{
@@ -370,10 +404,9 @@ export default function CreateScreen({ navigation }: CreateProps) {
 							alignItems: 'center',
 							width: '100%',
 							margin: 10,
-						}}
-					>
+						}}>
 						<LinearGradient
-							colors={[gradient.start, gradient.end]}
+							colors={[gradientStart, gradientEnd]}
 							style={globalStyles.gradient}
 							start={{ x: 0, y: 0 }}
 							end={{ x: 1, y: 0 }}
@@ -383,8 +416,7 @@ export default function CreateScreen({ navigation }: CreateProps) {
 								fontFamily: 'Montserrat_600SemiBold',
 								fontSize: 20,
 								color: colors.text,
-							}}
-						>
+							}}>
 							Save
 						</Text>
 					</TouchableOpacity>
@@ -402,7 +434,13 @@ export default function CreateScreen({ navigation }: CreateProps) {
 					ref={timeRef}
 					snapPoints={['100%', 0]}
 					initialSnap={1}
-					renderContent={() => <TimeModal minutes={minutes} hours={hours} handleTimeType={handleTimeType} />}
+					renderContent={() => (
+						<TimeModal
+							minutes={minutes}
+							hours={hours}
+							handleTimeType={handleTimeType}
+						/>
+					)}
 					renderHeader={() => <HeaderModal sheetRef={timeRef} height={550} />}
 					callbackNode={shadow}
 				/>
@@ -450,9 +488,13 @@ const TimeModal = ({ minutes, hours, handleTimeType }: TimeModalProps) => {
 				backgroundColor: colors.card,
 				padding: 16,
 				height: '100%',
-			}}
-		>
-			<TimePicker value={{ hours, minutes }} hoursUnit='hr' minutesUnit='m' onChange={handleTimeType} />
+			}}>
+			<TimePicker
+				value={{ hours, minutes }}
+				hoursUnit='hr'
+				minutesUnit='m'
+				onChange={handleTimeType}
+			/>
 		</View>
 	);
 };
@@ -520,8 +562,7 @@ const IconModal = ({ setIcon, closeSheet }: IconModalProps) => {
 				padding: 16,
 				height: '100%',
 			}}
-			showsVerticalScrollIndicator={false}
-		>
+			showsVerticalScrollIndicator={false}>
 			<View
 				style={{
 					width: '100%',
@@ -529,8 +570,7 @@ const IconModal = ({ setIcon, closeSheet }: IconModalProps) => {
 					flexDirection: 'row',
 					flexWrap: 'wrap',
 					// justifyContent: 'space-evenly',
-				}}
-			>
+				}}>
 				{IconOptions.map((icon, index) => (
 					<TouchableOpacity
 						key={index}
@@ -541,9 +581,13 @@ const IconModal = ({ setIcon, closeSheet }: IconModalProps) => {
 							// backgroundColor: 'red',
 							display: 'flex',
 							alignItems: 'center',
-						}}
-					>
-						<Icon family={icon.family} name={icon.name} colour={colors.text} size={30} />
+						}}>
+						<Icon
+							family={icon.family}
+							name={icon.name}
+							colour={colors.text}
+							size={30}
+						/>
 					</TouchableOpacity>
 				))}
 			</View>
@@ -567,7 +611,9 @@ const HeaderModal = ({ sheetRef, height }: HeaderModalProps) => {
 	const headerStyles = StyleSheet.flatten([header, headerBackground]);
 
 	return (
-		<TouchableWithoutFeedback style={[modalStyles.headerTouchable, { height: height }]} onPress={closeSheet}>
+		<TouchableWithoutFeedback
+			style={[modalStyles.headerTouchable, { height: height }]}
+			onPress={closeSheet}>
 			<View style={headerStyles}>
 				<View style={modalStyles.panelHeader}>
 					<View style={modalStyles.panelHandle} />

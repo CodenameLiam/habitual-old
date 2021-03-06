@@ -1,7 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useContext, useEffect, useState } from 'react';
-import { HabitProps } from '../Components/Habit';
+import { HabitProps, HabitType } from '../Components/Habit';
+import { IconProps } from '../Components/Icon';
+import { ScheduleType } from '../Components/Scheduler';
 import { AppContext } from '../Context/AppContext';
+import { GradientType } from '../Styles/Colours';
 import { getData, storeData } from './StorageController';
 
 const HABITS_KEY = '@Habits';
@@ -10,8 +13,23 @@ const getAllHabits = async () => {
 	return await getData(HABITS_KEY);
 };
 
+export interface IHabit {
+	id: string;
+	name: string;
+	icon: Partial<IconProps>;
+	progressTotal: number;
+	type: HabitType;
+	schedule: ScheduleType;
+	gradient: GradientType;
+	dates: IHabitDate;
+}
+
+export interface IHabitDate {
+	[date: string]: number;
+}
+
 export interface IHabitRecord {
-	[id: string]: HabitProps;
+	[id: string]: IHabit;
 }
 
 export const useHabits = () => {
@@ -26,7 +44,7 @@ export const useHabits = () => {
 		allHabits && setHabits(allHabits);
 	};
 
-	const createHabit = async (habit: HabitProps) => {
+	const createHabit = async (habit: IHabit) => {
 		let newHabits = { ...habits };
 		newHabits[habit.id] = habit;
 
@@ -34,7 +52,7 @@ export const useHabits = () => {
 		storeData(HABITS_KEY, newHabits);
 	};
 
-	const updateHabit = async (habit: HabitProps) => {
+	const updateHabit = async (habit: IHabit) => {
 		let newHabits = { ...habits };
 		newHabits[habit.id] = habit;
 
@@ -43,4 +61,10 @@ export const useHabits = () => {
 	};
 
 	return { habits, setHabits, createHabit, updateHabit };
+};
+
+export const mergeDates = (dates: IHabitDate, date: string, progress: number) => {
+	let newDates = { ...dates };
+	newDates[date] = progress;
+	return newDates;
 };

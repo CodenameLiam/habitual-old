@@ -1,6 +1,10 @@
 import { DrawerNavigationProp, useIsDrawerOpen } from '@react-navigation/drawer';
 import { useTheme } from '@react-navigation/native';
-import { createStackNavigator, StackNavigationProp, TransitionPresets } from '@react-navigation/stack';
+import {
+	createStackNavigator,
+	StackNavigationProp,
+	TransitionPresets,
+} from '@react-navigation/stack';
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Button, StyleSheet, Text, Vibration } from 'react-native';
 import { RootDrawerParamList } from './RootNavigation';
@@ -16,6 +20,7 @@ import Icon from '../Components/Icon';
 import { GradientContext } from '../Context/GradientContext';
 import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
 import { randomGradient } from '../Components/ColourPicker';
+import { GradientColours } from '../Styles/Colours';
 
 export type AppStackParamList = {
 	Tabs: undefined;
@@ -68,8 +73,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 				gestureEnabled: true,
 				cardOverlayEnabled: true,
 				headerTitleStyle: styles.headerTitle,
-			}}
-		>
+			}}>
 			<Stack.Screen
 				name='Tabs'
 				component={TabNavigation}
@@ -87,7 +91,9 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 						</TouchableOpacity>
 					),
 					headerRight: () => (
-						<TouchableOpacity style={{ paddingRight: 25 }} onPress={() => handleAdd(navigation)}>
+						<TouchableOpacity
+							style={{ paddingRight: 25 }}
+							onPress={() => handleAdd(navigation)}>
 							<Entypo name='plus' size={38} color={colors.text} />
 						</TouchableOpacity>
 					),
@@ -102,7 +108,10 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 					title: 'Create Habit',
 					headerBackground: () => (
 						<LinearGradient
-							colors={[gradient.start, gradient.end]}
+							colors={[
+								GradientColours[gradient].start,
+								GradientColours[gradient].end,
+							]}
 							style={styles.gradient}
 							start={{ x: 0, y: 0 }}
 							end={{ x: 1, y: 0 }}
@@ -113,8 +122,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 							style={{
 								padding: 8,
 							}}
-							onPress={() => handleBack(navigation)}
-						>
+							onPress={() => handleBack(navigation)}>
 							<Feather name='chevron-left' size={34} color={colors.text} />
 						</TouchableOpacity>
 					),
@@ -124,9 +132,13 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 								padding: 10,
 								paddingRight: 12,
 							}}
-							onPress={() => navigation.navigate('Ideas')}
-						>
-							<Icon family='antdesign' name='appstore-o' size={28} colour={colors.text} />
+							onPress={() => navigation.navigate('Ideas')}>
+							<Icon
+								family='antdesign'
+								name='appstore-o'
+								size={28}
+								colour={colors.text}
+							/>
 						</TouchableOpacity>
 					),
 				})}
@@ -151,8 +163,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 							style={{
 								padding: 8,
 							}}
-							onPress={() => navigation.goBack()}
-						>
+							onPress={() => navigation.goBack()}>
 							<Feather name='chevron-left' size={34} color={colors.text} />
 						</TouchableOpacity>
 					),
@@ -171,8 +182,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 							style={{
 								padding: 8,
 							}}
-							onPress={() => navigation.goBack()}
-						>
+							onPress={() => navigation.goBack()}>
 							<Feather name='chevron-left' size={34} color={colors.text} />
 						</TouchableOpacity>
 					),

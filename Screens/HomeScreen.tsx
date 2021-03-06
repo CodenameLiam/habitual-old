@@ -14,12 +14,17 @@ import { RouteProp, useFocusEffect, useTheme } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { TabParamList } from '../Navigation/TabNavigation';
 import { Entypo } from '@expo/vector-icons';
-import { PanGestureHandler, PanGestureHandlerGestureEvent, RectButton, ScrollView } from 'react-native-gesture-handler';
+import {
+	PanGestureHandler,
+	PanGestureHandlerGestureEvent,
+	RectButton,
+	ScrollView,
+} from 'react-native-gesture-handler';
 import Icon, { IconProps } from '../Components/Icon';
 import TextTicker from 'react-native-text-ticker';
 import Emoji from 'react-native-emoji';
 import { LinearGradient } from 'expo-linear-gradient';
-import { GradientColours, GradientType } from '../Styles/Colours';
+import { GradientColours, GradientShape } from '../Styles/Colours';
 import { FontAwesome } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
@@ -32,6 +37,7 @@ import { getRandomBytes } from 'expo-random';
 import { AppStackParamList } from '../Navigation/AppNavigation';
 import { AppContext } from '../Context/AppContext';
 import { DEFAULT_SCHEDULE, ScheduleType, ScheduleTypeValue } from '../Components/Scheduler';
+import moment from 'moment';
 
 type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
 type TabRouteProps = RouteProp<AppStackParamList, 'Tabs'>;
@@ -53,6 +59,10 @@ const habit = {
 
 export default function HomeScreen({ navigation, route }: HomeProps) {
 	const { habits } = useContext(AppContext);
+
+	console.log(habits);
+
+	// console.log(moment().format('YYYY-MM-DD'));
 
 	const habitArray = Object.values(habits);
 
@@ -100,7 +110,16 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 
 	// console.log(habits);
 
-	const [day, setDay] = useState<ScheduleTypeValue>('SUN');
+	let days = Object.keys(DEFAULT_SCHEDULE);
+	const dayIndex = moment().day() - 1;
+	const displayDays = days.slice(dayIndex + 1, days.length).concat(days.slice(0, dayIndex + 1));
+
+	// days = days.slice(dayIndex)
+
+	const [day, setDay] = useState<ScheduleTypeValue>(days[dayIndex] as ScheduleTypeValue);
+	const [date, setDate] = useState<string>(moment().format('YYYY-MM-DD'));
+
+	console.log(date);
 
 	// AsyncStorage.clear();
 
@@ -115,13 +134,37 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 		}, [navigation, day])
 	);
 
+	const hanndleDayChange = (day: ScheduleTypeValue, index: number) => {
+		setDay(day);
+		setDate(moment().subtract(index, 'd').format('YYYY-MM-DD'));
+	};
+
+	const dayDimensions = Dimensions.get('window').width / 10;
+
 	return (
 		<View style={{ flex: 1 }}>
-			{Object.keys(DEFAULT_SCHEDULE).map((schedule, index) => (
-				<TouchableOpacity key={index} onPress={() => setDay(schedule as ScheduleTypeValue)}>
-					<Text>{schedule}</Text>
-				</TouchableOpacity>
-			))}
+			<View
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'space-between',
+					padding: 20,
+					paddingBottom: 0,
+				}}>
+				{displayDays.map((schedule, index) => (
+					<TouchableOpacity
+						key={index}
+						onPress={() => hanndleDayChange(schedule as ScheduleTypeValue, 6 - index)}
+						style={{
+							width: dayDimensions,
+							height: dayDimensions,
+							backgroundColor: 'red',
+						}}>
+						<Text>{schedule}</Text>
+					</TouchableOpacity>
+				))}
+			</View>
+
 			<ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
 				<View style={{ flex: 1, padding: 10 }}>
 					{/* {Object.keys(GradientColours).map((color, index) => {
@@ -147,17 +190,23 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 					{habits &&
 						habitArray.map((habit) => {
 							if (habit.schedule[day]) {
+								const progress = habit.dates[date] ?? 0;
+								console.log(progress);
+								// console.log(habit.dates[date]);
+								// console.log(date);
 								return (
 									<Habit
-										key={habit.id}
+										key={habit.id + date}
 										id={habit.id}
 										name={habit.name}
 										icon={habit.icon}
 										gradient={habit.gradient}
-										progress={habit.progress}
+										progress={progress}
 										progressTotal={habit.progressTotal}
 										type={habit.type}
 										schedule={habit.schedule}
+										date={date}
+										dates={habit.dates}
 									/>
 								);
 							}

@@ -3,16 +3,17 @@ import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { View, Text, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
-import { GradientType, GreyColours } from '../Styles/Colours';
+import { GradientShape, GreyColours } from '../Styles/Colours';
 
 interface ScheduleProps {
-	gradient: GradientType;
+	gradient: GradientShape;
 	schedule: ScheduleType;
 	setSchedule: React.Dispatch<React.SetStateAction<ScheduleType>>;
 }
 
 export const Scheduler = ({ gradient, schedule, setSchedule }: ScheduleProps) => {
 	const { colors } = useTheme();
+
 	const dimensions = Dimensions.get('window').width / 10;
 
 	const styles = StyleSheet.create({
@@ -56,8 +57,7 @@ export const Scheduler = ({ gradient, schedule, setSchedule }: ScheduleProps) =>
 				<TouchableOpacity
 					key={`${day[0]}- ${day[1]}`}
 					style={styles.schedule}
-					onPress={() => handleSchedule(day[0] as ScheduleTypeValue)}
-				>
+					onPress={() => handleSchedule(day[0] as ScheduleTypeValue)}>
 					{day[1] && (
 						<LinearGradient
 							colors={[gradient.start, gradient.end]}
@@ -66,7 +66,11 @@ export const Scheduler = ({ gradient, schedule, setSchedule }: ScheduleProps) =>
 							end={{ x: 1, y: 0 }}
 						/>
 					)}
-					<Text style={[styles.text, day[1] ? { color: '#fff' } : { color: GreyColours.GREY2 }]}>
+					<Text
+						style={[
+							styles.text,
+							day[1] ? { color: '#fff' } : { color: GreyColours.GREY2 },
+						]}>
 						{day[0][0]}
 					</Text>
 				</TouchableOpacity>

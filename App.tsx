@@ -6,7 +6,7 @@ import { CustomDarkTheme, CustomLightTheme, useCustomTheme } from './Storage/The
 import { useCustomFonts } from './Storage/FontController';
 import AppLoading from 'expo-app-loading';
 import { StatusBar } from 'react-native';
-import { GradientColours, GradientType } from './Styles/Colours';
+import { GradientColours, GradientShape, GradientType } from './Styles/Colours';
 import { randomGradient } from './Components/ColourPicker';
 import { GradientContext } from './Context/GradientContext';
 import { AppContext } from './Context/AppContext';
@@ -31,9 +31,14 @@ export default function App() {
 		<AppearanceProvider>
 			<AppContext.Provider value={appValue}>
 				<GradientContext.Provider value={gradientValue}>
-					<NavigationContainer theme={theme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
+					<NavigationContainer
+						theme={theme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
 						<StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} />
-						<RootNavigation theme={theme} setTheme={setTheme} toggleTheme={toggleTheme} />
+						<RootNavigation
+							theme={theme}
+							setTheme={setTheme}
+							toggleTheme={toggleTheme}
+						/>
 					</NavigationContainer>
 				</GradientContext.Provider>
 			</AppContext.Provider>

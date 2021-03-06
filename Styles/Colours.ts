@@ -1,9 +1,3 @@
-export interface GradientType {
-	start: string;
-	end: string;
-	solid: string;
-}
-
 export const GreyColours = {
 	GREY0: '#f4f4f4',
 	GREY1: '#dddddd',
@@ -21,7 +15,27 @@ export const TabColours = {
 	AWARDS: '#95c9d9',
 };
 
-export const GradientColours = {
+export type GradientType =
+	| 'MIDNIGHT'
+	| 'PURPLE'
+	| 'RED'
+	| 'ORANGE'
+	| 'TANGERINE'
+	| 'YELLOW'
+	| 'BLUE'
+	| 'SKY'
+	| 'AQUA'
+	| 'GREEN'
+	| 'LIME'
+	| 'PINK';
+
+export interface GradientShape {
+	start: string;
+	end: string;
+	solid: string;
+}
+
+export const GradientColours: { [key in GradientType]: GradientShape } = {
 	MIDNIGHT: {
 		start: '#8f79f8',
 		end: '#bf7df3',
@@ -52,7 +66,6 @@ export const GradientColours = {
 		end: '#fde293',
 		solid: '#fbbf60',
 	},
-
 	BLUE: {
 		start: '#09C6F9',
 		end: '#045DE9',
@@ -68,7 +81,6 @@ export const GradientColours = {
 		end: '#0499F2',
 		solid: '#2de5c9',
 	},
-
 	GREEN: {
 		start: '#49d7b4',
 		end: '#1cfdab',

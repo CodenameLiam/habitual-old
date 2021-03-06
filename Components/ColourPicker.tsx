@@ -2,7 +2,7 @@ import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import { GradientType, GradientColours } from '../Styles/Colours';
+import { GradientShape, GradientColours, GradientType } from '../Styles/Colours';
 
 interface ColourPickerProps {
 	updateGradient: (gradient: GradientType) => void;
@@ -11,7 +11,7 @@ interface ColourPickerProps {
 export const ColourPicker = ({ updateGradient }: ColourPickerProps) => {
 	const colourPickerDimensions = Dimensions.get('window').width / 8.5;
 
-	const gradientValues = Object.values(GradientColours);
+	const gradientValues = Object.keys(GradientColours);
 	const halfGradientValues = Math.floor(gradientValues.length / 2);
 	const firstColours = gradientValues.slice(0, halfGradientValues);
 	const lastColours = gradientValues.slice(halfGradientValues, gradientValues.length);
@@ -45,9 +45,15 @@ export const ColourPicker = ({ updateGradient }: ColourPickerProps) => {
 			{combinedColours.map((half, index) => (
 				<View key={`Half${index}`} style={styles.container}>
 					{half.map((gradient, index) => (
-						<TouchableOpacity key={index} onPress={() => handlePress(gradient)} style={styles.swatch}>
+						<TouchableOpacity
+							key={index}
+							onPress={() => handlePress(gradient as GradientType)}
+							style={styles.swatch}>
 							<LinearGradient
-								colors={[gradient.start, gradient.end]}
+								colors={[
+									GradientColours[gradient as GradientType].start,
+									GradientColours[gradient as GradientType].end,
+								]}
 								style={styles.gradient}
 								start={{ x: 0, y: 0 }}
 								end={{ x: 1, y: 0 }}
@@ -64,9 +70,9 @@ const getRandomInt = (max: number) => {
 	return Math.floor(Math.random() * max);
 };
 
-export const randomGradient = () => {
-	const gradientKeys = Object.values(GradientColours);
+export const randomGradient = (): GradientType => {
+	const gradientKeys = Object.keys(GradientColours);
 	const randomGradientIndex = getRandomInt(gradientKeys.length);
 	const randomGradientResult = gradientKeys[randomGradientIndex];
-	return randomGradientResult;
+	return randomGradientResult as GradientType;
 };

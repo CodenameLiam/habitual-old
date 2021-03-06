@@ -1,12 +1,12 @@
 import { createContext } from 'react';
 import { HabitProps } from '../Components/Habit';
-import { IHabitRecord } from '../Storage/HabitController';
+import { IHabit, IHabitRecord } from '../Storage/HabitController';
 
 interface IAppContext {
 	habits: IHabitRecord;
 	setHabits: React.Dispatch<React.SetStateAction<IHabitRecord>>;
-	createHabit: (habit: HabitProps) => Promise<void>;
-	updateHabit: (habit: HabitProps) => Promise<void>;
+	createHabit: (habit: IHabit) => Promise<void>;
+	updateHabit: (habit: IHabit) => Promise<void>;
 }
 
 const DEFAULT_VALUE = {
