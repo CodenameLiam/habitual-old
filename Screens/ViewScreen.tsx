@@ -19,7 +19,6 @@ interface EditProps {
 }
 
 export default function ViewScreen({ navigation, route }: EditProps) {
-	// const rootNavigation: ViewNavProps = navigation.dangerouslyGetParent();
 	const { colors } = useTheme();
 	const { habits } = useContext(AppContext);
 	const { id } = route.params;
@@ -29,21 +28,13 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	useFocusEffect(
 		useCallback(() => {
 			navigation.setOptions({ title: habits[id].name });
-			// if (rootNavigation) {
-
-			// 	rootNavigation.setOptions({
-			// 		title: habits[id].name,
-			// 	});
-			// }
 		}, [navigation, habits[id].name])
 	);
 
 	return (
 		<ScrollView contentContainerStyle={{ flex: 1 }}>
 			<CalendarList
-				// Enable horizontal scrolling, default = false
 				horizontal={true}
-				// Enable paging on horizontal, default = false
 				pagingEnabled={true}
 				theme={{
 					calendarBackground: colors.card,
@@ -52,14 +43,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 					textMonthFontFamily: 'Montserrat_600SemiBold',
 					textDayFontFamily: 'Montserrat_600SemiBold',
 					textDayHeaderFontFamily: 'Montserrat_600SemiBold',
-					// todayTextColor: 'red',
-					// monthTextColor: 'blue',
 				}}
-
-				// Set custom calendarWidth.
-				// calendarWidth={Dimensions.get('window').width - 25}
-				//   ...calendarListParams
-				//   ...calendarParams
 			/>
 		</ScrollView>
 	);

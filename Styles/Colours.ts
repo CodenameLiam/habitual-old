@@ -97,5 +97,3 @@ export const TabColours = {
 	TRENDS: GradientColours.GREEN.solid,
 	AWARDS: GradientColours.YELLOW.solid,
 };
-// background-color: #dbf26e;
-// background-image: linear-gradient(319deg, #dbf26e 0%, #61fa74 37%, #1cfdd6 100%);
