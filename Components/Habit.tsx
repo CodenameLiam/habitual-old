@@ -27,6 +27,8 @@ import {
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import TextTicker from 'react-native-text-ticker';
 import { AppContext } from '../Context/AppContext';
+import { GradientContext } from '../Context/GradientContext';
+import { AppNavProps, RootNavProps } from '../Navigation/AppNavigation';
 import { IHabitDate, mergeDates, useHabits } from '../Storage/HabitController';
 import { GradientColours, GradientType, GradientShape } from '../Styles/Colours';
 import Icon, { IconProps } from './Icon';
@@ -35,6 +37,7 @@ import { ScheduleType } from './Scheduler';
 export type HabitType = 'check' | 'count' | 'timer';
 
 export interface HabitProps {
+	navigation: AppNavProps;
 	id: string;
 	name: string;
 	icon: Partial<IconProps>;
@@ -68,6 +71,7 @@ export const getTimeString = (seconds: number): string => {
 const HabitMaxInterpolation = Dimensions.get('window').width - 120;
 
 export const Habit = ({
+	navigation,
 	id,
 	name,
 	icon,
@@ -81,6 +85,7 @@ export const Habit = ({
 }: HabitProps) => {
 	const { colors } = useTheme();
 	const { updateHabit } = useContext(AppContext);
+	const { setGradient } = useContext(GradientContext);
 
 	const [count, setCount] = useState(progress);
 	const [animatedCount, setAnimatedCount] = useState(progress);
@@ -98,6 +103,12 @@ export const Habit = ({
 	const progressOffset = type == 'timer' ? getTimeOffset(progressTotal) : 0.5;
 	const progressInterval = progressOffset * 2;
 	let interval: NodeJS.Timeout;
+
+	const handleEdit = () => {
+		impactAsync(ImpactFeedbackStyle.Light);
+		setGradient(gradient);
+		setTimeout(() => navigation.navigate('Edit', { id: id }), 100);
+	};
 
 	useEffect(() => {
 		checkComplete();
@@ -321,7 +332,7 @@ export const Habit = ({
 						margin: 5,
 					}}>
 					<TouchableWithoutFeedback
-						onPress={() => console.log('Press')}
+						onPress={handleEdit}
 						style={{
 							flex: 1,
 						}}>

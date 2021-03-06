@@ -5,22 +5,20 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { TabParamList } from '../Navigation/TabNavigation';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Habit } from '../Components/Habit';
-import { AppStackParamList } from '../Navigation/AppNavigation';
+import { AppNavProps, AppStackParamList, RootNavProps } from '../Navigation/AppNavigation';
 import { AppContext } from '../Context/AppContext';
 import { DEFAULT_SCHEDULE, ScheduleTypeValue } from '../Components/Scheduler';
 import moment from 'moment';
 
-type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
-type TabRouteProps = RouteProp<AppStackParamList, 'Tabs'>;
-
+export type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
 interface HomeProps {
 	navigation: HomeNavProps;
-	route: TabRouteProps;
 }
 
-export default function HomeScreen({ navigation, route }: HomeProps) {
+export default function HomeScreen({ navigation }: HomeProps) {
 	const { habits } = useContext(AppContext);
 	const habitArray = Object.values(habits);
+	const rootNavigation: AppNavProps = navigation.dangerouslyGetParent();
 
 	let days = Object.keys(DEFAULT_SCHEDULE);
 	const dayIndex = moment().day() - 1;
@@ -31,9 +29,8 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 
 	useFocusEffect(
 		useCallback(() => {
-			const stackNavigator = navigation.dangerouslyGetParent();
-			if (stackNavigator) {
-				stackNavigator.setOptions({
+			if (rootNavigation) {
+				rootNavigation.setOptions({
 					title: day,
 				});
 			}
@@ -79,7 +76,8 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 								const progress = habit.dates[date] ?? 0;
 								return (
 									<Habit
-										key={habit.id + date}
+										key={habit.id + date + habit.progressTotal}
+										navigation={rootNavigation}
 										id={habit.id}
 										name={habit.name}
 										icon={habit.icon}

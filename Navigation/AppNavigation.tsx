@@ -21,12 +21,12 @@ import { GradientContext } from '../Context/GradientContext';
 import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
 import { randomGradient } from '../Components/ColourPicker';
 import { GradientColours } from '../Styles/Colours';
+import EditScreen from '../Screens/EditScreen';
 
 export type AppStackParamList = {
 	Tabs: undefined;
-	Add: undefined;
-	Edit: undefined;
-	Icons: undefined;
+	Create: undefined;
+	Edit: { id: string };
 	Ideas: undefined;
 };
 
@@ -55,14 +55,14 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 		navigation.toggleDrawer();
 	};
 
-	const handleAdd = (navigation: AppNavProps) => {
+	const handleCreate = (navigation: AppNavProps) => {
 		impactAsync(ImpactFeedbackStyle.Medium);
-		navigation.navigate('Add');
+		navigation.navigate('Create');
 	};
 
 	const handleBack = (navigation: AppNavProps) => {
 		navigation.navigate('Tabs');
-		setTimeout(() => setGradient(randomGradient), 200);
+		setTimeout(() => setGradient(randomGradient), 100);
 	};
 
 	return (
@@ -93,14 +93,14 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 					headerRight: () => (
 						<TouchableOpacity
 							style={{ paddingRight: 25 }}
-							onPress={() => handleAdd(navigation)}>
+							onPress={() => handleCreate(navigation)}>
 							<Entypo name='plus' size={38} color={colors.text} />
 						</TouchableOpacity>
 					),
 				})}
 			/>
 			<Stack.Screen
-				name='Add'
+				name='Create'
 				component={CreateScreen}
 				options={({ navigation }) => ({
 					headerStatusBarHeight: 2,
@@ -144,15 +144,18 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 				})}
 			/>
 			<Stack.Screen
-				name='Icons'
-				component={IconScreen}
+				name='Edit'
+				component={EditScreen}
 				options={({ navigation }) => ({
 					headerStatusBarHeight: 2,
 					headerStyle: { height: 60 },
-					title: 'Select Icon',
+					title: 'Edit Habit',
 					headerBackground: () => (
 						<LinearGradient
-							colors={[gradient.start, gradient.end]}
+							colors={[
+								GradientColours[gradient].start,
+								GradientColours[gradient].end,
+							]}
 							style={styles.gradient}
 							start={{ x: 0, y: 0 }}
 							end={{ x: 1, y: 0 }}
@@ -163,10 +166,25 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 							style={{
 								padding: 8,
 							}}
-							onPress={() => navigation.goBack()}>
+							onPress={() => handleBack(navigation)}>
 							<Feather name='chevron-left' size={34} color={colors.text} />
 						</TouchableOpacity>
 					),
+					// headerRight: () => (
+					// 	<TouchableOpacity
+					// 		style={{
+					// 			padding: 10,
+					// 			paddingRight: 12,
+					// 		}}
+					// 		onPress={() => navigation.navigate('Ideas')}>
+					// 		<Icon
+					// 			family='antdesign'
+					// 			name='appstore-o'
+					// 			size={28}
+					// 			colour={colors.text}
+					// 		/>
+					// 	</TouchableOpacity>
+					// ),
 				})}
 			/>
 			<Stack.Screen
