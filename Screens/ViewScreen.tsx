@@ -29,6 +29,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { GradientContext } from '../Context/GradientContext';
 import Svg, { Circle } from 'react-native-svg';
+import { getTimeString } from '../Components/Habit';
 
 export type ViewNavProps = StackNavigationProp<AppStackParamList, 'View'>;
 export type ViewRoute = RouteProp<AppStackParamList, 'View'>;
@@ -111,98 +112,108 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 
 	const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
+	let progress: string | number = habit.dates[today] ? habit.dates[today].progress : 0;
+	let progressTotal =
+		habit.type === 'timer' ? getTimeString(habit.progressTotal) : habit.progressTotal;
+	progress = habit.type === 'timer' ? getTimeString(progress) : progress;
+
 	return (
-		<View style={{ flex: 1 }}>
-			<LinearGradient
-				colors={[GradientColours[gradient].start, GradientColours[gradient].end]}
+		// <View style={{ flex: 1 }}>
+		// 	<LinearGradient
+		// 		colors={[GradientColours[gradient].start, GradientColours[gradient].end]}
+		// 		style={{
+		// 			position: 'absolute',
+		// 			top: 0,
+		// 			left: 0,
+		// 			right: 0,
+		// 			height: Dimensions.get('screen').height / 3,
+		// 		}}
+		// 		start={{ x: 0, y: 0 }}
+		// 		end={{ x: 1, y: 0 }}
+		// 	/>
+		<ScrollView showsVerticalScrollIndicator={false}>
+			{/* <View style={{ height: 40 }}>
+				<Text>Yeet</Text>
+			</View> */}
+
+			<View
 				style={{
-					position: 'absolute',
-					top: 0,
-					left: 0,
-					right: 0,
-					height: Dimensions.get('screen').height / 3,
-				}}
-				start={{ x: 0, y: 0 }}
-				end={{ x: 1, y: 0 }}
-			/>
-			<ScrollView showsVerticalScrollIndicator={false}>
-				<View style={{ height: 40 }}>
-					<Text>Yeet</Text>
-				</View>
-
-				<View
+					backgroundColor: colors.background,
+					height: Dimensions.get('screen').width,
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+				}}>
+				<Text
 					style={{
-						backgroundColor: colors.background,
-						height: Dimensions.get('screen').width,
-						display: 'flex',
-						justifyContent: 'center',
-						alignItems: 'center',
+						fontFamily: 'Montserrat_800ExtraBold',
+						fontSize: 30,
+						color: colors.text,
 					}}>
-					<Text>
-						{habit.dates[today].progress} / {habit.progressTotal}
-					</Text>
-					<Svg
-						width={dimension}
-						height={dimension}
-						style={{
-							position: 'absolute',
-						}}>
-						<Circle
-							stroke={GradientColours[habit.gradient].solid + '50'}
-							cx={dimension / 2}
-							cy={dimension / 2}
-							r={radius}
-							strokeWidth={20}
-						/>
-					</Svg>
-					<Svg
-						width={dimension}
-						height={dimension}
-						style={{
-							position: 'absolute',
-							transform: [{ rotate: '-90deg' }],
-						}}>
-						<AnimatedCircle
-							stroke={GradientColours[habit.gradient].solid}
-							cx={dimension / 2}
-							cy={dimension / 2}
-							r={radius}
-							strokeWidth={20}
-							strokeLinecap={'round'}
-							strokeDashoffset={interpolatedSize}
-							strokeDasharray={[circumference, circumference]}
-						/>
-					</Svg>
-				</View>
-
-				{isReady && (
-					<CalendarList
-						key={habit.gradient}
-						horizontal={true}
-						pagingEnabled={true}
-						maxDate={today}
-						markedDates={markedDates}
-						onDayPress={handlePress}
-						markingType={'custom'}
-						theme={{
-							calendarBackground: colors.background,
-							monthTextColor: colors.text,
-							dayTextColor: colors.text,
-							textDisabledColor: colors.border,
-							selectedDayTextColor: colors.text,
-							selectedDotColor: colors.text,
-							selectedDayBackgroundColor: GradientColours[habit.gradient].solid,
-							todayTextColor: GradientColours[habit.gradient].solid,
-							dotColor: GradientColours[habit.gradient].solid,
-							textMonthFontFamily: 'Montserrat_600SemiBold',
-							textDayFontFamily: 'Montserrat_600SemiBold',
-							textDayHeaderFontFamily: 'Montserrat_600SemiBold',
-							textSectionTitleColor: GreyColours.GREY2,
-						}}
+					{progress} / {progressTotal}
+				</Text>
+				<Svg
+					width={dimension}
+					height={dimension}
+					style={{
+						position: 'absolute',
+					}}>
+					<Circle
+						stroke={GradientColours[habit.gradient].solid + '50'}
+						cx={dimension / 2}
+						cy={dimension / 2}
+						r={radius}
+						strokeWidth={20}
 					/>
-				)}
-			</ScrollView>
-		</View>
+				</Svg>
+				<Svg
+					width={dimension}
+					height={dimension}
+					style={{
+						position: 'absolute',
+						transform: [{ rotate: '-90deg' }],
+					}}>
+					<AnimatedCircle
+						stroke={GradientColours[habit.gradient].solid}
+						cx={dimension / 2}
+						cy={dimension / 2}
+						r={radius}
+						strokeWidth={20}
+						strokeLinecap={'round'}
+						strokeDashoffset={interpolatedSize}
+						strokeDasharray={[circumference, circumference]}
+					/>
+				</Svg>
+			</View>
+
+			{isReady && (
+				<CalendarList
+					key={habit.gradient}
+					horizontal={true}
+					pagingEnabled={true}
+					maxDate={today}
+					markedDates={markedDates}
+					onDayPress={handlePress}
+					markingType={'custom'}
+					theme={{
+						calendarBackground: colors.background,
+						monthTextColor: colors.text,
+						dayTextColor: colors.text,
+						textDisabledColor: colors.border,
+						selectedDayTextColor: colors.text,
+						selectedDotColor: colors.text,
+						selectedDayBackgroundColor: GradientColours[habit.gradient].solid,
+						todayTextColor: GradientColours[habit.gradient].solid,
+						dotColor: GradientColours[habit.gradient].solid,
+						textMonthFontFamily: 'Montserrat_600SemiBold',
+						textDayFontFamily: 'Montserrat_600SemiBold',
+						textDayHeaderFontFamily: 'Montserrat_600SemiBold',
+						textSectionTitleColor: GreyColours.GREY2,
+					}}
+				/>
+			)}
+		</ScrollView>
+		// </View>
 	);
 }
 

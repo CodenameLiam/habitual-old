@@ -40,8 +40,13 @@ export default function HomeScreen({ navigation }: HomeProps) {
 					title: dayString,
 				});
 			}
+		}, [dayString])
+	);
+
+	useFocusEffect(
+		useCallback(() => {
 			setHabitToken(getRandomBytes(4).join(''));
-		}, [navigation, dayString])
+		}, [navigation])
 	);
 
 	const handleDayChange = (day: ScheduleTypeValue, index: number) => {
@@ -107,7 +112,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
 
 								return (
 									<Habit
-										key={habit.id + habitToken}
+										key={habit.id + day + habitToken}
 										navigation={rootNavigation}
 										id={habit.id}
 										name={habit.name}
