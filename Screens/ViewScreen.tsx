@@ -28,6 +28,8 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	const { id } = route.params;
 	const habit = habits[id];
 
+	console.log(habit);
+
 	const today = moment().format('YYYY-MM-DD');
 
 	useFocusEffect(
@@ -46,7 +48,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 
 	const handlePress = (day: DateObject) => {
 		const date = habit.dates[day.dateString];
-		const newProgress = date ? 0 : habit.progressTotal;
+		const newProgress = date && date === habit.progressTotal ? 0 : habit.progressTotal;
 
 		updateHabit({ ...habit, dates: mergeDates(habit.dates, day.dateString, newProgress) });
 		notificationAsync(NotificationFeedbackType.Success);
