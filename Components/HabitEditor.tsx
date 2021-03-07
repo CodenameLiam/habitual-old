@@ -50,9 +50,10 @@ import { EditNavProps } from '../Screens/EditScreen';
 interface EditProps {
 	navigation: EditNavProps;
 	habit?: IHabit;
+	resetGradient?: boolean;
 }
 
-export default function HabitEdtor({ navigation, habit }: EditProps) {
+export default function HabitEdtor({ navigation, habit, resetGradient }: EditProps) {
 	const { colors } = useTheme();
 	const { createHabit } = useContext(AppContext);
 	const { gradient, setGradient } = useContext(GradientContext);
@@ -167,8 +168,8 @@ export default function HabitEdtor({ navigation, habit }: EditProps) {
 				dates: habit ? habit.dates : {},
 			};
 			createHabit(newHabit);
-			navigation.navigate('Tabs');
-			setTimeout(() => setGradient(randomGradient), 100);
+			navigation.goBack();
+			resetGradient === true && setTimeout(() => setGradient(randomGradient), 100);
 		}
 	};
 

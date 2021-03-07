@@ -9,6 +9,7 @@ import { AppStackParamList } from '../Navigation/AppNavigation';
 import { EditNavProps, EditRoute } from './EditScreen';
 import CalendarStrip from 'react-native-calendar-strip';
 import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
+import moment from 'moment';
 
 export type ViewNavProps = StackNavigationProp<AppStackParamList, 'View'>;
 export type ViewRoute = RouteProp<AppStackParamList, 'View'>;
@@ -36,10 +37,12 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 			<CalendarList
 				horizontal={true}
 				pagingEnabled={true}
+				maxDate={moment().format('YYYY-MM-DD')}
 				theme={{
-					calendarBackground: colors.card,
+					calendarBackground: colors.background,
 					monthTextColor: colors.text,
 					dayTextColor: colors.text,
+					textDisabledColor: colors.border,
 					textMonthFontFamily: 'Montserrat_600SemiBold',
 					textDayFontFamily: 'Montserrat_600SemiBold',
 					textDayHeaderFontFamily: 'Montserrat_600SemiBold',

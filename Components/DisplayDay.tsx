@@ -38,6 +38,9 @@ export default function DisplayDay({
 
 	useEffect(() => {
 		animateProgress();
+		if (alpha === 0) {
+			console.log('All complete');
+		}
 	}, [alpha]);
 
 	const animateProgress = () => {

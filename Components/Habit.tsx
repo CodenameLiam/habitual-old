@@ -108,7 +108,8 @@ export const Habit = ({
 	const handleEdit = () => {
 		impactAsync(ImpactFeedbackStyle.Light);
 		setGradient(gradient);
-		setTimeout(() => navigation.navigate('View', { id: id }), 100);
+		navigation.navigate('View', { id: id });
+		// setTimeout(() => navigation.navigate('View', { id: id }), 100);
 	};
 
 	useEffect(() => {
