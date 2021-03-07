@@ -23,6 +23,7 @@ import { randomGradient } from '../Components/ColourPicker';
 import { GradientColours } from '../Styles/Colours';
 import EditScreen from '../Screens/EditScreen';
 import ViewScreen from '../Screens/ViewScreen';
+import { AppContext } from '../Context/AppContext';
 
 export type AppStackParamList = {
 	Tabs: undefined;
@@ -43,6 +44,7 @@ interface AppNavigationProps {
 
 export default function AppNavigation({ navigation }: AppNavigationProps) {
 	const { colors } = useTheme();
+	const { habits } = useContext(AppContext);
 	const { gradient, setGradient } = useContext(GradientContext);
 	const isDrawerOpen = useIsDrawerOpen();
 	const [isOpen, setOpen] = useState(false);
@@ -64,7 +66,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 
 	const handleBack = (navigation: AppNavProps) => {
 		navigation.navigate('Tabs');
-		setTimeout(() => setGradient(randomGradient), 100);
+		// setTimeout(() => setGradient(randomGradient), 100);
 	};
 
 	return (
@@ -155,8 +157,8 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 					headerBackground: () => (
 						<LinearGradient
 							colors={[
-								GradientColours[gradient].start,
-								GradientColours[gradient].end,
+								GradientColours[habits[route.params.id].gradient].start,
+								GradientColours[habits[route.params.id].gradient].end,
 							]}
 							style={styles.gradient}
 							start={{ x: 0, y: 0 }}
@@ -187,15 +189,15 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 			<Stack.Screen
 				name='Edit'
 				component={EditScreen}
-				options={({ navigation }) => ({
+				options={({ navigation, route }) => ({
 					headerStatusBarHeight: 2,
 					headerStyle: { height: 60 },
 					title: 'Edit Habit',
 					headerBackground: () => (
 						<LinearGradient
 							colors={[
-								GradientColours[gradient].start,
-								GradientColours[gradient].end,
+								GradientColours[habits[route.params.id].gradient].start,
+								GradientColours[habits[route.params.id].gradient].end,
 							]}
 							style={styles.gradient}
 							start={{ x: 0, y: 0 }}

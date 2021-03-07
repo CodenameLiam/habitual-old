@@ -1,6 +1,6 @@
 import { RouteProp, useFocusEffect, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { View, Text, Dimensions, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Card } from '../Components/Card';
@@ -10,7 +10,7 @@ import { EditNavProps, EditRoute } from './EditScreen';
 
 import { CalendarList, DateObject } from 'react-native-calendars';
 import moment from 'moment';
-import { GradientColours, GreyColours } from '../Styles/Colours';
+import { GradientColours, GradientType, GreyColours } from '../Styles/Colours';
 import { mergeDates } from '../Storage/HabitController';
 import {
 	impactAsync,
@@ -38,9 +38,38 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 
 	const today = moment().format('YYYY-MM-DD');
 
+	const prevGradient = useRef<GradientType>();
+
+	useEffect(() => {
+		// prevGradient.current = gradient;
+		// if (prevGradient.current !== gradient) {
+		// 	navigation.setOptions({
+		// 		headerBackground: () => (
+		// 			<LinearGradient
+		// 				colors={[GradientColours[gradient].start, GradientColours[gradient].end]}
+		// 				style={StyleSheet.absoluteFill}
+		// 				start={{ x: 0, y: 0 }}
+		// 				end={{ x: 1, y: 0 }}
+		// 			/>
+		// 		),
+		// 	});
+		// }
+		// console.log(prevGradient);
+		console.log(gradient);
+	}, [gradient]);
+
+	// useFocusEffect(
+	// 	useCallback(() => {
+	//
+	// 	}, [gradient])
+	// );
+
 	useFocusEffect(
 		useCallback(() => {
-			navigation.setOptions({ title: habit.name });
+			navigation.setOptions({
+				title: habit.name,
+			});
+			// setTimeout(() => setGradient(habit.gradient), 100);
 		}, [navigation, habit.name])
 	);
 
@@ -68,7 +97,10 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	return (
 		<View style={{ flex: 1 }}>
 			<LinearGradient
-				colors={[GradientColours[gradient].start, GradientColours[gradient].end]}
+				colors={[
+					GradientColours[habit.gradient].start,
+					GradientColours[habit.gradient].end,
+				]}
 				style={{
 					position: 'absolute',
 					top: 0,

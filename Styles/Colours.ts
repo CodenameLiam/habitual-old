@@ -47,7 +47,7 @@ export const GradientColours: { [key in GradientType]: GradientShape } = {
 	ORANGE: {
 		start: '#FF748B',
 		end: '#FE7BB0',
-		solid: '#FE7BB0',
+		solid: '#FF748B',
 	},
 	TANGERINE: {
 		start: '#FB7BA2',

@@ -86,7 +86,6 @@ export const Habit = ({
 }: HabitProps) => {
 	const { colors } = useTheme();
 	const { updateHabit, deleteHabit } = useContext(AppContext);
-	const { setGradient } = useContext(GradientContext);
 
 	const [count, setCount] = useState(progress);
 	const [animatedCount, setAnimatedCount] = useState(progress);
@@ -107,9 +106,7 @@ export const Habit = ({
 
 	const handleEdit = () => {
 		impactAsync(ImpactFeedbackStyle.Light);
-		setGradient(gradient);
 		navigation.navigate('View', { id: id });
-		// setTimeout(() => navigation.navigate('View', { id: id }), 100);
 	};
 
 	useEffect(() => {
@@ -321,6 +318,16 @@ export const Habit = ({
 		if (event.nativeEvent.state == 5) {
 			animateProgress();
 			setAnimatedCount(count);
+			updateHabit({
+				id: id,
+				name: name,
+				icon: icon,
+				gradient: gradient,
+				progressTotal: progressTotal,
+				type: type,
+				schedule: schedule,
+				dates: mergeDates(dates, date, count, progressTotal),
+			});
 			if (complete == true) {
 				notificationAsync(NotificationFeedbackType.Success);
 			}

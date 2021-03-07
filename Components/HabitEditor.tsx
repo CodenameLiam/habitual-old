@@ -57,7 +57,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 	const { colors } = useTheme();
 	const { createHabit } = useContext(AppContext);
 	const { gradient, setGradient } = useContext(GradientContext);
-	const { solid: gradientSolid, start: gradientStart, end: gradientEnd } = GradientColours[
+	let { solid: gradientSolid, start: gradientStart, end: gradientEnd } = GradientColours[
 		gradient
 	];
 
@@ -169,7 +169,8 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 			};
 			createHabit(newHabit);
 			navigation.goBack();
-			resetGradient === true && setTimeout(() => setGradient(randomGradient), 100);
+			// console.log(resetGradient);
+			// resetGradient === true && setTimeout(() => setGradient(randomGradient), 100);
 		}
 	};
 
