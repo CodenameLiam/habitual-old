@@ -71,10 +71,10 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 		<Stack.Navigator
 			mode='modal'
 			screenOptions={{
-				...TransitionPresets.ModalPresentationIOS,
 				gestureEnabled: true,
 				cardOverlayEnabled: true,
 				headerTitleStyle: styles.headerTitle,
+				...TransitionPresets.ModalPresentationIOS,
 			}}>
 			<Stack.Screen
 				name='Tabs'
@@ -86,7 +86,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 							<SettingsMenuIcon
 								type='cross'
 								active={isOpen}
-								onPress={handleOpen}
+								onPress={() => {}}
 								underlayColor='transparent'
 								color={colors.text}
 							/>

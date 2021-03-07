@@ -98,7 +98,7 @@ export const Habit = ({
 	const panRef = useRef<PanGestureHandler>(null);
 	let interpolatedSize = progressAnimation.interpolate({
 		inputRange: [0, progressTotal],
-		outputRange: [1, 18],
+		outputRange: [1, 19],
 	});
 
 	const progressOffset = type == 'timer' ? getTimeOffset(progressTotal) : 0.5;
@@ -107,9 +107,10 @@ export const Habit = ({
 
 	const handleEdit = () => {
 		impactAsync(ImpactFeedbackStyle.Light);
+		// console.log(navigation);
 		setGradient(gradient);
 		navigation.navigate('View', { id: id });
-		// setTimeout(() => navigation.navigate('View', { id: id }), 100);
+		// navigation.navigate('Create');
 	};
 
 	useEffect(() => {

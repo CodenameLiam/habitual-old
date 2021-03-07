@@ -1,7 +1,15 @@
 import { RouteProp, useFocusEffect, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import React, { useCallback, useContext } from 'react';
-import { View, Text, Dimensions, StyleSheet } from 'react-native';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import {
+	View,
+	Text,
+	Dimensions,
+	StyleSheet,
+	InteractionManager,
+	Animated,
+	Easing,
+} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Card } from '../Components/Card';
 import { AppContext } from '../Context/AppContext';
@@ -20,6 +28,7 @@ import {
 } from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GradientContext } from '../Context/GradientContext';
+import Svg, { Circle } from 'react-native-svg';
 
 export type ViewNavProps = StackNavigationProp<AppStackParamList, 'View'>;
 export type ViewRoute = RouteProp<AppStackParamList, 'View'>;
@@ -35,6 +44,14 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	const { gradient } = useContext(GradientContext);
 	const { id } = route.params;
 	const habit = habits[id];
+
+	const [isReady, setIsReady] = useState(false);
+
+	useEffect(() => {
+		InteractionManager.runAfterInteractions(() => {
+			setIsReady(true);
+		});
+	}, []);
 
 	const today = moment().format('YYYY-MM-DD');
 
@@ -65,6 +82,35 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 		notificationAsync(NotificationFeedbackType.Success);
 	};
 
+	const dimension = Dimensions.get('window').width - 50;
+	const radius = dimension / 2 - 15;
+	const circumference = radius * 2 * Math.PI;
+	const alpha = habit.dates[today] ? 1 - habit.dates[today].progress / habit.progressTotal : 1;
+
+	const progressAnimation = useRef(new Animated.Value(1)).current;
+	const interpolatedSize = progressAnimation.interpolate({
+		inputRange: [0, 1],
+		outputRange: [0, radius * Math.PI * 2],
+	});
+
+	useEffect(() => {
+		animateProgress();
+		if (alpha === 0) {
+			console.log('All complete');
+		}
+	}, [alpha]);
+
+	const animateProgress = () => {
+		Animated.timing(progressAnimation, {
+			toValue: alpha,
+			duration: 500,
+			useNativeDriver: true,
+			easing: Easing.out(Easing.quad),
+		}).start();
+	};
+
+	const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
 	return (
 		<View style={{ flex: 1 }}>
 			<LinearGradient
@@ -84,43 +130,77 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 					<Text>Yeet</Text>
 				</View>
 
-				<CalendarList
-					key={habit.gradient}
-					horizontal={true}
-					pagingEnabled={true}
-					maxDate={today}
-					markedDates={markedDates}
-					onDayPress={handlePress}
-					markingType={'custom'}
-					theme={{
-						calendarBackground: colors.background,
-						monthTextColor: colors.text,
-						dayTextColor: colors.text,
-						textDisabledColor: colors.border,
-						selectedDayTextColor: colors.text,
-						selectedDotColor: colors.text,
-						selectedDayBackgroundColor: GradientColours[habit.gradient].solid,
-						todayTextColor: GradientColours[habit.gradient].solid,
-						dotColor: GradientColours[habit.gradient].solid,
-						textMonthFontFamily: 'Montserrat_600SemiBold',
-						textDayFontFamily: 'Montserrat_600SemiBold',
-						textDayHeaderFontFamily: 'Montserrat_600SemiBold',
-						textSectionTitleColor: GreyColours.GREY2,
-					}}
-				/>
-
-				<View style={{ backgroundColor: colors.background }}>
-					{/* <Text style={styles.paragraph}>This is a ScrollView example HEADER.</Text>
-					<Text style={styles.paragraph}>This is a ScrollView example paragraph.</Text>
-					<Text style={styles.paragraph}>This is a ScrollView example paragraph.</Text>
-					<Text style={styles.paragraph}>This is a ScrollView example paragraph.</Text>
-					<Text style={styles.paragraph}>This is a ScrollView example paragraph.</Text>
-					<Text style={styles.paragraph}>This is a ScrollView example paragraph.</Text>
-					<Text style={styles.paragraph}>This is a ScrollView example paragraph.</Text>
-					<Text style={styles.paragraph}>This is a ScrollView example paragraph.</Text>
-					<Text style={styles.paragraph}>This is a ScrollView example paragraph.</Text>
-					<Text style={styles.paragraph}>This is a ScrollView example FOOTER.</Text> */}
+				<View
+					style={{
+						backgroundColor: colors.background,
+						height: Dimensions.get('screen').width,
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+					}}>
+					<Text>
+						{habit.dates[today].progress} / {habit.progressTotal}
+					</Text>
+					<Svg
+						width={dimension}
+						height={dimension}
+						style={{
+							position: 'absolute',
+						}}>
+						<Circle
+							stroke={GradientColours[habit.gradient].solid + '50'}
+							cx={dimension / 2}
+							cy={dimension / 2}
+							r={radius}
+							strokeWidth={20}
+						/>
+					</Svg>
+					<Svg
+						width={dimension}
+						height={dimension}
+						style={{
+							position: 'absolute',
+							transform: [{ rotate: '-90deg' }],
+						}}>
+						<AnimatedCircle
+							stroke={GradientColours[habit.gradient].solid}
+							cx={dimension / 2}
+							cy={dimension / 2}
+							r={radius}
+							strokeWidth={20}
+							strokeLinecap={'round'}
+							strokeDashoffset={interpolatedSize}
+							strokeDasharray={[circumference, circumference]}
+						/>
+					</Svg>
 				</View>
+
+				{isReady && (
+					<CalendarList
+						key={habit.gradient}
+						horizontal={true}
+						pagingEnabled={true}
+						maxDate={today}
+						markedDates={markedDates}
+						onDayPress={handlePress}
+						markingType={'custom'}
+						theme={{
+							calendarBackground: colors.background,
+							monthTextColor: colors.text,
+							dayTextColor: colors.text,
+							textDisabledColor: colors.border,
+							selectedDayTextColor: colors.text,
+							selectedDotColor: colors.text,
+							selectedDayBackgroundColor: GradientColours[habit.gradient].solid,
+							todayTextColor: GradientColours[habit.gradient].solid,
+							dotColor: GradientColours[habit.gradient].solid,
+							textMonthFontFamily: 'Montserrat_600SemiBold',
+							textDayFontFamily: 'Montserrat_600SemiBold',
+							textDayHeaderFontFamily: 'Montserrat_600SemiBold',
+							textSectionTitleColor: GreyColours.GREY2,
+						}}
+					/>
+				)}
 			</ScrollView>
 		</View>
 	);
