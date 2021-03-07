@@ -1,17 +1,15 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { View, Text, Dimensions, TouchableOpacity, Animated, Button } from 'react-native';
-import { RouteProp, useFocusEffect, useTheme } from '@react-navigation/native';
+import React, { useCallback, useContext, useState } from 'react';
+import { View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { TabParamList } from '../Navigation/TabNavigation';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Habit } from '../Components/Habit';
-import { AppNavProps, AppStackParamList, RootNavProps } from '../Navigation/AppNavigation';
+import { AppNavProps } from '../Navigation/AppNavigation';
 import { AppContext } from '../Context/AppContext';
 import { DEFAULT_SCHEDULE, ScheduleTypeValue } from '../Components/Scheduler';
 import moment from 'moment';
-import Svg, { Circle } from 'react-native-svg';
-import { GradientColours, GreyColours } from '../Styles/Colours';
-import { GradientContext } from '../Context/GradientContext';
+import DisplayDay from '../Components/DisplayDay';
 
 export type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
 interface HomeProps {
@@ -19,9 +17,7 @@ interface HomeProps {
 }
 
 export default function HomeScreen({ navigation }: HomeProps) {
-	const { colors } = useTheme();
 	const { habits } = useContext(AppContext);
-	const { colour } = useContext(GradientContext);
 	const habitArray = Object.values(habits);
 	const rootNavigation: AppNavProps = navigation.dangerouslyGetParent();
 
@@ -43,7 +39,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
 		}, [navigation, dayString])
 	);
 
-	const hanndleDayChange = (day: ScheduleTypeValue, index: number) => {
+	const handleDayChange = (day: ScheduleTypeValue, index: number) => {
 		setDay(day);
 		setDayString(getDayString(index));
 		setDate(moment().subtract(index, 'd').format('YYYY-MM-DD'));
@@ -55,7 +51,25 @@ export default function HomeScreen({ navigation }: HomeProps) {
 		else return moment().subtract(index, 'd').format('MMMM Do');
 	};
 
-	const dayDimensions = Dimensions.get('window').width / 9;
+	const getAlphaValue = (displayDay: string, index: number) => {
+		let habitDayLength = 0;
+		let habitDayCompleteLength = 0;
+
+		habitArray.forEach((habit) => {
+			if (habit.schedule[displayDay as ScheduleTypeValue]) {
+				habitDayLength += 1;
+
+				const progress =
+					habit.dates[
+						moment()
+							.subtract(6 - index, 'd')
+							.format('YYYY-MM-DD')
+					] ?? 0;
+				if (progress === habit.progressTotal) habitDayCompleteLength += 1;
+			}
+		});
+		return habitDayCompleteLength === 0 ? 1 : 1 - habitDayCompleteLength / habitDayLength;
+	};
 
 	return (
 		<View style={{ flex: 1 }}>
@@ -67,92 +81,16 @@ export default function HomeScreen({ navigation }: HomeProps) {
 					padding: 20,
 					paddingBottom: 10,
 				}}>
-				{displayDays.map((displayDay, index) => {
-					let habitDayLength = 0;
-					let habitDayCompleteLength = 0;
-
-					habitArray.forEach((habit) => {
-						if (habit.schedule[displayDay as ScheduleTypeValue]) {
-							habitDayLength += 1;
-
-							const progress =
-								habit.dates[
-									moment()
-										.subtract(6 - index, 'd')
-										.format('YYYY-MM-DD')
-								] ?? 0;
-							if (progress === habit.progressTotal) habitDayCompleteLength += 1;
-						}
-					});
-
-					const radius = dayDimensions / 2 - 2;
-					const circumference = radius * 2 * Math.PI;
-					const alpha =
-						habitDayCompleteLength === 0
-							? 1
-							: 1 - habitDayCompleteLength / habitDayLength;
-
-					return (
-						<TouchableOpacity
-							key={index}
-							onPress={() =>
-								hanndleDayChange(displayDay as ScheduleTypeValue, 6 - index)
-							}
-							style={{
-								width: dayDimensions,
-								height: dayDimensions,
-								justifyContent: 'center',
-								alignItems: 'center',
-								borderRadius: 100,
-							}}>
-							<Text
-								style={{
-									fontFamily: 'Montserrat_600SemiBold',
-									color: displayDay === day ? colors.text : colors.border,
-								}}>
-								{moment()
-									.subtract(6 - index, 'd')
-									.format('D')}
-							</Text>
-							<Text
-								style={{
-									fontFamily: 'Montserrat_600SemiBold',
-									fontSize: 8,
-									color: displayDay === day ? colors.text : colors.border,
-								}}>
-								{displayDay}
-							</Text>
-							<View style={{ position: 'absolute' }}>
-								<Svg width={dayDimensions} height={dayDimensions}>
-									<Circle
-										stroke={GradientColours[colour].solid + '50'}
-										cx={dayDimensions / 2}
-										cy={dayDimensions / 2}
-										r={radius}
-										strokeWidth={3}
-									/>
-								</Svg>
-								<Svg
-									width={dayDimensions}
-									height={dayDimensions}
-									style={{
-										position: 'absolute',
-										transform: [{ rotate: '-90deg' }],
-									}}>
-									<Circle
-										stroke={GradientColours[colour].solid}
-										cx={dayDimensions / 2}
-										cy={dayDimensions / 2}
-										r={radius}
-										strokeWidth={3}
-										strokeDashoffset={alpha * radius * Math.PI * 2}
-										strokeDasharray={[circumference, circumference]}
-									/>
-								</Svg>
-							</View>
-						</TouchableOpacity>
-					);
-				})}
+				{displayDays.map((displayDay, index) => (
+					<DisplayDay
+						key={index}
+						alpha={getAlphaValue(displayDay, index)}
+						selectedDay={day}
+						displayDay={displayDay as ScheduleTypeValue}
+						displayIndex={index}
+						handleDayChange={handleDayChange}
+					/>
+				))}
 			</View>
 
 			<ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>

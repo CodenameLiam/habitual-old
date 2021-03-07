@@ -30,8 +30,6 @@ export type TabParamList = {
 
 const Tab = createBottomTabNavigator();
 
-// export type TabRouteProps = RouteProp<AppStackParamList, 'Tabs'>;
-
 interface AppProps {
 	navigation: AppNavProps;
 	route: any;
@@ -100,13 +98,6 @@ export default function TabNavigation({ navigation, route }: AppProps) {
 		</Tab.Navigator>
 	);
 }
-
-// const TabColours = {
-// 	HOME: GradientColours.PEACH.solid,
-// 	CALENDAR: GradientColours.PEACH.solid,
-// 	TRENDS: GradientColours.PEACH.solid,
-// 	AWARDS: GradientColours.PEACH.solid,
-// };
 
 const getHeaderTitle = (route: RouteProp<TabParamList, 'Home'>) => {
 	const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
