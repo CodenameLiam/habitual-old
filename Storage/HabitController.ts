@@ -24,8 +24,13 @@ export interface IHabit {
 	dates: IHabitDate;
 }
 
+export interface IHabitDateValue {
+	progressTotal: number;
+	progress: number;
+}
+
 export interface IHabitDate {
-	[date: string]: number;
+	[date: string]: IHabitDateValue;
 }
 
 export interface IHabitRecord {
@@ -71,8 +76,13 @@ export const useHabits = () => {
 	return { habits, setHabits, createHabit, updateHabit, deleteHabit };
 };
 
-export const mergeDates = (dates: IHabitDate, date: string, progress: number) => {
+export const mergeDates = (
+	dates: IHabitDate,
+	date: string,
+	progress: number,
+	progressTotal: number
+) => {
 	let newDates = { ...dates };
-	newDates[date] = progress;
+	newDates[date] = { progress: progress, progressTotal: progressTotal };
 	return newDates;
 };

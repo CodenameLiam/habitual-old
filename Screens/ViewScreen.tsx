@@ -41,16 +41,19 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	let markedDates = Object.assign(
 		{},
 		...Object.keys(habit.dates)
-			.filter((date) => habit.dates[date] === habit.progressTotal)
+			.filter((date) => habit.dates[date].progress === habit.dates[date].progressTotal)
 			.map((date) => ({ [date]: { selected: true } }))
 	);
 	markedDates[today] = { ...markedDates[today], marked: true };
 
 	const handlePress = (day: DateObject) => {
 		const date = habit.dates[day.dateString];
-		const newProgress = date && date === habit.progressTotal ? 0 : habit.progressTotal;
+		const newProgress = date && date.progress === date.progressTotal ? 0 : habit.progressTotal;
 
-		updateHabit({ ...habit, dates: mergeDates(habit.dates, day.dateString, newProgress) });
+		updateHabit({
+			...habit,
+			dates: mergeDates(habit.dates, day.dateString, newProgress, habit.progressTotal),
+		});
 		notificationAsync(NotificationFeedbackType.Success);
 	};
 

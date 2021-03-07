@@ -142,7 +142,7 @@ export const Habit = ({
 					progressTotal: progressTotal,
 					type: type,
 					schedule: schedule,
-					dates: mergeDates(dates, date, count + 1),
+					dates: mergeDates(dates, date, count + 1, progressTotal),
 				});
 			}, 1000);
 		}
@@ -159,7 +159,7 @@ export const Habit = ({
 				progressTotal: progressTotal,
 				type: type,
 				schedule: schedule,
-				dates: mergeDates(dates, date, count),
+				dates: mergeDates(dates, date, count, progressTotal),
 			});
 		}
 	};
@@ -174,7 +174,7 @@ export const Habit = ({
 				progressTotal: progressTotal,
 				type: type,
 				schedule: schedule,
-				dates: mergeDates(dates, date, count + 1),
+				dates: mergeDates(dates, date, count + 1, progressTotal),
 			}) &&
 			setShowCounter(true);
 
@@ -192,7 +192,7 @@ export const Habit = ({
 			progressTotal: progressTotal,
 			type: type,
 			schedule: schedule,
-			dates: mergeDates(dates, date, 0),
+			dates: mergeDates(dates, date, 0, progressTotal),
 		});
 
 		setCount(0);

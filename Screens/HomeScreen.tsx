@@ -11,6 +11,7 @@ import { DEFAULT_SCHEDULE, ScheduleTypeValue } from '../Components/Scheduler';
 import moment from 'moment';
 import DisplayDay from '../Components/DisplayDay';
 import { getRandomBytes } from 'expo-random';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
 interface HomeProps {
@@ -63,13 +64,13 @@ export default function HomeScreen({ navigation }: HomeProps) {
 			if (habit.schedule[displayDay as ScheduleTypeValue]) {
 				habitDayLength += 1;
 
-				const progress =
+				const date =
 					habit.dates[
 						moment()
 							.subtract(6 - index, 'd')
 							.format('YYYY-MM-DD')
 					] ?? 0;
-				if (progress === habit.progressTotal) habitDayCompleteLength += 1;
+				if (date.progress === habit.progressTotal) habitDayCompleteLength += 1;
 			}
 		});
 		return habitDayCompleteLength === 0 ? 1 : 1 - habitDayCompleteLength / habitDayLength;
@@ -102,7 +103,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
 					{habits &&
 						habitArray.map((habit) => {
 							if (habit.schedule[day]) {
-								const progress = habit.dates[date] ?? 0;
+								const progress = habit.dates[date] ? habit.dates[date].progress : 0;
 
 								return (
 									<Habit

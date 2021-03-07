@@ -5,7 +5,7 @@ import { GradientType, GreyColours } from '../Styles/Colours';
 import { getData, getValue, storeData, storeValue } from './StorageController';
 
 export type ThemeType = 'dark' | 'light';
-export const DEFAULT_COLOUR = 'PURPLE';
+export const DEFAULT_COLOUR = 'GREEN';
 
 export const useCustomTheme = () => {
 	const systemTheme = useColorScheme();
