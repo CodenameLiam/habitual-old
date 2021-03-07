@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { View } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { TabParamList } from '../Navigation/TabNavigation';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -10,6 +10,7 @@ import { AppContext } from '../Context/AppContext';
 import { DEFAULT_SCHEDULE, ScheduleTypeValue } from '../Components/Scheduler';
 import moment from 'moment';
 import DisplayDay from '../Components/DisplayDay';
+import { getRandomBytes } from 'expo-random';
 
 export type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
 interface HomeProps {
@@ -29,6 +30,8 @@ export default function HomeScreen({ navigation }: HomeProps) {
 	const [dayString, setDayString] = useState<string>('Today');
 	const [date, setDate] = useState<string>(moment().format('YYYY-MM-DD'));
 
+	const [habitToken, setHabitToken] = useState(getRandomBytes(4).join(''));
+
 	useFocusEffect(
 		useCallback(() => {
 			if (rootNavigation) {
@@ -36,6 +39,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
 					title: dayString,
 				});
 			}
+			setHabitToken(getRandomBytes(4).join(''));
 		}, [navigation, dayString])
 	);
 
@@ -102,7 +106,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
 
 								return (
 									<Habit
-										key={habit.id + date + habit.progressTotal}
+										key={habit.id + habitToken}
 										navigation={rootNavigation}
 										id={habit.id}
 										name={habit.name}
