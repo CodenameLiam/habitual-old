@@ -200,6 +200,11 @@ export const Habit = ({
 		}
 	};
 
+	const confirmDelete = () => {
+		deleteHabit(id);
+		notificationAsync(NotificationFeedbackType.Success);
+	};
+
 	const renderRightActions = (progress: Animated.AnimatedInterpolation) => {
 		const trans = progress.interpolate({
 			inputRange: [0, 1],
@@ -216,7 +221,7 @@ export const Habit = ({
 						text: 'Cancel',
 						style: 'cancel',
 					},
-					{ text: 'Yes', onPress: () => deleteHabit(id) },
+					{ text: 'Yes', onPress: confirmDelete },
 				],
 				{ cancelable: false }
 			);

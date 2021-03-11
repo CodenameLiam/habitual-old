@@ -77,12 +77,12 @@ export const GradientColours: { [key in GradientType]: GradientShape } = {
 	GREEN: {
 		start: '#49d7b4',
 		end: '#1cfdab',
-		solid: '#49d7b4',
+		solid: '#33EAB0',
 	},
 	LIME: {
 		start: '#1cfdab',
 		end: '#CEF576',
-		solid: '#93F888',
+		solid: '#57FA99',
 	},
 	PINK: {
 		start: '#F1A7F1',

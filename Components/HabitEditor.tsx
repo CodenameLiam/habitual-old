@@ -39,12 +39,7 @@ import { TimePicker } from '../Components/TimePicker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Toast, { BaseToastProps, ToastProps } from 'react-native-toast-message';
 import { AppContext } from '../Context/AppContext';
-import {
-	impactAsync,
-	ImpactFeedbackStyle,
-	notificationAsync,
-	NotificationFeedbackType,
-} from 'expo-haptics';
+import { impactAsync, ImpactFeedbackStyle, notificationAsync, NotificationFeedbackType } from 'expo-haptics';
 import { EditNavProps } from '../Screens/EditScreen';
 
 interface EditProps {
@@ -57,9 +52,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 	const { colors } = useTheme();
 	const { createHabit } = useContext(AppContext);
 	const { gradient, setGradient } = useContext(GradientContext);
-	const { solid: gradientSolid, start: gradientStart, end: gradientEnd } = GradientColours[
-		gradient
-	];
+	const { solid: gradientSolid, start: gradientStart, end: gradientEnd } = GradientColours[gradient];
 
 	const [isReady, setIsReady] = useState(false);
 
@@ -84,9 +77,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 	const [hours, setHours] = useState(habit ? Math.floor(count / 3600) : 0);
 	const [minutes, setMinutes] = useState(habit ? Math.floor((count % 3600) / 60) : 1);
 
-	const [schedule, setSchedule] = useState<ScheduleType>(
-		habit ? habit.schedule : { ...DEFAULT_SCHEDULE }
-	);
+	const [schedule, setSchedule] = useState<ScheduleType>(habit ? habit.schedule : { ...DEFAULT_SCHEDULE });
 
 	const toastConfig = {
 		error: ({ text1, ...rest }: BaseToastProps) => (
@@ -99,10 +90,9 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 					flexDirection: 'row',
 					alignItems: 'center',
 					justifyContent: 'center',
-				}}>
-				<Text style={{ color: colors.text, fontFamily: 'Montserrat_600SemiBold' }}>
-					{text1}
-				</Text>
+				}}
+			>
+				<Text style={{ color: colors.text, fontFamily: 'Montserrat_600SemiBold' }}>{text1}</Text>
 			</View>
 		),
 	};
@@ -142,6 +132,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 				position: 'bottom',
 				bottomOffset: 150,
 			});
+			notificationAsync(NotificationFeedbackType.Error);
 		} else if (Object.values(schedule).every((value) => value === false)) {
 			Toast.show({
 				type: 'error',
@@ -149,6 +140,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 				position: 'bottom',
 				bottomOffset: 150,
 			});
+			notificationAsync(NotificationFeedbackType.Error);
 		} else if (count === 0) {
 			Toast.show({
 				type: 'error',
@@ -156,6 +148,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 				position: 'bottom',
 				bottomOffset: 150,
 			});
+			notificationAsync(NotificationFeedbackType.Error);
 		} else {
 			const newHabit: IHabit = {
 				id: habit ? habit.id : getRandomBytes(8).join(''),
@@ -167,6 +160,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 				schedule: schedule,
 				dates: habit ? habit.dates : {},
 			};
+			notificationAsync(NotificationFeedbackType.Success);
 			createHabit(newHabit);
 			navigation.goBack();
 			resetGradient === true && setTimeout(() => setGradient(randomGradient), 100);
@@ -220,21 +214,13 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 
 	return (
 		<React.Fragment>
-			<KeyboardAwareScrollView
-				contentContainerStyle={{ flex: 1 }}
-				scrollEnabled={false}
-				extraScrollHeight={60}>
+			<KeyboardAwareScrollView contentContainerStyle={{ flex: 1 }} scrollEnabled={false} extraScrollHeight={60}>
 				<ShadowModal shadow={shadow} />
 
 				<View style={{ display: 'flex', flexDirection: 'row' }}>
 					<TouchableOpacity onPress={openSheet}>
 						<Card>
-							<Icon
-								family={icon.family}
-								name={icon.name}
-								size={28}
-								colour={GreyColours.GREY2}
-							/>
+							<Icon family={icon.family} name={icon.name} size={28} colour={GreyColours.GREY2} />
 						</Card>
 					</TouchableOpacity>
 					<Card style={{ marginLeft: 0, flex: 1 }}>
@@ -258,11 +244,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 					<ColourPicker updateGradient={(gradient) => setGradient(gradient)} />
 				</Card>
 				<Card title='Schedule'>
-					<Scheduler
-						schedule={schedule}
-						setSchedule={setSchedule}
-						gradient={GradientColours[gradient]}
-					/>
+					<Scheduler schedule={schedule} setSchedule={setSchedule} gradient={GradientColours[gradient]} />
 					<ColourButtonGroup
 						buttons={['Everyday', 'Weekdays', 'Weekend']}
 						buttonFunctions={scheduleFunctions}
@@ -277,13 +259,11 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 								style={[
 									globalStyles.type,
 									{
-										backgroundColor:
-											type === 'count'
-												? gradientSolid + 50
-												: GreyColours.GREY2 + 50,
+										backgroundColor: type === 'count' ? gradientSolid + 50 : GreyColours.GREY2 + 50,
 										marginRight: 10,
 									},
-								]}>
+								]}
+							>
 								<Icon
 									family='fontawesome'
 									name='plus'
@@ -297,12 +277,10 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 								style={[
 									globalStyles.type,
 									{
-										backgroundColor:
-											type === 'timer'
-												? gradientSolid + 50
-												: GreyColours.GREY2 + 50,
+										backgroundColor: type === 'timer' ? gradientSolid + 50 : GreyColours.GREY2 + 50,
 									},
-								]}>
+								]}
+							>
 								<Icon
 									family='antdesign'
 									name='clockcircle'
@@ -320,7 +298,8 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 									display: 'flex',
 									flexDirection: 'row',
 									justifyContent: 'space-between',
-								}}>
+								}}
+							>
 								<TextInput
 									returnKeyType='done'
 									onChangeText={handleCountType}
@@ -346,18 +325,15 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 											marginLeft: 10,
 											marginRight: 10,
 											backgroundColor:
-												Number(count) > 1
-													? gradientSolid + 50
-													: GreyColours.GREY2 + 50,
+												Number(count) > 1 ? gradientSolid + 50 : GreyColours.GREY2 + 50,
 										},
-									]}>
+									]}
+								>
 									<Icon
 										family='fontawesome'
 										name='minus'
 										size={24}
-										colour={
-											Number(count) > 1 ? gradientSolid : GreyColours.GREY2
-										}
+										colour={Number(count) > 1 ? gradientSolid : GreyColours.GREY2}
 									/>
 								</TouchableOpacity>
 
@@ -368,13 +344,9 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 										{
 											backgroundColor: gradientSolid + 50,
 										},
-									]}>
-									<Icon
-										family='fontawesome'
-										name='plus'
-										size={24}
-										colour={gradientSolid}
-									/>
+									]}
+								>
+									<Icon family='fontawesome' name='plus' size={24} colour={gradientSolid} />
 								</TouchableOpacity>
 							</View>
 						) : (
@@ -386,14 +358,16 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 									borderRadius: 5,
 									display: 'flex',
 									justifyContent: 'center',
-								}}>
+								}}
+							>
 								<Text
 									style={{
 										color: gradientSolid,
 										textAlign: 'center',
 										fontFamily: 'Montserrat_800ExtraBold',
 										fontSize: 20,
-									}}>
+									}}
+								>
 									{getFormattedTimeCount()}
 								</Text>
 							</TouchableOpacity>
@@ -407,7 +381,8 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 						justifyContent: 'center',
 						alignItems: 'center',
 						margin: 10,
-					}}>
+					}}
+				>
 					<TouchableOpacity
 						onPress={handleSave}
 						style={{
@@ -418,7 +393,8 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 							alignItems: 'center',
 							width: '100%',
 							margin: 10,
-						}}>
+						}}
+					>
 						<LinearGradient
 							colors={[gradientStart, gradientEnd]}
 							style={globalStyles.gradient}
@@ -430,7 +406,8 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 								fontFamily: 'Montserrat_600SemiBold',
 								fontSize: 20,
 								color: colors.text,
-							}}>
+							}}
+						>
 							Save
 						</Text>
 					</TouchableOpacity>
@@ -442,9 +419,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 							ref={sheetRef}
 							snapPoints={['100%', 0]}
 							initialSnap={1}
-							renderContent={() => (
-								<IconModal setIcon={setIcon} closeSheet={closeSheet} />
-							)}
+							renderContent={() => <IconModal setIcon={setIcon} closeSheet={closeSheet} />}
 							renderHeader={() => <HeaderModal sheetRef={sheetRef} height={240} />}
 							callbackNode={shadow}
 						/>
@@ -453,11 +428,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 							snapPoints={['100%', 0]}
 							initialSnap={1}
 							renderContent={() => (
-								<TimeModal
-									minutes={minutes}
-									hours={hours}
-									handleTimeType={handleTimeType}
-								/>
+								<TimeModal minutes={minutes} hours={hours} handleTimeType={handleTimeType} />
 							)}
 							renderHeader={() => <HeaderModal sheetRef={timeRef} height={550} />}
 							callbackNode={shadow}
@@ -508,13 +479,9 @@ const TimeModal = ({ minutes, hours, handleTimeType }: TimeModalProps) => {
 				backgroundColor: colors.card,
 				padding: 16,
 				height: '100%',
-			}}>
-			<TimePicker
-				value={{ hours, minutes }}
-				hoursUnit='hr'
-				minutesUnit='m'
-				onChange={handleTimeType}
-			/>
+			}}
+		>
+			<TimePicker value={{ hours, minutes }} hoursUnit='hr' minutesUnit='m' onChange={handleTimeType} />
 		</View>
 	);
 };
@@ -582,7 +549,8 @@ const IconModal = ({ setIcon, closeSheet }: IconModalProps) => {
 				padding: 16,
 				height: '100%',
 			}}
-			showsVerticalScrollIndicator={false}>
+			showsVerticalScrollIndicator={false}
+		>
 			<View
 				style={{
 					width: '100%',
@@ -590,7 +558,8 @@ const IconModal = ({ setIcon, closeSheet }: IconModalProps) => {
 					flexDirection: 'row',
 					flexWrap: 'wrap',
 					// justifyContent: 'space-evenly',
-				}}>
+				}}
+			>
 				{IconOptions.map((icon, index) => (
 					<TouchableOpacity
 						key={index}
@@ -601,13 +570,9 @@ const IconModal = ({ setIcon, closeSheet }: IconModalProps) => {
 							// backgroundColor: 'red',
 							display: 'flex',
 							alignItems: 'center',
-						}}>
-						<Icon
-							family={icon.family}
-							name={icon.name}
-							colour={colors.text}
-							size={30}
-						/>
+						}}
+					>
+						<Icon family={icon.family} name={icon.name} colour={colors.text} size={30} />
 					</TouchableOpacity>
 				))}
 			</View>
@@ -631,9 +596,7 @@ const HeaderModal = ({ sheetRef, height }: HeaderModalProps) => {
 	const headerStyles = StyleSheet.flatten([header, headerBackground]);
 
 	return (
-		<TouchableWithoutFeedback
-			style={[modalStyles.headerTouchable, { height: height }]}
-			onPress={closeSheet}>
+		<TouchableWithoutFeedback style={[modalStyles.headerTouchable, { height: height }]} onPress={closeSheet}>
 			<View style={headerStyles}>
 				<View style={modalStyles.panelHeader}>
 					<View style={modalStyles.panelHandle} />
