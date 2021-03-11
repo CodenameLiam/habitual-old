@@ -1,5 +1,5 @@
 import { DrawerNavigationProp, useIsDrawerOpen } from '@react-navigation/drawer';
-import { useTheme } from '@react-navigation/native';
+import { RouteProp, useTheme } from '@react-navigation/native';
 import { createStackNavigator, StackNavigationProp, TransitionPresets } from '@react-navigation/stack';
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Button, StyleSheet, Text, Vibration } from 'react-native';
@@ -21,6 +21,7 @@ import EditScreen from '../Screens/EditScreen';
 import ViewScreen from '../Screens/ViewScreen';
 import { useHabits } from '../Storage/HabitController';
 import { AppContext } from '../Context/AppContext';
+import IdeaScreen from '../Screens/IdeaScreen';
 
 export type AppStackParamList = {
 	Tabs: undefined;
@@ -32,6 +33,7 @@ export type AppStackParamList = {
 
 export type RootNavProps = DrawerNavigationProp<RootDrawerParamList, 'App'>;
 export type AppNavProps = StackNavigationProp<AppStackParamList, 'Tabs'>;
+export type ViewRoute = RouteProp<AppStackParamList, 'View'>;
 
 const Stack = createStackNavigator<AppStackParamList>();
 
@@ -61,6 +63,11 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 		navigation.navigate('Create');
 	};
 
+	const handleEdit = (navigation: AppNavProps, route: ViewRoute) => {
+		impactAsync(ImpactFeedbackStyle.Medium);
+		navigation.navigate('Edit', { id: route.params.id });
+	};
+
 	const handleBack = (navigation: AppNavProps) => {
 		navigation.navigate('Tabs');
 		setTimeout(() => setGradient(randomGradient), 100);
@@ -68,7 +75,6 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 
 	const handleEditBack = (navigation: AppNavProps, gradient: GradientType) => {
 		navigation.goBack();
-		// setGradient(gradient);
 		setTimeout(() => setGradient(gradient), 300);
 	};
 
@@ -174,7 +180,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 								padding: 10,
 								paddingRight: 16,
 							}}
-							onPress={() => navigation.navigate('Edit', { id: route.params.id })}
+							onPress={() => handleEdit(navigation, route)}
 						>
 							<Icon family='feather' name='edit' size={28} colour={colors.text} />
 						</TouchableOpacity>
@@ -210,7 +216,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 			/>
 			<Stack.Screen
 				name='Ideas'
-				component={IconScreen}
+				component={IdeaScreen}
 				options={({ navigation }) => ({
 					headerStatusBarHeight: 2,
 					headerStyle: { height: 60 },

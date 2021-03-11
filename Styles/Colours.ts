@@ -94,6 +94,6 @@ export const GradientColours: { [key in GradientType]: GradientShape } = {
 export const TabColours = {
 	HOME: GradientColours.SKY.solid,
 	CALENDAR: GradientColours.RED.solid,
-	TRENDS: GradientColours.GREEN.solid,
+	TRENDS: GradientColours.AQUA.solid,
 	AWARDS: GradientColours.YELLOW.solid,
 };

@@ -19,6 +19,8 @@ interface HomeProps {
 }
 
 export default function HomeScreen({ navigation }: HomeProps) {
+	// AsyncStorage.clear();
+
 	const { habits } = useContext(AppContext);
 	const habitArray = Object.values(habits);
 	const rootNavigation: AppNavProps = navigation.dangerouslyGetParent();
@@ -90,7 +92,8 @@ export default function HomeScreen({ navigation }: HomeProps) {
 					justifyContent: 'space-between',
 					padding: 20,
 					paddingBottom: 10,
-				}}>
+				}}
+			>
 				{displayDays.map((displayDay, index) => (
 					<DisplayDay
 						key={index}

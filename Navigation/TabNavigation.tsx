@@ -20,6 +20,7 @@ import AwardsScreen from '../Screens/AwardsScreen';
 import { GradientColours, TabColours } from '../Styles/Colours';
 import { color } from 'react-native-reanimated';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { StyleSheet } from 'react-native';
 
 export type TabParamList = {
 	Home: undefined;
@@ -46,6 +47,7 @@ export default function TabNavigation({ navigation, route }: AppProps) {
 		Home: {
 			labelStyle: {
 				color: TabColours.HOME,
+				fontFamily: 'Montserrat_700Bold',
 			},
 			icon: {
 				component: () => <Feather name='home' size={20} color={colors.text} />,
@@ -55,6 +57,7 @@ export default function TabNavigation({ navigation, route }: AppProps) {
 		Calendar: {
 			labelStyle: {
 				color: TabColours.CALENDAR,
+				fontFamily: 'Montserrat_700Bold',
 			},
 			icon: {
 				component: () => <Feather name='calendar' size={20} color={colors.text} />,
@@ -64,6 +67,7 @@ export default function TabNavigation({ navigation, route }: AppProps) {
 		Trends: {
 			labelStyle: {
 				color: TabColours.TRENDS,
+				fontFamily: 'Montserrat_700Bold',
 			},
 			icon: {
 				component: () => <Entypo name='line-graph' size={20} color={colors.text} />,
@@ -73,6 +77,7 @@ export default function TabNavigation({ navigation, route }: AppProps) {
 		Awards: {
 			labelStyle: {
 				color: TabColours.AWARDS,
+				fontFamily: 'Montserrat_700Bold',
 			},
 			icon: {
 				component: () => <Feather name='award' size={20} color={colors.text} />,
@@ -105,3 +110,7 @@ const getHeaderTitle = (route: RouteProp<TabParamList, 'Home'>) => {
 			return 'Awards';
 	}
 };
+
+const styles = StyleSheet.create({
+	label: { fontFamily: 'Montserrat_600SemiBold' },
+});
