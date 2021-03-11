@@ -20,11 +20,7 @@ import {
 	StyleSheet,
 	Alert,
 } from 'react-native';
-import {
-	PanGestureHandler,
-	RectButton,
-	PanGestureHandlerGestureEvent,
-} from 'react-native-gesture-handler';
+import { PanGestureHandler, RectButton, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import TextTicker from 'react-native-text-ticker';
 import { AppContext } from '../Context/AppContext';
@@ -69,7 +65,9 @@ export const getTimeString = (seconds: number): string => {
 	return hString + mString + sString;
 };
 
-const HabitMaxInterpolation = Dimensions.get('window').width - 120;
+const CircleDimensions = 35;
+const HabitMaxInterpolation = Dimensions.get('screen').width - 120;
+const HabitTransformInterpolation = Dimensions.get('screen').width / 20.5;
 
 export const Habit = ({
 	navigation,
@@ -92,13 +90,15 @@ export const Habit = ({
 	const [animatedCount, setAnimatedCount] = useState(progress);
 	const [complete, setComplete] = useState(progress == progressTotal ? true : false);
 	const [showCounter, setShowCounter] = useState(progress > 0 ? true : false);
-	const [timerActive, setTimerActive] = useState(false);
+	const [isTimerActive, setIsTimerActive] = useState(false);
+	const [isDragging, setIsDragging] = useState(false);
 
 	const progressAnimation = useRef(new Animated.Value(progress)).current;
 	const panRef = useRef<PanGestureHandler>(null);
+	// console.log(Dimensions.get('screen').width);
 	let interpolatedSize = progressAnimation.interpolate({
 		inputRange: [0, progressTotal],
-		outputRange: [1, 19],
+		outputRange: [1, HabitTransformInterpolation],
 	});
 
 	const progressOffset = type == 'timer' ? getTimeOffset(progressTotal) : 0.5;
@@ -107,20 +107,33 @@ export const Habit = ({
 
 	const handleEdit = () => {
 		impactAsync(ImpactFeedbackStyle.Light);
-		// console.log(navigation);
 		setGradient(gradient);
 		navigation.navigate('View', { id: id });
-		// navigation.navigate('Create');
 	};
 
 	useEffect(() => {
-		checkComplete();
-		incrementTimer();
-		animateProgress();
+		isTimerActive && incrementTimer();
+		!isDragging && animateProgress();
+		!isDragging && runUpdateHabit();
+		count >= progressTotal && handleComplete();
+
 		return () => {
 			clearInterval(interval);
 		};
-	}, [count, timerActive]);
+	}, [count, isTimerActive, isDragging]);
+
+	const runUpdateHabit = () => {
+		updateHabit({
+			id: id,
+			name: name,
+			icon: icon,
+			gradient: gradient,
+			progressTotal: progressTotal,
+			type: type,
+			schedule: schedule,
+			dates: mergeDates(dates, date, count, progressTotal),
+		});
+	};
 
 	const animateProgress = () => {
 		Animated.timing(progressAnimation, {
@@ -132,74 +145,25 @@ export const Habit = ({
 	};
 
 	const incrementTimer = () => {
-		if (timerActive && type == 'timer') {
+		if (isTimerActive && type == 'timer') {
 			interval = setInterval(() => {
 				setCount(count + 1);
-				updateHabit({
-					id: id,
-					name: name,
-					icon: icon,
-					gradient: gradient,
-					progressTotal: progressTotal,
-					type: type,
-					schedule: schedule,
-					dates: mergeDates(dates, date, count + 1, progressTotal),
-				});
 			}, 1000);
 		}
 	};
 
-	const checkComplete = () => {
-		if (count >= progressTotal) {
-			handleComplete();
-			updateHabit({
-				id: id,
-				name: name,
-				icon: icon,
-				gradient: gradient,
-				progressTotal: progressTotal,
-				type: type,
-				schedule: schedule,
-				dates: mergeDates(dates, date, count, progressTotal),
-			});
-		}
-	};
-
 	const addProgress = () => {
-		count + 1 !== progressTotal &&
-			updateHabit({
-				id: id,
-				name: name,
-				icon: icon,
-				gradient: gradient,
-				progressTotal: progressTotal,
-				type: type,
-				schedule: schedule,
-				dates: mergeDates(dates, date, count + 1, progressTotal),
-			}) &&
-			setShowCounter(true);
-
+		count + 1 !== progressTotal && setShowCounter(true);
 		setCount(count + 1);
 		setAnimatedCount(count + 1);
 		hapticFeedback(count + 1);
 	};
 
 	const resetHabit = () => {
-		updateHabit({
-			id: id,
-			name: name,
-			icon: icon,
-			gradient: gradient,
-			progressTotal: progressTotal,
-			type: type,
-			schedule: schedule,
-			dates: mergeDates(dates, date, 0, progressTotal),
-		});
-
 		setCount(0);
 		setAnimatedCount(0);
 		setComplete(false);
-		setTimerActive(false);
+		setIsTimerActive(false);
 		setShowCounter(false);
 	};
 
@@ -213,14 +177,14 @@ export const Habit = ({
 
 	const toggleTimer = () => {
 		setShowCounter(true);
-		setTimerActive(!timerActive);
+		setIsTimerActive(!isTimerActive);
 		impactAsync(ImpactFeedbackStyle.Medium);
 	};
 
 	const handleComplete = () => {
 		setComplete(true);
 		setShowCounter(false);
-		setTimerActive(false);
+		setIsTimerActive(false);
 		setCount(progressTotal);
 	};
 
@@ -235,8 +199,6 @@ export const Habit = ({
 			resetHabit();
 		}
 	};
-
-	const dimensions = 35;
 
 	const renderRightActions = (progress: Animated.AnimatedInterpolation) => {
 		const trans = progress.interpolate({
@@ -265,10 +227,9 @@ export const Habit = ({
 					flexDirection: 'row',
 					transform: [{ translateX: trans }],
 					width: 80,
-				}}>
-				<TouchableOpacity
-					onPress={handleDelete}
-					style={[styles.rightAction, { backgroundColor: colors.card }]}>
+				}}
+			>
+				<TouchableOpacity onPress={handleDelete} style={[styles.rightAction, { backgroundColor: colors.card }]}>
 					<Icon family='feather' name='trash-2' size={30} colour={colors.text} />
 				</TouchableOpacity>
 			</Animated.View>
@@ -281,16 +242,11 @@ export const Habit = ({
 			return;
 		}
 
-		if (timerActive) {
-			setTimerActive(false);
-		}
-
-		// const progressNormalised = 1;
-
 		const interpolateX = event.nativeEvent.translationX / HabitMaxInterpolation;
 		const scaledX = interpolateX * progressTotal;
 		const progress = animatedCount + scaledX;
 		const progressNormalised = Math.min(Math.max(progress, 0), progressTotal);
+
 		progressAnimation.setValue(progressNormalised);
 
 		if (!complete && progressNormalised >= progressTotal - progressOffset) {
@@ -302,12 +258,9 @@ export const Habit = ({
 			return;
 		}
 
-		if (count > 0) {
-			setShowCounter(true);
-		}
-
 		if (progressNormalised <= 0) {
 			setCount(0);
+			return;
 		}
 
 		if (progressNormalised >= count + progressOffset) {
@@ -316,10 +269,19 @@ export const Habit = ({
 		} else if (progressNormalised <= count - progressOffset) {
 			setCount(count - progressInterval);
 		}
+
+		if (count > 0) {
+			setShowCounter(true);
+		}
+
+		if (isTimerActive) {
+			setIsTimerActive(false);
+		}
 	};
 
 	const handleGestureEnd = (event: PanGestureHandlerGestureEvent) => {
 		if (event.nativeEvent.state == 5) {
+			setIsDragging(false);
 			animateProgress();
 			setAnimatedCount(count);
 			if (complete == true) {
@@ -328,6 +290,8 @@ export const Habit = ({
 			if (count == 0) {
 				setShowCounter(false);
 			}
+		} else if (event.nativeEvent.state == 2) {
+			setIsDragging(true);
 		}
 	};
 
@@ -339,7 +303,9 @@ export const Habit = ({
 				failOffsetX={[0, 1000]}
 				minDeltaX={0}
 				onGestureEvent={handleGesture}
-				onHandlerStateChange={handleGestureEnd}>
+				onHandlerStateChange={handleGestureEnd}
+				// enabled={!complete}
+			>
 				<Animated.View
 					style={{
 						backgroundColor: colors.card,
@@ -352,28 +318,32 @@ export const Habit = ({
 
 						justifyContent: 'space-between',
 						margin: 5,
-					}}>
+					}}
+				>
 					<TouchableWithoutFeedback
 						onPress={handleEdit}
 						style={{
 							flex: 1,
-						}}>
+						}}
+					>
 						<View
 							style={{
 								display: 'flex',
 								flexDirection: 'row',
 								alignItems: 'center',
 								flex: 1,
-							}}>
+							}}
+						>
 							<View
 								style={{
 									display: 'flex',
 									alignItems: 'center',
 									justifyContent: 'center',
-									height: dimensions,
-									width: dimensions,
+									height: CircleDimensions,
+									width: CircleDimensions,
 									margin: 15,
-								}}>
+								}}
+							>
 								<Icon
 									family={icon.family}
 									name={icon.name}
@@ -389,12 +359,10 @@ export const Habit = ({
 										transform: [{ scale: interpolatedSize }],
 										overflow: 'hidden',
 										borderRadius: 700,
-									}}>
+									}}
+								>
 									<LinearGradient
-										colors={[
-											GradientColours[gradient].start,
-											GradientColours[gradient].end,
-										]}
+										colors={[GradientColours[gradient].start, GradientColours[gradient].end]}
 										locations={[0.3, 1]}
 										style={{
 											flex: 1,
@@ -407,7 +375,8 @@ export const Habit = ({
 							<View
 								style={{
 									flex: 1,
-								}}>
+								}}
+							>
 								<TextTicker
 									style={{
 										fontFamily: 'Montserrat_600SemiBold',
@@ -419,7 +388,8 @@ export const Habit = ({
 									duration={3000}
 									bounceDelay={1500}
 									marqueeDelay={1000}
-									bouncePadding={{ left: 0, right: 0 }}>
+									bouncePadding={{ left: 0, right: 0 }}
+								>
 									{name}
 								</TextTicker>
 							</View>
@@ -434,32 +404,16 @@ export const Habit = ({
 								style={{
 									fontFamily: 'Montserrat_600SemiBold',
 									color: colors.text,
-								}}>
-								{type == 'count'
-									? `${count}/${progressTotal}`
-									: getTimeString(count)}
+								}}
+							>
+								{type == 'count' ? `${count}/${progressTotal}` : getTimeString(count)}
 							</Text>
 						) : type == 'timer' ? (
-							<Icon
-								family='fontawesome'
-								name='clock-o'
-								size={12}
-								colour={colors.text}
-							/>
+							<Icon family='fontawesome' name='clock-o' size={12} colour={colors.text} />
 						) : type == 'count' ? (
-							<Icon
-								family='fontawesome'
-								name='circle-o'
-								size={12}
-								colour={colors.text}
-							/>
+							<Icon family='fontawesome' name='circle-o' size={12} colour={colors.text} />
 						) : (
-							<Icon
-								family='fontawesome'
-								name='circle-o'
-								size={12}
-								colour={colors.text}
-							/>
+							<Icon family='fontawesome' name='circle-o' size={12} colour={colors.text} />
 						)}
 					</TouchableOpacity>
 				</Animated.View>

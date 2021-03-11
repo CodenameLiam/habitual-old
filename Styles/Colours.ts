@@ -47,12 +47,12 @@ export const GradientColours: { [key in GradientType]: GradientShape } = {
 	ORANGE: {
 		start: '#FF748B',
 		end: '#FE7BB0',
-		solid: '#FE7BB0',
+		solid: '#FF748B',
 	},
 	TANGERINE: {
 		start: '#FB7BA2',
 		end: '#f7dc6e',
-		solid: '#f09a75',
+		solid: '#F9AC88',
 	},
 	YELLOW: {
 		start: '#fbbf60',
@@ -82,7 +82,7 @@ export const GradientColours: { [key in GradientType]: GradientShape } = {
 	LIME: {
 		start: '#1cfdab',
 		end: '#CEF576',
-		solid: '#7af98f',
+		solid: '#93F888',
 	},
 	PINK: {
 		start: '#F1A7F1',
@@ -92,7 +92,7 @@ export const GradientColours: { [key in GradientType]: GradientShape } = {
 };
 
 export const TabColours = {
-	HOME: GradientColours.PURPLE.solid,
+	HOME: GradientColours.SKY.solid,
 	CALENDAR: GradientColours.RED.solid,
 	TRENDS: GradientColours.GREEN.solid,
 	AWARDS: GradientColours.YELLOW.solid,
