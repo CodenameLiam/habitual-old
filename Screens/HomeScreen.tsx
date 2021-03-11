@@ -9,7 +9,7 @@ import { AppNavProps } from '../Navigation/AppNavigation';
 import { AppContext } from '../Context/AppContext';
 import { DEFAULT_SCHEDULE, ScheduleTypeValue } from '../Components/Scheduler';
 import moment from 'moment';
-import DisplayDay from '../Components/DisplayDay';
+import DisplayDay, { dayIndex, days, displayDays } from '../Components/DisplayDay';
 import { getRandomBytes } from 'expo-random';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -25,9 +25,9 @@ export default function HomeScreen({ navigation }: HomeProps) {
 	const habitArray = Object.values(habits);
 	const rootNavigation: AppNavProps = navigation.dangerouslyGetParent();
 
-	let days = Object.keys(DEFAULT_SCHEDULE);
-	const dayIndex = moment().subtract(1, 'd').day();
-	const displayDays = days.slice(dayIndex + 1, days.length).concat(days.slice(0, dayIndex + 1));
+	// let days = Object.keys(DEFAULT_SCHEDULE);
+	// const dayIndex = moment().subtract(1, 'd').day();
+	// const displayDays = days.slice(dayIndex + 1, days.length).concat(days.slice(0, dayIndex + 1));
 
 	const [day, setDay] = useState<ScheduleTypeValue>(days[dayIndex] as ScheduleTypeValue);
 	const [dayString, setDayString] = useState<string>('Today');

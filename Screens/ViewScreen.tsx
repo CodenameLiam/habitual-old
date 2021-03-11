@@ -1,15 +1,7 @@
 import { RouteProp, useFocusEffect, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import {
-	View,
-	Text,
-	Dimensions,
-	StyleSheet,
-	InteractionManager,
-	Animated,
-	Easing,
-} from 'react-native';
+import { View, Text, Dimensions, StyleSheet, InteractionManager, Animated, Easing } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Card } from '../Components/Card';
 import { AppContext } from '../Context/AppContext';
@@ -20,16 +12,13 @@ import { CalendarList, DateObject } from 'react-native-calendars';
 import moment from 'moment';
 import { GradientColours, GreyColours } from '../Styles/Colours';
 import { mergeDates } from '../Storage/HabitController';
-import {
-	impactAsync,
-	ImpactFeedbackStyle,
-	notificationAsync,
-	NotificationFeedbackType,
-} from 'expo-haptics';
+import { impactAsync, ImpactFeedbackStyle, notificationAsync, NotificationFeedbackType } from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GradientContext } from '../Context/GradientContext';
 import Svg, { Circle } from 'react-native-svg';
 import { getTimeString } from '../Components/Habit';
+import DisplayDay, { dayIndex, days, displayDays } from '../Components/DisplayDay';
+import { ScheduleTypeValue } from '../Components/Scheduler';
 
 export type ViewNavProps = StackNavigationProp<AppStackParamList, 'View'>;
 export type ViewRoute = RouteProp<AppStackParamList, 'View'>;
@@ -113,9 +102,38 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 	let progress: string | number = habit.dates[today] ? habit.dates[today].progress : 0;
-	let progressTotal =
-		habit.type === 'timer' ? getTimeString(habit.progressTotal) : habit.progressTotal;
+	let progressTotal = habit.type === 'timer' ? getTimeString(habit.progressTotal) : habit.progressTotal;
+	progress = progress >= progressTotal ? habit.progressTotal : progress;
 	progress = habit.type === 'timer' ? getTimeString(progress) : progress;
+
+	const [day, setDay] = useState<ScheduleTypeValue>(days[dayIndex] as ScheduleTypeValue);
+	const [date, setDate] = useState<string>(moment().format('YYYY-MM-DD'));
+
+	const getAlphaValue = (index: number) => {
+		const date = moment()
+			.subtract(6 - index, 'd')
+			.format('YYYY-MM-DD');
+		// let habitDayLength = 0;
+		// let habitDayCompleteLength = 0;
+
+		// habitArray.forEach((habit) => {
+		// 	if (habit.schedule[displayDay as ScheduleTypeValue]) {
+		// 		habitDayLength += 1;
+
+		// 		const date =
+		// 			habit.dates[
+		// 				moment()
+		// 					.subtract(6 - index, 'd')
+		// 					.format('YYYY-MM-DD')
+		// 			] ?? 0;
+		// 		if (date.progress === habit.progressTotal) habitDayCompleteLength += 1;
+		// 	}
+		// });
+
+		return habit.dates[date] ? 1 - habit.dates[date].progress / habit.progressTotal : 1;
+
+		// === 0 ? 1 : 1 - habit.pro / habit.dates[date].progress;
+	};
 
 	return (
 		// <View style={{ flex: 1 }}>
@@ -132,6 +150,28 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 		// 		end={{ x: 1, y: 0 }}
 		// 	/>
 		<ScrollView showsVerticalScrollIndicator={false}>
+			<View
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'space-between',
+					padding: 20,
+					paddingBottom: 0,
+				}}
+			>
+				{displayDays.map((displayDay, index) => (
+					<DisplayDay
+						key={index}
+						alpha={getAlphaValue(index)}
+						selectedDay={day}
+						displayDay={displayDay as ScheduleTypeValue}
+						displayIndex={index}
+						gradient={habit.gradient}
+						handleDayChange={() => {}}
+					/>
+				))}
+			</View>
+
 			{/* <View style={{ height: 40 }}>
 				<Text>Yeet</Text>
 			</View> */}
@@ -143,13 +183,15 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 					display: 'flex',
 					justifyContent: 'center',
 					alignItems: 'center',
-				}}>
+				}}
+			>
 				<Text
 					style={{
 						fontFamily: 'Montserrat_800ExtraBold',
 						fontSize: 30,
 						color: colors.text,
-					}}>
+					}}
+				>
 					{progress} / {progressTotal}
 				</Text>
 				<Svg
@@ -157,7 +199,8 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 					height={dimension}
 					style={{
 						position: 'absolute',
-					}}>
+					}}
+				>
 					<Circle
 						stroke={GradientColours[habit.gradient].solid + '50'}
 						cx={dimension / 2}
@@ -172,7 +215,8 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 					style={{
 						position: 'absolute',
 						transform: [{ rotate: '-90deg' }],
-					}}>
+					}}
+				>
 					<AnimatedCircle
 						stroke={GradientColours[habit.gradient].solid}
 						cx={dimension / 2}

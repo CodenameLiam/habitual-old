@@ -5,14 +5,19 @@ import { useContext } from 'react';
 import { View, Text, Dimensions, TouchableOpacity, Animated, Easing } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { GradientContext } from '../Context/GradientContext';
-import { GradientColours } from '../Styles/Colours';
-import { ScheduleTypeValue } from './Scheduler';
+import { GradientColours, GradientType } from '../Styles/Colours';
+import { DEFAULT_SCHEDULE, ScheduleTypeValue } from './Scheduler';
+
+export const days = Object.keys(DEFAULT_SCHEDULE);
+export const dayIndex = moment().subtract(1, 'd').day();
+export const displayDays = days.slice(dayIndex + 1, days.length).concat(days.slice(0, dayIndex + 1));
 
 interface DisplayDayProps {
 	alpha: number;
 	selectedDay: ScheduleTypeValue;
 	displayDay: ScheduleTypeValue;
 	displayIndex: number;
+	gradient?: GradientType;
 	handleDayChange: (day: ScheduleTypeValue, index: number) => void;
 }
 
@@ -21,6 +26,7 @@ export default function DisplayDay({
 	selectedDay,
 	displayDay,
 	displayIndex,
+	gradient,
 	handleDayChange,
 }: DisplayDayProps) {
 	const { colors } = useTheme();
@@ -63,12 +69,14 @@ export default function DisplayDay({
 				justifyContent: 'center',
 				alignItems: 'center',
 				borderRadius: 100,
-			}}>
+			}}
+		>
 			<Text
 				style={{
 					fontFamily: 'Montserrat_600SemiBold',
 					color: displayDay === selectedDay ? colors.text : colors.border,
-				}}>
+				}}
+			>
 				{moment()
 					.subtract(6 - displayIndex, 'd')
 					.format('D')}
@@ -78,13 +86,14 @@ export default function DisplayDay({
 					fontFamily: 'Montserrat_600SemiBold',
 					fontSize: 8,
 					color: displayDay === selectedDay ? colors.text : colors.border,
-				}}>
+				}}
+			>
 				{displayDay}
 			</Text>
 			<View style={{ position: 'absolute' }}>
 				<Svg width={dimension} height={dimension}>
 					<Circle
-						stroke={GradientColours[colour].solid + '50'}
+						stroke={GradientColours[gradient ?? colour].solid + '50'}
 						cx={dimension / 2}
 						cy={dimension / 2}
 						r={radius}
@@ -97,9 +106,10 @@ export default function DisplayDay({
 					style={{
 						position: 'absolute',
 						transform: [{ rotate: '-90deg' }],
-					}}>
+					}}
+				>
 					<AnimatedCircle
-						stroke={GradientColours[colour].solid}
+						stroke={GradientColours[gradient ?? colour].solid}
 						cx={dimension / 2}
 						cy={dimension / 2}
 						r={radius}
