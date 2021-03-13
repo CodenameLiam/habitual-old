@@ -89,9 +89,13 @@ export default function TabNavigation({ navigation, route }: AppProps) {
 	return (
 		<Tab.Navigator
 			tabBar={(props) => (
-				<AnimatedTabBar tabs={tabs} preset='flashy' style={{ backgroundColor: colors.background }} {...props} />
-			)}
-		>
+				<AnimatedTabBar
+					tabs={tabs}
+					preset='flashy'
+					style={{ backgroundColor: colors.background }}
+					{...props}
+				/>
+			)}>
 			<Tab.Screen name='Home' component={HomeScreen} />
 			<Tab.Screen name='Calendar' component={CalendarSreen} />
 			<Tab.Screen name='Trends' component={TrendsScreen} />
@@ -104,6 +108,8 @@ const getHeaderTitle = (route: RouteProp<TabParamList, 'Home'>) => {
 	const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
 
 	switch (routeName) {
+		case 'Calendar':
+			return 'Calendar';
 		case 'Trends':
 			return 'Trends';
 		case 'Awards':

@@ -32,7 +32,7 @@ import { GradientContext } from '../Context/GradientContext';
 import Svg, { Circle } from 'react-native-svg';
 import { getTimeString } from '../Components/Habit';
 import DisplayDay, { dayIndex, days, displayDays } from '../Components/DisplayDay';
-import { ScheduleTypeValue } from '../Components/Scheduler';
+import { DEFAULT_SCHEDULE, ScheduleTypeValue } from '../Components/Scheduler';
 import Icon from '../Components/Icon';
 import { randomGradient } from '../Components/ColourPicker';
 import { TimerContext } from '../Context/TimerContext';
@@ -198,7 +198,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	}, [progress, isTimerActive]);
 
 	useEffect(() => {
-		isTimerActive && habit.dates[date] && setProgress(habit.dates[date].progress);
+		habit.dates[date] && setProgress(habit.dates[date].progress);
 	}, [habit.dates[date]]);
 
 	useEffect(() => {
@@ -269,22 +269,41 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 			.subtract(currentStreak + 1, 'd')
 			.format('YYYY-MM-DD');
 
+		let dayIndex = moment(dayPointer).clone().subtract(1, 'd').day();
+
+		console.log('\n\n\n');
+		console.log('ASHASHAS');
+		console.log(dayPointer);
+		console.log(displayDays[dayIndex]);
+		console.log(habit.schedule[displayDays[dayIndex] as ScheduleTypeValue]);
+
 		do {
 			if (
-				habit.dates[dayPointer] &&
-				habit.dates[dayPointer].progress >= habit.dates[dayPointer].progressTotal
+				(habit.dates[dayPointer] &&
+					habit.dates[dayPointer].progress >= habit.dates[dayPointer].progressTotal) ||
+				habit.schedule[displayDays[dayIndex] as ScheduleTypeValue] === false
 			) {
 				currentStreak++;
+
+				dayIndex = moment(dayPointer).clone().subtract(1, 'd').day();
+
+				console.log(dayPointer);
+				console.log(displayDays[dayIndex]);
+				console.log(habit.schedule[displayDays[dayIndex] as ScheduleTypeValue]);
 			}
 			dayPointer = moment(date)
 				.subtract(currentStreak + 1, 'd')
 				.format('YYYY-MM-DD');
 		} while (
-			habit.dates[dayPointer] &&
-			habit.dates[dayPointer].progress >= habit.dates[dayPointer].progressTotal
+			(habit.dates[dayPointer] &&
+				habit.dates[dayPointer].progress >= habit.dates[dayPointer].progressTotal) ||
+			habit.schedule[displayDays[dayIndex] as ScheduleTypeValue] === false
 		);
 
-		if (habit.dates[date] && habit.dates[date].progress >= habit.dates[date].progressTotal) {
+		if (
+			(habit.dates[date] && habit.dates[date].progress >= habit.dates[date].progressTotal) ||
+			habit.schedule[displayDays[dayIndex] as ScheduleTypeValue] === false
+		) {
 			currentStreak++;
 		}
 
@@ -323,10 +342,15 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 		return highestStreak;
 	};
 
+	const getTotalComplete = () => {
+		return Object.keys(markedDates).filter((date) => markedDates[date].selected == true).length;
+	};
+
 	const getCompletionRate = () => {
 		const startDate = moment(sortedDates[0]);
-		const totalDays = moment().diff(startDate, 'd') + 1;
-		const completedDays = Object.keys(markedDates).length;
+		const totalDays = moment().diff(startDate, 'd');
+		const completedDays = getTotalComplete();
+
 		const completionRate = (completedDays / totalDays) * 100;
 
 		return Math.round(completionRate * 10) / 10;
@@ -608,7 +632,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 									color: colors.text,
 								},
 							]}>
-							{isReady && Object.keys(markedDates).length}
+							{isReady && getTotalComplete()}
 						</Text>
 					</View>
 				</Card>
