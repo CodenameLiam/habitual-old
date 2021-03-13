@@ -20,7 +20,11 @@ import {
 	StyleSheet,
 	Alert,
 } from 'react-native';
-import { PanGestureHandler, RectButton, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
+import {
+	PanGestureHandler,
+	RectButton,
+	PanGestureHandlerGestureEvent,
+} from 'react-native-gesture-handler';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import TextTicker from 'react-native-text-ticker';
 import { AppContext } from '../Context/AppContext';
@@ -45,6 +49,7 @@ export interface HabitProps {
 	schedule: ScheduleType;
 	date: string;
 	dates: IHabitDate;
+	timerActive?: boolean;
 }
 
 const getTimeOffset = (seconds: number): number => {
@@ -81,6 +86,7 @@ export const Habit = ({
 	schedule,
 	date,
 	dates,
+	timerActive,
 }: HabitProps) => {
 	const { colors } = useTheme();
 	const { updateHabit, deleteHabit } = useContext(AppContext);
@@ -90,12 +96,11 @@ export const Habit = ({
 	const [animatedCount, setAnimatedCount] = useState(progress);
 	const [complete, setComplete] = useState(progress == progressTotal ? true : false);
 	const [showCounter, setShowCounter] = useState(progress > 0 ? true : false);
-	const [isTimerActive, setIsTimerActive] = useState(false);
+	const [isTimerActive, setIsTimerActive] = useState(timerActive ?? false);
 	const [isDragging, setIsDragging] = useState(false);
 
 	const progressAnimation = useRef(new Animated.Value(progress)).current;
 	const panRef = useRef<PanGestureHandler>(null);
-	// console.log(Dimensions.get('screen').width);
 	let interpolatedSize = progressAnimation.interpolate({
 		inputRange: [0, progressTotal],
 		outputRange: [1, HabitTransformInterpolation],
@@ -185,7 +190,6 @@ export const Habit = ({
 		setComplete(true);
 		setShowCounter(false);
 		setIsTimerActive(false);
-		setCount(progressTotal);
 	};
 
 	const handlePress = () => {
@@ -232,9 +236,10 @@ export const Habit = ({
 					flexDirection: 'row',
 					transform: [{ translateX: trans }],
 					width: 80,
-				}}
-			>
-				<TouchableOpacity onPress={handleDelete} style={[styles.rightAction, { backgroundColor: colors.card }]}>
+				}}>
+				<TouchableOpacity
+					onPress={handleDelete}
+					style={[styles.rightAction, { backgroundColor: colors.card }]}>
 					<Icon family='feather' name='trash-2' size={30} colour={colors.text} />
 				</TouchableOpacity>
 			</Animated.View>
@@ -243,6 +248,7 @@ export const Habit = ({
 
 	const handleGesture = (event: PanGestureHandlerGestureEvent) => {
 		if (event.nativeEvent.velocityX > 1000) {
+			setCount(progressTotal);
 			handleComplete();
 			return;
 		}
@@ -323,22 +329,19 @@ export const Habit = ({
 
 						justifyContent: 'space-between',
 						margin: 5,
-					}}
-				>
+					}}>
 					<TouchableWithoutFeedback
 						onPress={handleEdit}
 						style={{
 							flex: 1,
-						}}
-					>
+						}}>
 						<View
 							style={{
 								display: 'flex',
 								flexDirection: 'row',
 								alignItems: 'center',
 								flex: 1,
-							}}
-						>
+							}}>
 							<View
 								style={{
 									display: 'flex',
@@ -347,8 +350,7 @@ export const Habit = ({
 									height: CircleDimensions,
 									width: CircleDimensions,
 									margin: 15,
-								}}
-							>
+								}}>
 								<Icon
 									family={icon.family}
 									name={icon.name}
@@ -364,10 +366,12 @@ export const Habit = ({
 										transform: [{ scale: interpolatedSize }],
 										overflow: 'hidden',
 										borderRadius: 700,
-									}}
-								>
+									}}>
 									<LinearGradient
-										colors={[GradientColours[gradient].start, GradientColours[gradient].end]}
+										colors={[
+											GradientColours[gradient].start,
+											GradientColours[gradient].end,
+										]}
 										locations={[0.3, 1]}
 										style={{
 											flex: 1,
@@ -380,8 +384,7 @@ export const Habit = ({
 							<View
 								style={{
 									flex: 1,
-								}}
-							>
+								}}>
 								<TextTicker
 									style={{
 										fontFamily: 'Montserrat_600SemiBold',
@@ -393,8 +396,7 @@ export const Habit = ({
 									duration={3000}
 									bounceDelay={1500}
 									marqueeDelay={1000}
-									bouncePadding={{ left: 0, right: 0 }}
-								>
+									bouncePadding={{ left: 0, right: 0 }}>
 									{name}
 								</TextTicker>
 							</View>
@@ -409,16 +411,32 @@ export const Habit = ({
 								style={{
 									fontFamily: 'Montserrat_600SemiBold',
 									color: colors.text,
-								}}
-							>
-								{type == 'count' ? `${count}/${progressTotal}` : getTimeString(count)}
+								}}>
+								{type == 'count'
+									? `${count}/${progressTotal}`
+									: getTimeString(count)}
 							</Text>
 						) : type == 'timer' ? (
-							<Icon family='fontawesome' name='clock-o' size={12} colour={colors.text} />
+							<Icon
+								family='antdesign'
+								name='clockcircle'
+								size={10}
+								colour={colors.text}
+							/>
 						) : type == 'count' ? (
-							<Icon family='fontawesome' name='circle-o' size={12} colour={colors.text} />
+							<Icon
+								family='fontawesome'
+								name='circle-o'
+								size={12}
+								colour={colors.text}
+							/>
 						) : (
-							<Icon family='fontawesome' name='circle-o' size={12} colour={colors.text} />
+							<Icon
+								family='fontawesome'
+								name='circle-o'
+								size={12}
+								colour={colors.text}
+							/>
 						)}
 					</TouchableOpacity>
 				</Animated.View>

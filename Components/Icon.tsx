@@ -8,6 +8,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 export interface IconProps {
 	family?:
@@ -17,7 +18,8 @@ export interface IconProps {
 		| 'material'
 		| 'materialcommunity'
 		| 'feather'
-		| 'antdesign';
+		| 'antdesign'
+		| 'ion';
 
 	name: any;
 	size: number;
@@ -41,6 +43,8 @@ export default function Icon({ family, name, size, colour, style }: IconProps) {
 			return <Feather name={name} size={size} color={colour} style={style} />;
 		case 'antdesign':
 			return <AntDesign name={name} size={size} color={colour} style={style} />;
+		case 'ion':
+			return <Ionicons name={name} size={size} color={colour} style={style} />;
 		default:
 			return <View />;
 	}

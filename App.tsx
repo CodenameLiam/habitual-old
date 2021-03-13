@@ -11,6 +11,7 @@ import { randomGradient } from './Components/ColourPicker';
 import { GradientContext } from './Context/GradientContext';
 import { AppContext } from './Context/AppContext';
 import { useHabits } from './Storage/HabitController';
+import { TimerContext } from './Context/TimerContext';
 
 export default function App() {
 	const { fontsLoaded } = useCustomFonts();
@@ -18,6 +19,9 @@ export default function App() {
 
 	const [gradient, setGradient] = useState<GradientType>(randomGradient());
 	const gradientValue = { gradient, setGradient, colour, setColour };
+
+	const [activeTimer, setActiveTimer] = useState<string | undefined>();
+	const timerValue = { activeTimer, setActiveTimer };
 
 	const { habits, setHabits, createHabit, updateHabit, deleteHabit } = useHabits();
 	const appValue = { habits, setHabits, createHabit, updateHabit, deleteHabit };
@@ -27,18 +31,22 @@ export default function App() {
 	return (
 		<AppearanceProvider>
 			<AppContext.Provider value={appValue}>
-				<GradientContext.Provider value={gradientValue}>
-					<NavigationContainer
-						theme={theme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
-						<StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} />
-						<RootNavigation
-							theme={theme}
-							setTheme={setTheme}
-							toggleTheme={toggleTheme}
-							setColour={setColour}
-						/>
-					</NavigationContainer>
-				</GradientContext.Provider>
+				<TimerContext.Provider value={timerValue}>
+					<GradientContext.Provider value={gradientValue}>
+						<NavigationContainer
+							theme={theme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
+							<StatusBar
+								barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+							/>
+							<RootNavigation
+								theme={theme}
+								setTheme={setTheme}
+								toggleTheme={toggleTheme}
+								setColour={setColour}
+							/>
+						</NavigationContainer>
+					</GradientContext.Provider>
+				</TimerContext.Provider>
 			</AppContext.Provider>
 		</AppearanceProvider>
 	);

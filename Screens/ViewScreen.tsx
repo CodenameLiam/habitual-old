@@ -1,24 +1,41 @@
 import { RouteProp, useFocusEffect, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { View, Text, Dimensions, StyleSheet, InteractionManager, Animated, Easing } from 'react-native';
+import {
+	View,
+	Text,
+	Dimensions,
+	StyleSheet,
+	InteractionManager,
+	Animated,
+	Easing,
+	TouchableOpacity,
+} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Card } from '../Components/Card';
 import { AppContext } from '../Context/AppContext';
-import { AppStackParamList } from '../Navigation/AppNavigation';
+import { AppNavProps, AppStackParamList } from '../Navigation/AppNavigation';
 import { EditNavProps, EditRoute } from './EditScreen';
 
 import { CalendarList, DateObject } from 'react-native-calendars';
 import moment from 'moment';
 import { GradientColours, GreyColours } from '../Styles/Colours';
 import { mergeDates } from '../Storage/HabitController';
-import { impactAsync, ImpactFeedbackStyle, notificationAsync, NotificationFeedbackType } from 'expo-haptics';
+import {
+	impactAsync,
+	ImpactFeedbackStyle,
+	notificationAsync,
+	NotificationFeedbackType,
+} from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GradientContext } from '../Context/GradientContext';
 import Svg, { Circle } from 'react-native-svg';
 import { getTimeString } from '../Components/Habit';
 import DisplayDay, { dayIndex, days, displayDays } from '../Components/DisplayDay';
 import { ScheduleTypeValue } from '../Components/Scheduler';
+import Icon from '../Components/Icon';
+import { randomGradient } from '../Components/ColourPicker';
+import { TimerContext } from '../Context/TimerContext';
 
 export type ViewNavProps = StackNavigationProp<AppStackParamList, 'View'>;
 export type ViewRoute = RouteProp<AppStackParamList, 'View'>;
@@ -31,9 +48,16 @@ interface EditProps {
 export default function ViewScreen({ navigation, route }: EditProps) {
 	const { colors } = useTheme();
 	const { habits, updateHabit } = useContext(AppContext);
-	const { gradient } = useContext(GradientContext);
+	const { activeTimer, setActiveTimer } = useContext(TimerContext);
+
+	const rootNavigation: AppNavProps = navigation.dangerouslyGetParent();
+
+	// const { gradient } = useContext(GradientContext);
 	const { id } = route.params;
 	const habit = habits[id];
+	const { solid: gradientSolid, start: gradientStart, end: gradientEnd } = GradientColours[
+		habit.gradient
+	];
 
 	const [isReady, setIsReady] = useState(false);
 
@@ -44,17 +68,24 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	}, []);
 
 	const today = moment().format('YYYY-MM-DD');
+	const [day, setDay] = useState<ScheduleTypeValue>(days[dayIndex] as ScheduleTypeValue);
+	const [date, setDate] = useState<string>(moment().format('YYYY-MM-DD'));
+
+	const [isTimerActive, setIsTimerActive] = useState(activeTimer == habit.id);
+	let interval: NodeJS.Timeout;
 
 	useFocusEffect(
 		useCallback(() => {
-			navigation.setOptions({ title: habit.name });
+			navigation.setOptions({
+				title: habit.name,
+			});
 		}, [navigation, habit.name])
 	);
 
 	let markedDates = Object.assign(
 		{},
 		...Object.keys(habit.dates)
-			.filter((date) => habit.dates[date].progress === habit.dates[date].progressTotal)
+			.filter((date) => habit.dates[date].progress >= habit.dates[date].progressTotal)
 			.map((date) => ({
 				[date]: { selected: true, customStyles: { container: { borderRadius: 10 } } },
 			}))
@@ -72,12 +103,32 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 		notificationAsync(NotificationFeedbackType.Success);
 	};
 
+	const getAlphaValue = (index: number) => {
+		const date = moment()
+			.subtract(6 - index, 'd')
+			.format('YYYY-MM-DD');
+
+		return habit.dates[date]
+			? habit.dates[date].progress >= habit.progressTotal
+				? 0
+				: 1 - habit.dates[date].progress / habit.progressTotal
+			: 1;
+	};
+
+	const getDateAlphaValue = () => {
+		return habit.dates[date]
+			? habit.dates[date].progress >= habit.progressTotal
+				? 0
+				: 1 - habit.dates[date].progress / habit.progressTotal
+			: 1;
+	};
+
 	const dimension = Dimensions.get('window').width - 50;
 	const radius = dimension / 2 - 15;
 	const circumference = radius * 2 * Math.PI;
-	const alpha = habit.dates[today] ? 1 - habit.dates[today].progress / habit.progressTotal : 1;
+	const alpha = getDateAlphaValue();
 
-	const progressAnimation = useRef(new Animated.Value(1)).current;
+	const progressAnimation = useRef(new Animated.Value(activeTimer ? alpha : 1)).current;
 	const interpolatedSize = progressAnimation.interpolate({
 		inputRange: [0, 1],
 		outputRange: [0, radius * Math.PI * 2],
@@ -85,70 +136,95 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 
 	useEffect(() => {
 		animateProgress();
-		if (alpha === 0) {
-			console.log('All complete');
-		}
+		// if (alpha === 0) {
+		// 	console.log('All complete');
+		// }
 	}, [alpha]);
 
 	const animateProgress = () => {
 		Animated.timing(progressAnimation, {
 			toValue: alpha,
-			duration: 500,
+			duration: isTimerActive ? 1200 : 500,
 			useNativeDriver: true,
-			easing: Easing.out(Easing.quad),
+			easing: isTimerActive ? Easing.linear : Easing.out(Easing.quad),
 		}).start();
 	};
 
 	const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-	let progress: string | number = habit.dates[today] ? habit.dates[today].progress : 0;
-	let progressTotal = habit.type === 'timer' ? getTimeString(habit.progressTotal) : habit.progressTotal;
-	progress = progress >= progressTotal ? habit.progressTotal : progress;
-	progress = habit.type === 'timer' ? getTimeString(progress) : progress;
+	let progressTotal =
+		habit.type === 'timer' ? getTimeString(habit.progressTotal) : habit.progressTotal;
 
-	const [day, setDay] = useState<ScheduleTypeValue>(days[dayIndex] as ScheduleTypeValue);
-	const [date, setDate] = useState<string>(moment().format('YYYY-MM-DD'));
+	const getProgress = (): number => {
+		return habit.dates[date] ? habit.dates[date].progress : 0;
+	};
 
-	const getAlphaValue = (index: number) => {
-		const date = moment()
-			.subtract(6 - index, 'd')
-			.format('YYYY-MM-DD');
-		// let habitDayLength = 0;
-		// let habitDayCompleteLength = 0;
+	const getProgressString = () => {
+		return habit.type === 'timer' ? getTimeString(progress) : progress;
+	};
 
-		// habitArray.forEach((habit) => {
-		// 	if (habit.schedule[displayDay as ScheduleTypeValue]) {
-		// 		habitDayLength += 1;
+	const [progress, setProgress] = useState(getProgress());
 
-		// 		const date =
-		// 			habit.dates[
-		// 				moment()
-		// 					.subtract(6 - index, 'd')
-		// 					.format('YYYY-MM-DD')
-		// 			] ?? 0;
-		// 		if (date.progress === habit.progressTotal) habitDayCompleteLength += 1;
-		// 	}
-		// });
+	useEffect(() => {
+		updateHabit({
+			...habit,
+			dates: mergeDates(habit.dates, date, progress, habit.progressTotal),
+		});
+		isTimerActive && incrementTimer();
+		return () => {
+			clearInterval(interval);
+		};
+	}, [progress, isTimerActive]);
 
-		return habit.dates[date] ? 1 - habit.dates[date].progress / habit.progressTotal : 1;
+	useEffect(() => {
+		setActiveTimer(isTimerActive ? habit.id : undefined);
+	}, [isTimerActive]);
 
-		// === 0 ? 1 : 1 - habit.pro / habit.dates[date].progress;
+	const incrementTimer = () => {
+		if (progress == habit.progressTotal) {
+			setIsTimerActive(false);
+			notificationAsync(NotificationFeedbackType.Success);
+		}
+
+		if (isTimerActive && habit.type == 'timer') {
+			interval = setInterval(() => {
+				setProgress(progress + 1);
+			}, 1000);
+		}
+	};
+
+	const handleDayChange = (day: ScheduleTypeValue, index: number) => {
+		const dayString = moment().subtract(index, 'd').format('YYYY-MM-DD');
+		setDay(day);
+		setDate(dayString);
+		setProgress(habit.dates[dayString] ? habit.dates[dayString].progress : 0);
+	};
+
+	const addProgress = () => {
+		progress + 1 == habit.progressTotal
+			? notificationAsync(NotificationFeedbackType.Success)
+			: impactAsync(ImpactFeedbackStyle.Medium);
+		setProgress(progress + 1);
+	};
+
+	const removeProgress = () => {
+		setProgress(progress - 1);
+	};
+
+	const completeHabit = () => {
+		progress == 0 && notificationAsync(NotificationFeedbackType.Success);
+		setProgress(progress >= habit.progressTotal ? 0 : habit.progressTotal);
+		setIsTimerActive(false);
+	};
+
+	const toggleTimer = () => {
+		if (progress < habit.progressTotal) {
+			setIsTimerActive(!isTimerActive);
+			impactAsync(ImpactFeedbackStyle.Medium);
+		}
 	};
 
 	return (
-		// <View style={{ flex: 1 }}>
-		// 	<LinearGradient
-		// 		colors={[GradientColours[gradient].start, GradientColours[gradient].end]}
-		// 		style={{
-		// 			position: 'absolute',
-		// 			top: 0,
-		// 			left: 0,
-		// 			right: 0,
-		// 			height: Dimensions.get('screen').height / 3,
-		// 		}}
-		// 		start={{ x: 0, y: 0 }}
-		// 		end={{ x: 1, y: 0 }}
-		// 	/>
 		<ScrollView showsVerticalScrollIndicator={false}>
 			<View
 				style={{
@@ -157,8 +233,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 					justifyContent: 'space-between',
 					padding: 20,
 					paddingBottom: 0,
-				}}
-			>
+				}}>
 				{displayDays.map((displayDay, index) => (
 					<DisplayDay
 						key={index}
@@ -167,14 +242,10 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 						displayDay={displayDay as ScheduleTypeValue}
 						displayIndex={index}
 						gradient={habit.gradient}
-						handleDayChange={() => {}}
+						handleDayChange={handleDayChange}
 					/>
 				))}
 			</View>
-
-			{/* <View style={{ height: 40 }}>
-				<Text>Yeet</Text>
-			</View> */}
 
 			<View
 				style={{
@@ -183,24 +254,21 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 					display: 'flex',
 					justifyContent: 'center',
 					alignItems: 'center',
-				}}
-			>
+				}}>
 				<Text
 					style={{
 						fontFamily: 'Montserrat_800ExtraBold',
 						fontSize: 30,
 						color: colors.text,
-					}}
-				>
-					{progress} / {progressTotal}
+					}}>
+					{getProgressString()} / {progressTotal}
 				</Text>
 				<Svg
 					width={dimension}
 					height={dimension}
 					style={{
 						position: 'absolute',
-					}}
-				>
+					}}>
 					<Circle
 						stroke={GradientColours[habit.gradient].solid + '50'}
 						cx={dimension / 2}
@@ -215,8 +283,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 					style={{
 						position: 'absolute',
 						transform: [{ rotate: '-90deg' }],
-					}}
-				>
+					}}>
 					<AnimatedCircle
 						stroke={GradientColours[habit.gradient].solid}
 						cx={dimension / 2}
@@ -228,6 +295,77 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 						strokeDasharray={[circumference, circumference]}
 					/>
 				</Svg>
+			</View>
+
+			<View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+				{habit.type === 'count' && (
+					<React.Fragment>
+						<TouchableOpacity
+							onPress={() => progress > 0 && removeProgress()}
+							style={[
+								styles.count,
+								{
+									marginRight: 10,
+									backgroundColor:
+										Number(progress) > 0
+											? gradientSolid + 50
+											: GreyColours.GREY2 + 50,
+								},
+							]}>
+							<Icon
+								family='fontawesome'
+								name='minus'
+								size={24}
+								colour={Number(progress) > 0 ? gradientSolid : GreyColours.GREY2}
+							/>
+						</TouchableOpacity>
+
+						<TouchableOpacity
+							onPress={addProgress}
+							style={[
+								styles.count,
+								{
+									marginRight: 10,
+									backgroundColor: gradientSolid + 50,
+								},
+							]}>
+							<Icon
+								family='fontawesome'
+								name='plus'
+								size={24}
+								colour={gradientSolid}
+							/>
+						</TouchableOpacity>
+					</React.Fragment>
+				)}
+				{habit.type === 'timer' && (
+					<TouchableOpacity
+						onPress={toggleTimer}
+						style={[
+							styles.count,
+							{
+								marginRight: 10,
+								backgroundColor: gradientSolid + 50,
+							},
+						]}>
+						<Icon
+							family='antdesign'
+							name='clockcircle'
+							size={24}
+							colour={gradientSolid}
+						/>
+					</TouchableOpacity>
+				)}
+				<TouchableOpacity
+					onPress={completeHabit}
+					style={[
+						styles.count,
+						{
+							backgroundColor: gradientSolid + 50,
+						},
+					]}>
+					<Icon family='fontawesome' name='check' size={24} colour={gradientSolid} />
+				</TouchableOpacity>
 			</View>
 
 			{isReady && (
@@ -257,32 +395,39 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 				/>
 			)}
 		</ScrollView>
-		// </View>
 	);
 }
 
 const styles = StyleSheet.create({
-	paragraph: {
-		margin: 24,
-		fontSize: 18,
-		fontWeight: 'bold',
-		textAlign: 'center',
-	},
-	scrollView: {
-		height: '20%',
-		width: '80%',
-		margin: 20,
-		alignSelf: 'center',
-		padding: 20,
-		borderWidth: 5,
+	count: {
+		height: 45,
+		width: 45,
 		borderRadius: 5,
-		borderColor: 'black',
-		backgroundColor: 'lightblue',
-	},
-	contentContainer: {
+		overflow: 'hidden',
 		justifyContent: 'center',
 		alignItems: 'center',
-		backgroundColor: 'lightgrey',
-		paddingBottom: 50,
 	},
+	// paragraph: {
+	// 	margin: 24,
+	// 	fontSize: 18,
+	// 	fontWeight: 'bold',
+	// 	textAlign: 'center',
+	// },
+	// scrollView: {
+	// 	height: '20%',
+	// 	width: '80%',
+	// 	margin: 20,
+	// 	alignSelf: 'center',
+	// 	padding: 20,
+	// 	borderWidth: 5,
+	// 	borderRadius: 5,
+	// 	borderColor: 'black',
+	// 	backgroundColor: 'lightblue',
+	// },
+	// contentContainer: {
+	// 	justifyContent: 'center',
+	// 	alignItems: 'center',
+	// 	backgroundColor: 'lightgrey',
+	// 	paddingBottom: 50,
+	// },
 });

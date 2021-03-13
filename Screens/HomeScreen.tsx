@@ -1,27 +1,31 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { View } from 'react-native';
-import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { TabParamList } from '../Navigation/TabNavigation';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Habit } from '../Components/Habit';
-import { AppNavProps } from '../Navigation/AppNavigation';
+import { AppNavProps, AppStackParamList } from '../Navigation/AppNavigation';
 import { AppContext } from '../Context/AppContext';
 import { DEFAULT_SCHEDULE, ScheduleTypeValue } from '../Components/Scheduler';
 import moment from 'moment';
 import DisplayDay, { dayIndex, days, displayDays } from '../Components/DisplayDay';
 import { getRandomBytes } from 'expo-random';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { TimerContext } from '../Context/TimerContext';
 
 export type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
+export type HomeRoute = RouteProp<AppStackParamList, 'Tabs'>;
 interface HomeProps {
 	navigation: HomeNavProps;
+	route: HomeRoute;
 }
 
-export default function HomeScreen({ navigation }: HomeProps) {
+export default function HomeScreen({ navigation, route }: HomeProps) {
 	// AsyncStorage.clear();
 
 	const { habits } = useContext(AppContext);
+	const { activeTimer } = useContext(TimerContext);
 	const habitArray = Object.values(habits);
 	const rootNavigation: AppNavProps = navigation.dangerouslyGetParent();
 
@@ -34,6 +38,9 @@ export default function HomeScreen({ navigation }: HomeProps) {
 	const [date, setDate] = useState<string>(moment().format('YYYY-MM-DD'));
 
 	const [habitToken, setHabitToken] = useState(getRandomBytes(4).join(''));
+
+	// const timerId = route.params ? route.params.timerId : undefined;
+	console.log(activeTimer);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -92,8 +99,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
 					justifyContent: 'space-between',
 					padding: 20,
 					paddingBottom: 10,
-				}}
-			>
+				}}>
 				{displayDays.map((displayDay, index) => (
 					<DisplayDay
 						key={index}
@@ -111,7 +117,11 @@ export default function HomeScreen({ navigation }: HomeProps) {
 					{habits &&
 						habitArray.map((habit) => {
 							if (habit.schedule[day]) {
-								const progress = habit.dates[date] ? habit.dates[date].progress : 0;
+								const progress = habit.dates[date]
+									? habit.dates[date].progress >= habit.progressTotal
+										? habit.progressTotal
+										: habit.dates[date].progress
+									: 0;
 
 								return (
 									<Habit
@@ -127,6 +137,7 @@ export default function HomeScreen({ navigation }: HomeProps) {
 										schedule={habit.schedule}
 										date={date}
 										dates={habit.dates}
+										timerActive={habit.id === activeTimer}
 									/>
 								);
 							}
