@@ -9,7 +9,7 @@ interface ColourPickerProps {
 }
 
 export const ColourPicker = ({ updateGradient }: ColourPickerProps) => {
-	const colourPickerDimensions = Dimensions.get('window').width / 8.5;
+	const colourPickerDimensions = Dimensions.get('screen').width / 8.5;
 
 	const gradientValues = Object.keys(GradientColours);
 	const halfGradientValues = Math.floor(gradientValues.length / 2);

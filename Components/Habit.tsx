@@ -29,6 +29,7 @@ import Swipeable from 'react-native-gesture-handler/Swipeable';
 import TextTicker from 'react-native-text-ticker';
 import { AppContext } from '../Context/AppContext';
 import { GradientContext } from '../Context/GradientContext';
+import { TimerContext } from '../Context/TimerContext';
 import { AppNavProps, RootNavProps } from '../Navigation/AppNavigation';
 import { IHabitDate, mergeDates, useHabits } from '../Storage/HabitController';
 import { GradientColours, GradientType, GradientShape } from '../Styles/Colours';
@@ -91,6 +92,7 @@ export const Habit = ({
 	const { colors } = useTheme();
 	const { updateHabit, deleteHabit } = useContext(AppContext);
 	const { setGradient } = useContext(GradientContext);
+	const { activeTimer, setActiveTimer } = useContext(TimerContext);
 
 	const [count, setCount] = useState(progress);
 	const [animatedCount, setAnimatedCount] = useState(progress);
@@ -125,7 +127,11 @@ export const Habit = ({
 		return () => {
 			clearInterval(interval);
 		};
-	}, [count, isTimerActive, isDragging]);
+	}, [count, isTimerActive, isDragging, activeTimer]);
+
+	useEffect(() => {
+		if (!activeTimer) clearInterval(interval);
+	}, [activeTimer]);
 
 	const runUpdateHabit = () => {
 		updateHabit({
@@ -184,6 +190,7 @@ export const Habit = ({
 		setShowCounter(true);
 		setIsTimerActive(!isTimerActive);
 		impactAsync(ImpactFeedbackStyle.Medium);
+		setActiveTimer(!isTimerActive ? id : undefined);
 	};
 
 	const handleComplete = () => {

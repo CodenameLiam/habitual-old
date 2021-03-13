@@ -10,7 +10,9 @@ import { DEFAULT_SCHEDULE, ScheduleTypeValue } from './Scheduler';
 
 export const days = Object.keys(DEFAULT_SCHEDULE);
 export const dayIndex = moment().subtract(1, 'd').day();
-export const displayDays = days.slice(dayIndex + 1, days.length).concat(days.slice(0, dayIndex + 1));
+export const displayDays = days
+	.slice(dayIndex + 1, days.length)
+	.concat(days.slice(0, dayIndex + 1));
 
 interface DisplayDayProps {
 	alpha: number;
@@ -32,7 +34,7 @@ export default function DisplayDay({
 	const { colors } = useTheme();
 	const { colour } = useContext(GradientContext);
 
-	const dimension = Dimensions.get('window').width / 9;
+	const dimension = Dimensions.get('screen').width / 9;
 	const radius = dimension / 2 - 2;
 	const circumference = radius * 2 * Math.PI;
 
@@ -44,9 +46,9 @@ export default function DisplayDay({
 
 	useEffect(() => {
 		animateProgress();
-		if (alpha === 0) {
-			console.log('All complete');
-		}
+		// if (alpha === 0) {
+		// 	console.log('All complete');
+		// }
 	}, [alpha]);
 
 	const animateProgress = () => {
@@ -69,14 +71,12 @@ export default function DisplayDay({
 				justifyContent: 'center',
 				alignItems: 'center',
 				borderRadius: 100,
-			}}
-		>
+			}}>
 			<Text
 				style={{
 					fontFamily: 'Montserrat_600SemiBold',
 					color: displayDay === selectedDay ? colors.text : colors.border,
-				}}
-			>
+				}}>
 				{moment()
 					.subtract(6 - displayIndex, 'd')
 					.format('D')}
@@ -86,8 +86,7 @@ export default function DisplayDay({
 					fontFamily: 'Montserrat_600SemiBold',
 					fontSize: 8,
 					color: displayDay === selectedDay ? colors.text : colors.border,
-				}}
-			>
+				}}>
 				{displayDay}
 			</Text>
 			<View style={{ position: 'absolute' }}>
@@ -106,8 +105,7 @@ export default function DisplayDay({
 					style={{
 						position: 'absolute',
 						transform: [{ rotate: '-90deg' }],
-					}}
-				>
+					}}>
 					<AnimatedCircle
 						stroke={GradientColours[gradient ?? colour].solid}
 						cx={dimension / 2}

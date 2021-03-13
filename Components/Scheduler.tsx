@@ -14,7 +14,7 @@ interface ScheduleProps {
 export const Scheduler = ({ gradient, schedule, setSchedule }: ScheduleProps) => {
 	const { colors } = useTheme();
 
-	const dimensions = Dimensions.get('window').width / 10;
+	const dimensions = Dimensions.get('screen').width / 10;
 
 	const styles = StyleSheet.create({
 		container: {

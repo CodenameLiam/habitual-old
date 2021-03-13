@@ -26,6 +26,7 @@ import ViewScreen from '../Screens/ViewScreen';
 import { useHabits } from '../Storage/HabitController';
 import { AppContext } from '../Context/AppContext';
 import IdeaScreen from '../Screens/IdeaScreen';
+import { TimerContext } from '../Context/TimerContext';
 
 export type AppStackParamList = {
 	Tabs: { timerId: string } | undefined;
@@ -48,6 +49,7 @@ interface AppNavigationProps {
 export default function AppNavigation({ navigation }: AppNavigationProps) {
 	const { colors } = useTheme();
 	const { habits } = useContext(AppContext);
+	const { activeTimer, setActiveTimer } = useContext(TimerContext);
 	const { gradient, setGradient } = useContext(GradientContext);
 	const isDrawerOpen = useIsDrawerOpen();
 	const [isOpen, setOpen] = useState(false);

@@ -7,9 +7,10 @@ interface CardProps {
 	children?: React.ReactNode;
 	title?: string;
 	style?: ViewStyle;
+	themeText?: boolean;
 }
 
-export const Card = ({ children, title, style }: CardProps) => {
+export const Card = ({ children, title, style, themeText }: CardProps) => {
 	const { colors } = useTheme();
 
 	const styles = StyleSheet.create({
@@ -22,7 +23,7 @@ export const Card = ({ children, title, style }: CardProps) => {
 		},
 		title: {
 			paddingBottom: 10,
-			color: GreyColours.GREY2,
+			color: themeText ? colors.text : GreyColours.GREY2,
 			fontFamily: 'Montserrat_600SemiBold',
 			fontSize: 18,
 		},

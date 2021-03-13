@@ -45,19 +45,18 @@ interface EditProps {
 	route: EditRoute;
 }
 
+const yearDates = Array.from(Array(365)).map((value, index) =>
+	moment().subtract(364, 'd').add(index, 'd').format('YYYY-MM-DD')
+);
+
 export default function ViewScreen({ navigation, route }: EditProps) {
 	const { colors } = useTheme();
 	const { habits, updateHabit } = useContext(AppContext);
 	const { activeTimer, setActiveTimer } = useContext(TimerContext);
 
-	const rootNavigation: AppNavProps = navigation.dangerouslyGetParent();
-
-	// const { gradient } = useContext(GradientContext);
 	const { id } = route.params;
 	const habit = habits[id];
-	const { solid: gradientSolid, start: gradientStart, end: gradientEnd } = GradientColours[
-		habit.gradient
-	];
+	const { solid: gradientSolid } = GradientColours[habit.gradient];
 
 	const [isReady, setIsReady] = useState(false);
 
@@ -70,6 +69,12 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	const today = moment().format('YYYY-MM-DD');
 	const [day, setDay] = useState<ScheduleTypeValue>(days[dayIndex] as ScheduleTypeValue);
 	const [date, setDate] = useState<string>(moment().format('YYYY-MM-DD'));
+	const allDates = Object.keys(habit.dates);
+	const sortedDates = allDates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+
+	// console.log(habit.dates[date].progress);
+
+	// console.log(activeTimer);
 
 	const [isTimerActive, setIsTimerActive] = useState(activeTimer == habit.id);
 	let interval: NodeJS.Timeout;
@@ -84,7 +89,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 
 	let markedDates = Object.assign(
 		{},
-		...Object.keys(habit.dates)
+		...allDates
 			.filter((date) => habit.dates[date].progress >= habit.dates[date].progressTotal)
 			.map((date) => ({
 				[date]: { selected: true, customStyles: { container: { borderRadius: 10 } } },
@@ -94,7 +99,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 
 	const handlePress = (day: DateObject) => {
 		const date = habit.dates[day.dateString];
-		const newProgress = date && date.progress === date.progressTotal ? 0 : habit.progressTotal;
+		const newProgress = date && date.progress >= date.progressTotal ? 0 : habit.progressTotal;
 
 		updateHabit({
 			...habit,
@@ -123,7 +128,22 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 			: 1;
 	};
 
-	const dimension = Dimensions.get('window').width - 50;
+	const getYearAlphaValue = (day: string) => {
+		``;
+		let value: number | string = habit.dates[day]
+			? habit.dates[day].progress >= habit.dates[day].progressTotal
+				? 1
+				: habit.dates[day].progress / habit.dates[day].progressTotal
+			: 1;
+
+		value = (Math.round(value * 10) / 10) * 100;
+		if (value <= 10) value = 20;
+		if (value === 100) value = '';
+
+		return value;
+	};
+
+	const dimension = Dimensions.get('screen').width - 50;
 	const radius = dimension / 2 - 15;
 	const circumference = radius * 2 * Math.PI;
 	const alpha = getDateAlphaValue();
@@ -177,6 +197,10 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	}, [progress, isTimerActive]);
 
 	useEffect(() => {
+		setProgress(habit.dates[date].progress);
+	}, [habit.dates[date].progress]);
+
+	useEffect(() => {
 		setActiveTimer(isTimerActive ? habit.id : undefined);
 	}, [isTimerActive]);
 
@@ -222,6 +246,77 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 			setIsTimerActive(!isTimerActive);
 			impactAsync(ImpactFeedbackStyle.Medium);
 		}
+	};
+
+	const yearlyDateDimensions = (Dimensions.get('screen').width - 60) / 53 - 1;
+
+	const getCurrentStreak = (date: string) => {
+		let currentStreak = 0;
+		let dayPointer = moment(date)
+			.subtract(currentStreak + 1, 'd')
+			.format('YYYY-MM-DD');
+
+		do {
+			if (
+				habit.dates[dayPointer] &&
+				habit.dates[dayPointer].progress >= habit.dates[dayPointer].progressTotal
+			) {
+				currentStreak++;
+			}
+			dayPointer = moment(date)
+				.subtract(currentStreak + 1, 'd')
+				.format('YYYY-MM-DD');
+		} while (
+			habit.dates[dayPointer] &&
+			habit.dates[dayPointer].progress >= habit.dates[dayPointer].progressTotal
+		);
+
+		if (habit.dates[date] && habit.dates[date].progress >= habit.dates[date].progressTotal) {
+			currentStreak++;
+		}
+
+		return { currentStreak, dayPointer };
+	};
+
+	const getHighestStreak = () => {
+		let highestStreak = 0;
+
+		if (sortedDates.length > 0) {
+			let dayPointer = today;
+			let streak = getCurrentStreak(dayPointer);
+
+			if (streak.currentStreak > highestStreak) {
+				highestStreak = streak.currentStreak;
+			}
+			dayPointer = streak.dayPointer;
+
+			do {
+				do {
+					dayPointer = moment(dayPointer).subtract(1, 'd').format('YYYY-MM-DD');
+				} while (
+					habit.dates[dayPointer] &&
+					habit.dates[dayPointer].progress < habit.dates[dayPointer].progressTotal
+				);
+
+				let streak = getCurrentStreak(dayPointer);
+				dayPointer = streak.dayPointer;
+
+				if (streak.currentStreak > highestStreak) {
+					highestStreak = streak.currentStreak;
+				}
+			} while (new Date(dayPointer).getTime() >= new Date(sortedDates[0]).getTime());
+		}
+
+		return highestStreak;
+	};
+
+	const getCompletionRate = () => {
+		const startDate = moment(sortedDates[0]);
+		const totalDays = moment().diff(startDate, 'd') + 1;
+		const completedDays = Object.keys(markedDates).length;
+		const completionRate = (completedDays / totalDays) * 100;
+
+		return Math.round(completionRate * 10) / 10;
 	};
 
 	return (
@@ -297,7 +392,13 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 				</Svg>
 			</View>
 
-			<View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+			<View
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'center',
+					marginBottom: 20,
+				}}>
 				{habit.type === 'count' && (
 					<React.Fragment>
 						<TouchableOpacity
@@ -368,6 +469,165 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 				</TouchableOpacity>
 			</View>
 
+			<Text
+				style={{
+					fontFamily: 'Montserrat_600SemiBold',
+					fontSize: 20,
+					padding: 15,
+					textAlign: 'center',
+					color: colors.text,
+				}}>
+				Yearly Progress
+			</Text>
+			<View style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
+				<View
+					style={{
+						display: 'flex',
+						flexWrap: 'wrap',
+						height: 7 * 7,
+					}}>
+					{yearDates.map((day) => {
+						return (
+							<View
+								key={day}
+								style={{
+									height: yearlyDateDimensions,
+									width: yearlyDateDimensions,
+									backgroundColor:
+										habit.dates[day] && habit.dates[day].progress > 0
+											? GradientColours[habit.gradient].solid +
+											  getYearAlphaValue(day)
+											: colors.border,
+									margin: 0.8,
+									borderRadius: 1,
+								}}
+							/>
+						);
+					})}
+				</View>
+			</View>
+
+			<Text
+				style={{
+					fontFamily: 'Montserrat_600SemiBold',
+					fontSize: 20,
+					padding: 15,
+					textAlign: 'center',
+					color: colors.text,
+				}}>
+				Stats
+			</Text>
+
+			<View style={{ display: 'flex', flexDirection: 'row', marginRight: 15 }}>
+				<Card
+					title='Current Streak'
+					themeText={true}
+					style={{ ...styles.statCard, marginTop: 0 }}>
+					<View
+						style={[
+							styles.statBar,
+							{
+								backgroundColor: GradientColours[habit.gradient].solid,
+							},
+						]}
+					/>
+					<View style={styles.statIconContainer}>
+						<Icon family='fontawesome5' name='fire' colour={colors.text} size={30} />
+						<Text
+							style={[
+								styles.statIconText,
+								{
+									color: colors.text,
+								},
+							]}>
+							{getCurrentStreak(today).currentStreak}
+						</Text>
+					</View>
+				</Card>
+				<Card
+					title='Highest Streak'
+					themeText={true}
+					style={{ ...styles.statCard, marginTop: 0 }}>
+					<View
+						style={[
+							styles.statBar,
+							{
+								backgroundColor: GradientColours[habit.gradient].solid,
+							},
+						]}
+					/>
+					<View style={styles.statIconContainer}>
+						<Icon family='fontawesome5' name='crown' colour={colors.text} size={30} />
+						<Text
+							style={[
+								styles.statIconText,
+								{
+									color: colors.text,
+								},
+							]}>
+							{getHighestStreak()}
+						</Text>
+					</View>
+				</Card>
+			</View>
+			<View
+				style={{
+					display: 'flex',
+					flexDirection: 'row',
+					marginRight: 15,
+					marginBottom: 15,
+				}}>
+				<Card title='Total Complete' themeText={true} style={styles.statCard}>
+					<View
+						style={[
+							styles.statBar,
+							{
+								backgroundColor: GradientColours[habit.gradient].solid,
+							},
+						]}
+					/>
+					<View style={styles.statIconContainer}>
+						<Icon family='fontawesome5' name='check' colour={colors.text} size={30} />
+						<Text
+							style={[
+								styles.statIconText,
+								{
+									color: colors.text,
+								},
+							]}>
+							{Object.keys(markedDates).length}
+						</Text>
+					</View>
+				</Card>
+				<Card title='Completion Rate' themeText={true} style={styles.statCard}>
+					<View
+						style={[
+							styles.statBar,
+							{
+								backgroundColor: GradientColours[habit.gradient].solid,
+							},
+						]}
+					/>
+					<View style={styles.statIconContainer}>
+						<Icon
+							family='fontawesome5'
+							name='percentage'
+							colour={colors.text}
+							size={30}
+						/>
+						<Text
+							style={[
+								styles.statIconText,
+								{
+									color: colors.text,
+								},
+							]}>
+							{getCompletionRate()}
+						</Text>
+					</View>
+				</Card>
+			</View>
+
 			{isReady && (
 				<CalendarList
 					key={habit.gradient}
@@ -407,6 +667,32 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
+	statBar: {
+		position: 'absolute',
+		width: 10,
+		top: 0,
+		bottom: 0,
+		left: 0,
+	},
+	statCard: {
+		flex: 1,
+		marginRight: 0,
+		overflow: 'hidden',
+		alignItems: 'center',
+	},
+	statIconContainer: {
+		display: 'flex',
+		flexDirection: 'row',
+		alignItems: 'center',
+		padding: 5,
+	},
+	statIconText: {
+		fontFamily: 'Montserrat_600SemiBold',
+		fontSize: 30,
+		paddingLeft: 15,
+		textAlign: 'center',
+	},
+
 	// paragraph: {
 	// 	margin: 24,
 	// 	fontSize: 18,

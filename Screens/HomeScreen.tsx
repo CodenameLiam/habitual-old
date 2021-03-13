@@ -40,7 +40,7 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 	const [habitToken, setHabitToken] = useState(getRandomBytes(4).join(''));
 
 	// const timerId = route.params ? route.params.timerId : undefined;
-	console.log(activeTimer);
+	// console.log(activeTimer);
 
 	useFocusEffect(
 		useCallback(() => {

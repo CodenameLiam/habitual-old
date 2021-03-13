@@ -65,7 +65,7 @@ export const CustomDarkTheme = {
 		primary: '#FFFFFF',
 		text: '#FFFFFF',
 		background: '#0F2028',
-		border: GreyColours.GREY5,
+		border: GreyColours.GREY4,
 		card: '#223843',
 		notification: 'red',
 	},
