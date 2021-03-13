@@ -16,6 +16,7 @@ export const displayDays = days
 
 interface DisplayDayProps {
 	alpha: number;
+	disabled?: boolean;
 	selectedDay: ScheduleTypeValue;
 	displayDay: ScheduleTypeValue;
 	displayIndex: number;
@@ -25,6 +26,7 @@ interface DisplayDayProps {
 
 export default function DisplayDay({
 	alpha,
+	disabled,
 	selectedDay,
 	displayDay,
 	displayIndex,
@@ -62,8 +64,11 @@ export default function DisplayDay({
 
 	const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
+	// console.log(disabled);
+
 	return (
 		<TouchableOpacity
+			disabled={disabled}
 			onPress={() => handleDayChange(displayDay, 6 - displayIndex)}
 			style={{
 				width: dimension,
@@ -75,7 +80,12 @@ export default function DisplayDay({
 			<Text
 				style={{
 					fontFamily: 'Montserrat_600SemiBold',
-					color: displayDay === selectedDay ? colors.text : colors.border,
+					color:
+						displayDay === selectedDay
+							? colors.text
+							: disabled
+							? colors.card
+							: colors.border,
 				}}>
 				{moment()
 					.subtract(6 - displayIndex, 'd')
@@ -85,7 +95,12 @@ export default function DisplayDay({
 				style={{
 					fontFamily: 'Montserrat_600SemiBold',
 					fontSize: 8,
-					color: displayDay === selectedDay ? colors.text : colors.border,
+					color:
+						displayDay === selectedDay
+							? colors.text
+							: disabled
+							? colors.card
+							: colors.border,
 				}}>
 				{displayDay}
 			</Text>

@@ -67,15 +67,22 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 		});
 	}, []);
 
+	const getInitialDate = () => {
+		return (
+			6 -
+			Object.keys(habit.schedule)
+				.reverse()
+				.findIndex((schedule) => habit.schedule[schedule as ScheduleTypeValue] === true)
+		);
+	};
+
 	const today = moment().format('YYYY-MM-DD');
-	const [day, setDay] = useState<ScheduleTypeValue>(days[dayIndex] as ScheduleTypeValue);
+	const [day, setDay] = useState<ScheduleTypeValue>(days[getInitialDate()] as ScheduleTypeValue);
 	const [date, setDate] = useState<string>(moment().format('YYYY-MM-DD'));
 	const allDates = Object.keys(habit.dates);
 	const sortedDates = allDates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
 
 	const [month, setMonth] = useState(moment().format('YYYY-MM-DD'));
-
-	// console.log('month ' + month);
 
 	const [isTimerActive, setIsTimerActive] = useState(activeTimer == habit.id);
 	let interval: NodeJS.Timeout;
@@ -92,9 +99,12 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 		let unselectedDays: number[] = [];
 
 		Object.keys(habit.schedule).filter((schedule, index) => {
-			if (!habit.schedule[schedule as ScheduleTypeValue])
+			if (!habit.schedule[schedule as ScheduleTypeValue]) {
 				unselectedDays.push((index + 1) % 7);
+			}
 		});
+
+		// console.log(unselectedDays);
 
 		return unselectedDays;
 	};
@@ -313,12 +323,6 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 
 		let dayIndex = moment(dayPointer).subtract(1, 'd').day();
 
-		// console.log('\n\n\n');
-		// console.log('ASHASHAS');
-		// console.log(dayPointer);
-		// console.log(displayDays[dayIndex]);
-		// console.log(habit.schedule[displayDays[dayIndex] as ScheduleTypeValue]);
-
 		do {
 			if (
 				habit.dates[dayPointer] &&
@@ -332,10 +336,6 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 				.format('YYYY-MM-DD');
 
 			dayIndex = moment(dayPointer).subtract(1, 'd').day();
-
-			// console.log(dayPointer);
-			// console.log(displayDays[dayIndex]);
-			// console.log(habit.schedule[displayDays[dayIndex] as ScheduleTypeValue]);
 		} while (
 			(habit.dates[dayPointer] &&
 				habit.dates[dayPointer].progress >= habit.dates[dayPointer].progressTotal) ||
@@ -393,46 +393,35 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 
 		const daysToDisable = getDaysToDisable();
 
+		let unselectedDays = 0;
 		let completedDays = getTotalComplete();
+
+		console.log(completedDays);
+
 		let totalDays = moment().add(1, 'd').diff(startDate, 'd');
 
 		if (totalDays == 0) {
 			totalDays = 1;
 		}
 
-		if (completedDays > 0) {
-			for (let m = startDate.clone(); m.diff(moment()) <= 0; m.add(1, 'days')) {
-				if (daysToDisable.includes(m.day())) {
-					console.log(m.format('YYYY-MM-DD'));
+		for (let m = startDate.clone(); m.diff(moment()) <= 0; m.add(1, 'days')) {
+			if (daysToDisable.includes(m.day())) {
+				const markedDate = markedDates[m.format('YYYY-MM-DD')];
+				if (markedDate && markedDate.selected) {
+					unselectedDays++;
+				} else {
 					completedDays++;
 				}
 			}
 		}
 
-		// console.log('complete ' + completedDays);
-		// console.log('total ' + totalDays);
+		totalDays -= unselectedDays;
+		completedDays -= unselectedDays;
 
-		// @ts-ignore
-		// const test = extra().weekdayCalc('1 Apr 2015', '31 Mar 2016', [0, 1, 2, 3, 4, 5, 6]);
-
-		// console.log(test);
-
-		// let unselectedDays = Object.keys(habit.schedule).filter((schedule) => {
-		// 	return !habit.schedule[schedule as ScheduleTypeValue];
-		// 	// unselectedDays.push((index + 1) % 7);
-		// }).length;
-
-		// completedDays += Math.ceil(totalDays / 7) * unselectedDays;
-
-		// console.log(test);
-
-		// console.log(moment().day());
-
-		// console.log(6 - dayIndex);
-
-		// console.log(sortedDates[0]);
-		// console.log(totalDays);
-		// console.log(completedDays);
+		console.log(totalDays);
+		console.log(completedDays);
+		console.log(unselectedDays);
+		console.log('\n');
 
 		const completionRate = (completedDays / totalDays) * 100;
 
@@ -449,17 +438,26 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 					padding: 20,
 					paddingBottom: 0,
 				}}>
-				{displayDays.map((displayDay, index) => (
-					<DisplayDay
-						key={displayDay + index}
-						alpha={getAlphaValue(index)}
-						selectedDay={day}
-						displayDay={displayDay as ScheduleTypeValue}
-						displayIndex={index}
-						gradient={habit.gradient}
-						handleDayChange={handleDayChange}
-					/>
-				))}
+				{displayDays.map((displayDay, index) => {
+					const date = moment()
+						.subtract(6 - index, 'd')
+						.format('YYYY-MM-DD');
+
+					const markedDate = markedDates[date];
+
+					return (
+						<DisplayDay
+							key={displayDay + index}
+							disabled={markedDate && markedDate.disabled}
+							alpha={getAlphaValue(index)}
+							selectedDay={day}
+							displayDay={displayDay as ScheduleTypeValue}
+							displayIndex={index}
+							gradient={habit.gradient}
+							handleDayChange={handleDayChange}
+						/>
+					);
+				})}
 			</View>
 
 			<View
@@ -618,7 +616,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 											? GradientColours[habit.gradient].solid +
 											  getYearAlphaValue(day)
 											: colors.border,
-									margin: 0.8,
+									margin: 0.9,
 									borderRadius: 1,
 								}}
 							/>
