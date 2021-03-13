@@ -17,7 +17,7 @@ import { AppContext } from '../Context/AppContext';
 import { AppNavProps, AppStackParamList } from '../Navigation/AppNavigation';
 import { EditNavProps, EditRoute } from './EditScreen';
 
-import { CalendarList, DateObject } from 'react-native-calendars';
+import { Calendar, CalendarList, DateObject } from 'react-native-calendars';
 import moment from 'moment';
 import { GradientColours, GreyColours } from '../Styles/Colours';
 import { mergeDates } from '../Storage/HabitController';
@@ -73,6 +73,10 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	const allDates = Object.keys(habit.dates);
 	const sortedDates = allDates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
 
+	const [month, setMonth] = useState(moment().format('YYYY-MM-DD'));
+
+	// console.log('month ' + month);
+
 	const [isTimerActive, setIsTimerActive] = useState(activeTimer == habit.id);
 	let interval: NodeJS.Timeout;
 
@@ -83,6 +87,41 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 			});
 		}, [navigation, habit.name])
 	);
+
+	const getDaysToDisable = () => {
+		let unselectedDays: number[] = [];
+
+		Object.keys(habit.schedule).filter((schedule, index) => {
+			if (!habit.schedule[schedule as ScheduleTypeValue])
+				unselectedDays.push((index + 1) % 7);
+		});
+
+		return unselectedDays;
+	};
+
+	const getDisabledDates = () => {
+		let disabledDates: any = {};
+
+		const start = moment(month).clone().startOf('month').subtract(1, 'month');
+		const end = moment(month).clone().endOf('month').add(1, 'month');
+		const daysToDisable = getDaysToDisable();
+
+		if (daysToDisable.length >= 0) {
+			for (let m = moment(start); m.diff(end, 'days') <= 0; m.add(1, 'days')) {
+				if (daysToDisable.includes(m.day())) {
+					const day = m.format('YYYY-MM-DD');
+
+					disabledDates[day] = {
+						...markedDates[day],
+						disabled: true,
+						disableTouchEvent: true,
+					};
+				}
+			}
+		}
+
+		return disabledDates;
+	};
 
 	let markedDates = Object.assign(
 		{},
@@ -97,8 +136,10 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 			}))
 	);
 	markedDates[today] = { ...markedDates[today], marked: true };
+	markedDates = { ...markedDates, ...getDisabledDates() };
 
 	const handlePress = (day: DateObject) => {
+		// console.log(day);
 		const date = habit.dates[day.dateString];
 		const newProgress = date && date.progress >= date.progressTotal ? 0 : habit.progressTotal;
 
@@ -265,35 +306,36 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 
 	const getCurrentStreak = (date: string) => {
 		let currentStreak = 0;
+		let dayPointerIndex = 0;
 		let dayPointer = moment(date)
-			.subtract(currentStreak + 1, 'd')
+			.subtract(dayPointerIndex + 1, 'd')
 			.format('YYYY-MM-DD');
 
-		let dayIndex = moment(dayPointer).clone().subtract(1, 'd').day();
+		let dayIndex = moment(dayPointer).subtract(1, 'd').day();
 
-		console.log('\n\n\n');
-		console.log('ASHASHAS');
-		console.log(dayPointer);
-		console.log(displayDays[dayIndex]);
-		console.log(habit.schedule[displayDays[dayIndex] as ScheduleTypeValue]);
+		// console.log('\n\n\n');
+		// console.log('ASHASHAS');
+		// console.log(dayPointer);
+		// console.log(displayDays[dayIndex]);
+		// console.log(habit.schedule[displayDays[dayIndex] as ScheduleTypeValue]);
 
 		do {
 			if (
-				(habit.dates[dayPointer] &&
-					habit.dates[dayPointer].progress >= habit.dates[dayPointer].progressTotal) ||
-				habit.schedule[displayDays[dayIndex] as ScheduleTypeValue] === false
+				habit.dates[dayPointer] &&
+				habit.dates[dayPointer].progress >= habit.dates[dayPointer].progressTotal
 			) {
 				currentStreak++;
-
-				dayIndex = moment(dayPointer).clone().subtract(1, 'd').day();
-
-				console.log(dayPointer);
-				console.log(displayDays[dayIndex]);
-				console.log(habit.schedule[displayDays[dayIndex] as ScheduleTypeValue]);
 			}
+			dayPointerIndex++;
 			dayPointer = moment(date)
-				.subtract(currentStreak + 1, 'd')
+				.subtract(dayPointerIndex + 1, 'd')
 				.format('YYYY-MM-DD');
+
+			dayIndex = moment(dayPointer).subtract(1, 'd').day();
+
+			// console.log(dayPointer);
+			// console.log(displayDays[dayIndex]);
+			// console.log(habit.schedule[displayDays[dayIndex] as ScheduleTypeValue]);
 		} while (
 			(habit.dates[dayPointer] &&
 				habit.dates[dayPointer].progress >= habit.dates[dayPointer].progressTotal) ||
@@ -348,8 +390,49 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 
 	const getCompletionRate = () => {
 		const startDate = moment(sortedDates[0]);
-		const totalDays = moment().diff(startDate, 'd');
-		const completedDays = getTotalComplete();
+
+		const daysToDisable = getDaysToDisable();
+
+		let completedDays = getTotalComplete();
+		let totalDays = moment().add(1, 'd').diff(startDate, 'd');
+
+		if (totalDays == 0) {
+			totalDays = 1;
+		}
+
+		if (completedDays > 0) {
+			for (let m = startDate.clone(); m.diff(moment()) <= 0; m.add(1, 'days')) {
+				if (daysToDisable.includes(m.day())) {
+					console.log(m.format('YYYY-MM-DD'));
+					completedDays++;
+				}
+			}
+		}
+
+		// console.log('complete ' + completedDays);
+		// console.log('total ' + totalDays);
+
+		// @ts-ignore
+		// const test = extra().weekdayCalc('1 Apr 2015', '31 Mar 2016', [0, 1, 2, 3, 4, 5, 6]);
+
+		// console.log(test);
+
+		// let unselectedDays = Object.keys(habit.schedule).filter((schedule) => {
+		// 	return !habit.schedule[schedule as ScheduleTypeValue];
+		// 	// unselectedDays.push((index + 1) % 7);
+		// }).length;
+
+		// completedDays += Math.ceil(totalDays / 7) * unselectedDays;
+
+		// console.log(test);
+
+		// console.log(moment().day());
+
+		// console.log(6 - dayIndex);
+
+		// console.log(sortedDates[0]);
+		// console.log(totalDays);
+		// console.log(completedDays);
 
 		const completionRate = (completedDays / totalDays) * 100;
 
@@ -674,6 +757,9 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 					markedDates={markedDates}
 					onDayPress={handlePress}
 					markingType={'custom'}
+					firstDay={1}
+					onVisibleMonthsChange={(months: DateObject[]) => setMonth(months[0].dateString)}
+					// onMonthChange={}
 					theme={{
 						calendarBackground: colors.background,
 						monthTextColor: colors.text,
@@ -691,6 +777,12 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 					}}
 				/>
 			)}
+
+			<TouchableOpacity
+				style={{ padding: 30 }}
+				onPress={() => updateHabit({ ...habit, dates: {} })}>
+				<Text style={{ color: 'red' }}>Reset</Text>
+			</TouchableOpacity>
 		</ScrollView>
 	);
 }

@@ -4877,6 +4877,11 @@ mkdirp@^0.5.1:
   dependencies:
     minimist "^1.2.5"
 
+moment-weekday-calc@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/moment-weekday-calc/-/moment-weekday-calc-1.1.4.tgz#ebf57d4c9cf1446e330c207658aa0a90816d4dc9"
+  integrity sha512-/Gyrgu9pQnapt47wPmp/Fk0h+Qx0QJyf9uwBtu4bLINzAoraDOVN2cprUiBzcTMOuFroW2V0y9yJTJ71UUV6Xg==
+
 moment@^2.24.0, moment@^2.29.1:
   version "2.29.1"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
