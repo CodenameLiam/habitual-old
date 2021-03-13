@@ -46,7 +46,7 @@ export const ColourPicker = ({ updateGradient }: ColourPickerProps) => {
 				<View key={`Half${index}`} style={styles.container}>
 					{half.map((gradient, index) => (
 						<TouchableOpacity
-							key={index}
+							key={index + gradient}
 							onPress={() => handlePress(gradient as GradientType)}
 							style={styles.swatch}>
 							<LinearGradient

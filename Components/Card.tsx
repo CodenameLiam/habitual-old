@@ -1,6 +1,7 @@
 import { useTheme } from '@react-navigation/native';
 import React from 'react';
 import { ViewStyle, StyleSheet, View, Text } from 'react-native';
+import TextTicker from 'react-native-text-ticker';
 import { GreyColours } from '../Styles/Colours';
 
 interface CardProps {
@@ -31,7 +32,18 @@ export const Card = ({ children, title, style, themeText }: CardProps) => {
 
 	return (
 		<View style={[styles.card, style]}>
-			{title && <Text style={styles.title}>{title}</Text>}
+			{title && (
+				<TextTicker
+					animationType='bounce'
+					scroll={true}
+					duration={3000}
+					bounceDelay={1500}
+					marqueeDelay={1000}
+					bouncePadding={{ left: 0, right: 0 }}
+					style={styles.title}>
+					{title}
+				</TextTicker>
+			)}
 			{children}
 		</View>
 	);

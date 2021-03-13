@@ -36,6 +36,7 @@ import { ScheduleTypeValue } from '../Components/Scheduler';
 import Icon from '../Components/Icon';
 import { randomGradient } from '../Components/ColourPicker';
 import { TimerContext } from '../Context/TimerContext';
+import AwesomeDebouncePromise from 'awesome-debounce-promise';
 
 export type ViewNavProps = StackNavigationProp<AppStackParamList, 'View'>;
 export type ViewRoute = RouteProp<AppStackParamList, 'View'>;
@@ -72,10 +73,6 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	const allDates = Object.keys(habit.dates);
 	const sortedDates = allDates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
 
-	// console.log(habit.dates[date].progress);
-
-	// console.log(activeTimer);
-
 	const [isTimerActive, setIsTimerActive] = useState(activeTimer == habit.id);
 	let interval: NodeJS.Timeout;
 
@@ -90,7 +87,11 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	let markedDates = Object.assign(
 		{},
 		...allDates
-			.filter((date) => habit.dates[date].progress >= habit.dates[date].progressTotal)
+			.filter(
+				(date) =>
+					habit.dates[date] &&
+					habit.dates[date].progress >= habit.dates[date].progressTotal
+			)
 			.map((date) => ({
 				[date]: { selected: true, customStyles: { container: { borderRadius: 10 } } },
 			}))
@@ -129,7 +130,6 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	};
 
 	const getYearAlphaValue = (day: string) => {
-		``;
 		let value: number | string = habit.dates[day]
 			? habit.dates[day].progress >= habit.dates[day].progressTotal
 				? 1
@@ -153,13 +153,6 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 		inputRange: [0, 1],
 		outputRange: [0, radius * Math.PI * 2],
 	});
-
-	useEffect(() => {
-		animateProgress();
-		// if (alpha === 0) {
-		// 	console.log('All complete');
-		// }
-	}, [alpha]);
 
 	const animateProgress = () => {
 		Animated.timing(progressAnimation, {
@@ -186,19 +179,27 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	const [progress, setProgress] = useState(getProgress());
 
 	useEffect(() => {
+		animateProgress();
+		// if (alpha === 0) {
+		// 	console.log('All complete');
+		// }
+	}, [alpha]);
+
+	useEffect(() => {
 		updateHabit({
 			...habit,
 			dates: mergeDates(habit.dates, date, progress, habit.progressTotal),
 		});
 		isTimerActive && incrementTimer();
+
 		return () => {
 			clearInterval(interval);
 		};
 	}, [progress, isTimerActive]);
 
 	useEffect(() => {
-		setProgress(habit.dates[date].progress);
-	}, [habit.dates[date].progress]);
+		isTimerActive && habit.dates[date] && setProgress(habit.dates[date].progress);
+	}, [habit.dates[date]]);
 
 	useEffect(() => {
 		setActiveTimer(isTimerActive ? habit.id : undefined);
@@ -213,6 +214,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 		if (isTimerActive && habit.type == 'timer') {
 			interval = setInterval(() => {
 				setProgress(progress + 1);
+				// debounceUpdateHabit();
 			}, 1000);
 		}
 	};
@@ -225,20 +227,31 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	};
 
 	const addProgress = () => {
+		// animateProgress();
+
+		setProgress(progress + 1);
 		progress + 1 == habit.progressTotal
 			? notificationAsync(NotificationFeedbackType.Success)
 			: impactAsync(ImpactFeedbackStyle.Medium);
-		setProgress(progress + 1);
+		// debounceUpdateHabit();
+		// Animated.timing(progressAnimation, {
+		// 	toValue: 1 - progress / 10,
+		// 	duration: isTimerActive ? 1200 : 500,
+		// 	useNativeDriver: true,
+		// 	easing: isTimerActive ? Easing.linear : Easing.out(Easing.quad),
+		// }).start();
 	};
 
 	const removeProgress = () => {
 		setProgress(progress - 1);
+		// debounceUpdateHabit();
 	};
 
 	const completeHabit = () => {
-		progress == 0 && notificationAsync(NotificationFeedbackType.Success);
+		progress < progressTotal && notificationAsync(NotificationFeedbackType.Success);
 		setProgress(progress >= habit.progressTotal ? 0 : habit.progressTotal);
 		setIsTimerActive(false);
+		// debounceUpdateHabit();
 	};
 
 	const toggleTimer = () => {
@@ -331,7 +344,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 				}}>
 				{displayDays.map((displayDay, index) => (
 					<DisplayDay
-						key={index}
+						key={displayDay + index}
 						alpha={getAlphaValue(index)}
 						selectedDay={day}
 						displayDay={displayDay as ScheduleTypeValue}
@@ -486,10 +499,10 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 						flexWrap: 'wrap',
 						height: 7 * 7,
 					}}>
-					{yearDates.map((day) => {
+					{yearDates.map((day, index) => {
 						return (
 							<View
-								key={day}
+								key={index + day}
 								style={{
 									height: yearlyDateDimensions,
 									width: yearlyDateDimensions,
@@ -540,7 +553,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 									color: colors.text,
 								},
 							]}>
-							{getCurrentStreak(today).currentStreak}
+							{isReady && getCurrentStreak(today).currentStreak}
 						</Text>
 					</View>
 				</Card>
@@ -565,7 +578,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 									color: colors.text,
 								},
 							]}>
-							{getHighestStreak()}
+							{isReady && getHighestStreak()}
 						</Text>
 					</View>
 				</Card>
@@ -595,7 +608,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 									color: colors.text,
 								},
 							]}>
-							{Object.keys(markedDates).length}
+							{isReady && Object.keys(markedDates).length}
 						</Text>
 					</View>
 				</Card>
@@ -622,7 +635,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 									color: colors.text,
 								},
 							]}>
-							{getCompletionRate()}
+							{isReady && getCompletionRate()}
 						</Text>
 					</View>
 				</Card>

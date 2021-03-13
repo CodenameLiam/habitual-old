@@ -7,7 +7,11 @@ interface ColouredButtonGroupProps {
 	buttonFunctions: (() => void)[];
 }
 
-export const ColourButtonGroup = ({ buttons, buttonFunctions, colour }: ColouredButtonGroupProps) => {
+export const ColourButtonGroup = ({
+	buttons,
+	buttonFunctions,
+	colour,
+}: ColouredButtonGroupProps) => {
 	const width = 95 / buttons.length;
 
 	const styles = StyleSheet.create({
@@ -31,7 +35,7 @@ export const ColourButtonGroup = ({ buttons, buttonFunctions, colour }: Coloured
 		<View style={styles.container}>
 			{buttons.length == buttonFunctions.length &&
 				buttons.map((title, index) => (
-					<View key={index} style={styles.button}>
+					<View key={index + title} style={styles.button}>
 						<TouchableOpacity style={styles.touchable} onPress={buttonFunctions[index]}>
 							<Text style={styles.text}>{title}</Text>
 						</TouchableOpacity>

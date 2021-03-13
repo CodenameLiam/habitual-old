@@ -38,7 +38,7 @@ export default function DisplayDay({
 	const radius = dimension / 2 - 2;
 	const circumference = radius * 2 * Math.PI;
 
-	const progressAnimation = useRef(new Animated.Value(1)).current;
+	const progressAnimation = useRef(new Animated.Value(alpha)).current;
 	const interpolatedSize = progressAnimation.interpolate({
 		inputRange: [0, 1],
 		outputRange: [0, radius * Math.PI * 2],

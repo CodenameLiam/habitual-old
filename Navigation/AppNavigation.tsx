@@ -80,8 +80,8 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 	};
 
 	const handleEditBack = (navigation: AppNavProps, gradient: GradientType) => {
+		setGradient(gradient);
 		navigation.goBack();
-		setTimeout(() => setGradient(gradient), 300);
 	};
 
 	return (
@@ -172,8 +172,10 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 					headerBackground: () => (
 						<LinearGradient
 							colors={[
-								GradientColours[gradient].start,
-								GradientColours[gradient].end,
+								// GradientColours[gradient].start,
+								// GradientColours[gradient].end,
+								GradientColours[habits[route.params.id].gradient].start,
+								GradientColours[habits[route.params.id].gradient].end,
 							]}
 							style={styles.gradient}
 							start={{ x: 0, y: 0 }}

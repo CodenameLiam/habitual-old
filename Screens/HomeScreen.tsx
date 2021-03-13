@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { RouteProp, useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -37,10 +37,7 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 	const [dayString, setDayString] = useState<string>('Today');
 	const [date, setDate] = useState<string>(moment().format('YYYY-MM-DD'));
 
-	const [habitToken, setHabitToken] = useState(getRandomBytes(4).join(''));
-
-	// const timerId = route.params ? route.params.timerId : undefined;
-	// console.log(activeTimer);
+	// const [habitKey, setHabitKey] = useState(getRandomBytes(4).join(''));
 
 	useFocusEffect(
 		useCallback(() => {
@@ -52,11 +49,12 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 		}, [dayString])
 	);
 
-	useFocusEffect(
-		useCallback(() => {
-			setHabitToken(getRandomBytes(4).join(''));
-		}, [navigation])
-	);
+	const habitKey = (progress: number) => {
+		if (!navigation.isFocused()) {
+			return progress.toString();
+		}
+		return '';
+	};
 
 	const handleDayChange = (day: ScheduleTypeValue, index: number) => {
 		setDay(day);
@@ -102,7 +100,7 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 				}}>
 				{displayDays.map((displayDay, index) => (
 					<DisplayDay
-						key={index}
+						key={index + habitKey(getAlphaValue(displayDay, index))}
 						alpha={getAlphaValue(displayDay, index)}
 						selectedDay={day}
 						displayDay={displayDay as ScheduleTypeValue}
@@ -125,7 +123,7 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 
 								return (
 									<Habit
-										key={habit.id + day + habitToken}
+										key={habit.id + day + habitKey(progress)}
 										navigation={rootNavigation}
 										id={habit.id}
 										name={habit.name}
@@ -138,6 +136,7 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 										date={date}
 										dates={habit.dates}
 										timerActive={habit.id === activeTimer}
+										// firstMount={firstMount}
 									/>
 								);
 							}

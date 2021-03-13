@@ -597,7 +597,7 @@ const IconModal = ({ setIcon, closeSheet }: IconModalProps) => {
 				}}>
 				{IconOptions.map((icon, index) => (
 					<TouchableOpacity
-						key={index}
+						key={index + icon.name}
 						onPress={() => handlePress(icon)}
 						style={{
 							padding: 10,
