@@ -68,11 +68,8 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	}, []);
 
 	const getInitialDate = () => {
-		return (
-			6 -
-			Object.keys(habit.schedule)
-				.reverse()
-				.findIndex((schedule) => habit.schedule[schedule as ScheduleTypeValue] === true)
+		return Object.keys(habit.schedule).findIndex(
+			(schedule) => habit.schedule[schedule as ScheduleTypeValue] === true
 		);
 	};
 
@@ -321,7 +318,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 			.subtract(dayPointerIndex + 1, 'd')
 			.format('YYYY-MM-DD');
 
-		let dayIndex = moment(dayPointer).subtract(1, 'd').day();
+		let dayIndex = moment(dayPointer).format('ddd').toUpperCase();
 
 		do {
 			if (
@@ -334,17 +331,16 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 			dayPointer = moment(date)
 				.subtract(dayPointerIndex + 1, 'd')
 				.format('YYYY-MM-DD');
-
-			dayIndex = moment(dayPointer).subtract(1, 'd').day();
+			dayIndex = moment(dayPointer).format('ddd').toUpperCase();
 		} while (
 			(habit.dates[dayPointer] &&
 				habit.dates[dayPointer].progress >= habit.dates[dayPointer].progressTotal) ||
-			habit.schedule[displayDays[dayIndex] as ScheduleTypeValue] === false
+			habit.schedule[dayIndex as ScheduleTypeValue] === false
 		);
 
 		if (
 			(habit.dates[date] && habit.dates[date].progress >= habit.dates[date].progressTotal) ||
-			habit.schedule[displayDays[dayIndex] as ScheduleTypeValue] === false
+			habit.schedule[dayIndex as ScheduleTypeValue] === false
 		) {
 			currentStreak++;
 		}
@@ -396,8 +392,6 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 		let unselectedDays = 0;
 		let completedDays = getTotalComplete();
 
-		console.log(completedDays);
-
 		let totalDays = moment().add(1, 'd').diff(startDate, 'd');
 
 		if (totalDays == 0) {
@@ -417,11 +411,6 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 
 		totalDays -= unselectedDays;
 		completedDays -= unselectedDays;
-
-		console.log(totalDays);
-		console.log(completedDays);
-		console.log(unselectedDays);
-		console.log('\n');
 
 		const completionRate = (completedDays / totalDays) * 100;
 

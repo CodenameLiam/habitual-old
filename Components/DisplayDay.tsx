@@ -64,6 +64,10 @@ export default function DisplayDay({
 
 	const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
+	const getCircleColour = () => {
+		return disabled ? colors.border : GradientColours[gradient ?? colour].solid;
+	};
+
 	// console.log(disabled);
 
 	return (
@@ -80,12 +84,7 @@ export default function DisplayDay({
 			<Text
 				style={{
 					fontFamily: 'Montserrat_600SemiBold',
-					color:
-						displayDay === selectedDay
-							? colors.text
-							: disabled
-							? colors.card
-							: colors.border,
+					color: displayDay === selectedDay ? colors.text : colors.border,
 				}}>
 				{moment()
 					.subtract(6 - displayIndex, 'd')
@@ -95,19 +94,14 @@ export default function DisplayDay({
 				style={{
 					fontFamily: 'Montserrat_600SemiBold',
 					fontSize: 8,
-					color:
-						displayDay === selectedDay
-							? colors.text
-							: disabled
-							? colors.card
-							: colors.border,
+					color: displayDay === selectedDay ? colors.text : colors.border,
 				}}>
 				{displayDay}
 			</Text>
 			<View style={{ position: 'absolute' }}>
 				<Svg width={dimension} height={dimension}>
 					<Circle
-						stroke={GradientColours[gradient ?? colour].solid + '50'}
+						stroke={getCircleColour() + '50'}
 						cx={dimension / 2}
 						cy={dimension / 2}
 						r={radius}
@@ -122,7 +116,7 @@ export default function DisplayDay({
 						transform: [{ rotate: '-90deg' }],
 					}}>
 					<AnimatedCircle
-						stroke={GradientColours[gradient ?? colour].solid}
+						stroke={getCircleColour()}
 						cx={dimension / 2}
 						cy={dimension / 2}
 						r={radius}

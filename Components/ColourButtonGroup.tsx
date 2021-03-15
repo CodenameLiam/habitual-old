@@ -41,7 +41,6 @@ export const ColourButtonGroup = ({
 				? { backgroundColor: backgroundColour + '50' }
 				: { color: backgroundColour };
 		}
-		// return {};
 	};
 
 	return (

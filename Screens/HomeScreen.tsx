@@ -82,7 +82,7 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 							.subtract(6 - index, 'd')
 							.format('YYYY-MM-DD')
 					] ?? 0;
-				if (date.progress === habit.progressTotal) habitDayCompleteLength += 1;
+				if (date.progress >= date.progressTotal) habitDayCompleteLength += 1;
 			}
 		});
 		return habitDayCompleteLength === 0 ? 1 : 1 - habitDayCompleteLength / habitDayLength;
