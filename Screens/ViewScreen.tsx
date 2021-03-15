@@ -71,6 +71,9 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	const sortedDates = sortDates(allDates);
 	let markedDates = getMarkedDates(habit, month, allDates);
 
+	// Progress from child
+	const [circleProgress, setCircleProgress] = useState(getProgress(habit, date));
+
 	useFocusEffect(
 		useCallback(() => {
 			navigation.setOptions({
@@ -91,14 +94,22 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	};
 
 	const getAlphaValue = (index: number) => {
-		let date = moment()
+		let indexDate = moment()
 			.subtract(6 - index, 'd')
 			.format('YYYY-MM-DD');
 
-		return habit.dates[date]
-			? habit.dates[date].progress >= habit.progressTotal
+		if (indexDate == date) {
+			// return 0.2;
+
+			return circleProgress >= habit.progressTotal
 				? 0
-				: 1 - habit.dates[date].progress / habit.progressTotal
+				: 1 - circleProgress / habit.progressTotal;
+		}
+
+		return habit.dates[indexDate]
+			? habit.dates[indexDate].progress >= habit.progressTotal
+				? 0
+				: 1 - habit.dates[indexDate].progress / habit.progressTotal
 			: 1;
 	};
 
@@ -234,12 +245,15 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	};
 
 	const updateHabitDebounced = AwesomeDebouncePromise(
-		(progress: number) =>
+		(progress: number) => {
+			console.log(progress);
 			updateHabit({
 				...habit,
 				dates: mergeDates(habit.dates, date, progress, habit.progressTotal),
-			}),
-		500
+			});
+		},
+
+		200
 	);
 
 	return (
@@ -280,6 +294,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 				progress={getProgress(habit, date)}
 				gradient={GradientColours[habit.gradient].solid}
 				updateHabit={updateHabitAsync}
+				setCircleProgress={setCircleProgress}
 			/>
 
 			<Text

@@ -30,6 +30,7 @@ interface ProgressCircleProps {
 	progress: number;
 	gradient: string;
 	updateHabit: (count: number) => void;
+	setCircleProgress: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function ProgressCircle({
@@ -38,6 +39,7 @@ export default function ProgressCircle({
 	progress,
 	gradient,
 	updateHabit,
+	setCircleProgress,
 }: ProgressCircleProps) {
 	const { colors } = useTheme();
 	const { type, progressTotal } = habit;
@@ -82,6 +84,7 @@ export default function ProgressCircle({
 
 	useEffect(() => {
 		animateProgress();
+		setCircleProgress(count);
 		updateHabit(count);
 		isTimerActive && incrementTimer();
 		return () => {
