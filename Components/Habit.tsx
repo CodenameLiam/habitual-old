@@ -91,7 +91,6 @@ export const Habit = ({
 }: HabitProps) => {
 	const { colors } = useTheme();
 	const { updateHabit, deleteHabit } = useContext(AppContext);
-	const { setGradient } = useContext(GradientContext);
 	const { activeTimer, setActiveTimer } = useContext(TimerContext);
 
 	const [count, setCount] = useState(progress);

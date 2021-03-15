@@ -49,8 +49,8 @@ interface AppNavigationProps {
 export default function AppNavigation({ navigation }: AppNavigationProps) {
 	const { colors } = useTheme();
 	const { habits } = useContext(AppContext);
-	const { activeTimer, setActiveTimer } = useContext(TimerContext);
-	const { gradient, setGradient } = useContext(GradientContext);
+	// const { activeTimer, setActiveTimer } = useContext(TimerContext);
+	// const { gradient, setGradient } = useContext(GradientContext);
 	const isDrawerOpen = useIsDrawerOpen();
 	const [isOpen, setOpen] = useState(false);
 
@@ -74,13 +74,19 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 		navigation.navigate('Edit', { id: route.params.id });
 	};
 
-	const handleBack = (navigation: AppNavProps) => {
-		navigation.navigate('Tabs');
-		setTimeout(() => setGradient(randomGradient), 100);
+	const handleIdeas = (navigation: AppNavProps) => {
+		impactAsync(ImpactFeedbackStyle.Medium);
+		navigation.navigate('Ideas');
 	};
 
-	const handleEditBack = (navigation: AppNavProps, gradient: GradientType) => {
-		setGradient(gradient);
+	const handleBack = (navigation: AppNavProps) => {
+		impactAsync(ImpactFeedbackStyle.Light);
+		navigation.navigate('Tabs');
+		// setTimeout(() => setGradient(randomGradient), 100);
+	};
+
+	const handleStackBack = (navigation: AppNavProps) => {
+		impactAsync(ImpactFeedbackStyle.Light);
 		navigation.goBack();
 	};
 
@@ -125,17 +131,6 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 					headerStatusBarHeight: 2,
 					headerStyle: { height: 60 },
 					title: 'Create Habit',
-					headerBackground: () => (
-						<LinearGradient
-							colors={[
-								GradientColours[gradient].start,
-								GradientColours[gradient].end,
-							]}
-							style={styles.gradient}
-							start={{ x: 0, y: 0 }}
-							end={{ x: 1, y: 0 }}
-						/>
-					),
 					headerLeft: () => (
 						<TouchableOpacity
 							style={{
@@ -151,7 +146,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 								padding: 10,
 								paddingRight: 16,
 							}}
-							onPress={() => navigation.navigate('Ideas')}>
+							onPress={() => handleIdeas(navigation)}>
 							<Icon
 								family='antdesign'
 								name='appstore-o'
@@ -172,8 +167,6 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 					headerBackground: () => (
 						<LinearGradient
 							colors={[
-								// GradientColours[gradient].start,
-								// GradientColours[gradient].end,
 								GradientColours[habits[route.params.id].gradient].start,
 								GradientColours[habits[route.params.id].gradient].end,
 							]}
@@ -213,8 +206,8 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 					headerBackground: () => (
 						<LinearGradient
 							colors={[
-								GradientColours[gradient].start,
-								GradientColours[gradient].end,
+								GradientColours[habits[route.params.id].gradient].start,
+								GradientColours[habits[route.params.id].gradient].end,
 							]}
 							style={styles.gradient}
 							start={{ x: 0, y: 0 }}
@@ -226,9 +219,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 							style={{
 								padding: 8,
 							}}
-							onPress={() =>
-								handleEditBack(navigation, habits[route.params.id].gradient)
-							}>
+							onPress={() => handleStackBack(navigation)}>
 							<Feather name='chevron-left' size={34} color={colors.text} />
 						</TouchableOpacity>
 					),
@@ -247,7 +238,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 							style={{
 								padding: 8,
 							}}
-							onPress={() => navigation.goBack()}>
+							onPress={() => handleStackBack(navigation)}>
 							<Feather name='chevron-left' size={34} color={colors.text} />
 						</TouchableOpacity>
 					),

@@ -8,5 +8,5 @@ interface CreateProps {
 }
 
 export default function CreateScreen({ navigation }: CreateProps) {
-	return <HabitEdtor navigation={navigation} resetGradient={true} />;
+	return <HabitEdtor navigation={navigation} />;
 }

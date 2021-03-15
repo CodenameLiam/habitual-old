@@ -1,6 +1,6 @@
-import { useTheme } from '@react-navigation/native';
+import { useFocusEffect, useTheme } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { useState } from 'react';
 import {
 	View,
@@ -50,16 +50,36 @@ import { EditNavProps } from '../Screens/EditScreen';
 interface EditProps {
 	navigation: EditNavProps;
 	habit?: IHabit;
-	resetGradient?: boolean;
+	// resetGradient?: boolean;
 }
 
-export default function HabitEdtor({ navigation, habit, resetGradient }: EditProps) {
+export default function HabitEdtor({ navigation, habit }: EditProps) {
 	const { colors } = useTheme();
 	const { createHabit } = useContext(AppContext);
-	const { gradient, setGradient } = useContext(GradientContext);
-	const { solid: gradientSolid, start: gradientStart, end: gradientEnd } = GradientColours[
-		gradient
-	];
+	// const { gradient, setGradient } = useContext(GradientContext);
+	const [localGradient, setLocalGradient] = useState(habit ? habit.gradient : randomGradient());
+
+	// const { solid: gradientSolid, start: gradientStart, end: gradientEnd } = GradientColours[
+	// 	habit ? habit.gradient : gradient
+	// ];
+
+	useFocusEffect(
+		useCallback(() => {
+			navigation.setOptions({
+				headerBackground: () => (
+					<LinearGradient
+						colors={[
+							GradientColours[localGradient].start,
+							GradientColours[localGradient].end,
+						]}
+						style={globalStyles.gradient}
+						start={{ x: 0, y: 0 }}
+						end={{ x: 1, y: 0 }}
+					/>
+				),
+			});
+		}, [navigation, localGradient])
+	);
 
 	const [isReady, setIsReady] = useState(false);
 
@@ -164,7 +184,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 				id: habit ? habit.id : getRandomBytes(8).join(''),
 				name: name,
 				icon: icon,
-				gradient: gradient,
+				gradient: localGradient,
 				progressTotal: count,
 				type: type,
 				schedule: schedule,
@@ -173,7 +193,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 			notificationAsync(NotificationFeedbackType.Success);
 			createHabit(newHabit);
 			navigation.goBack();
-			resetGradient === true && setTimeout(() => setGradient(randomGradient), 100);
+			// resetGradient === true && setTimeout(() => setGradient(randomGradient), 100);
 		}
 	};
 
@@ -251,7 +271,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 							style={[
 								globalStyles.cardText,
 								{
-									color: gradientSolid,
+									color: GradientColours[localGradient].solid,
 									flex: 1,
 								},
 							]}
@@ -259,18 +279,18 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 					</Card>
 				</View>
 				<Card title='Colour'>
-					<ColourPicker updateGradient={(gradient) => setGradient(gradient)} />
+					<ColourPicker updateGradient={(gradient) => setLocalGradient(gradient)} />
 				</Card>
 				<Card title='Schedule'>
 					<Scheduler
 						schedule={schedule}
 						setSchedule={setSchedule}
-						gradient={GradientColours[gradient]}
+						gradient={GradientColours[localGradient]}
 					/>
 					<ColourButtonGroup
 						buttons={['Everyday', 'Weekdays', 'Weekend']}
 						buttonFunctions={scheduleFunctions}
-						colour={gradientSolid}
+						colour={GradientColours[localGradient].solid}
 					/>
 				</Card>
 				<View style={{ display: 'flex', flexDirection: 'row' }}>
@@ -283,7 +303,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 									{
 										backgroundColor:
 											type === 'count'
-												? gradientSolid + 50
+												? GradientColours[localGradient].solid + 50
 												: GreyColours.GREY2 + 50,
 										marginRight: 10,
 									},
@@ -292,7 +312,11 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 									family='fontawesome'
 									name='plus'
 									size={24}
-									colour={type === 'count' ? gradientSolid : GreyColours.GREY2}
+									colour={
+										type === 'count'
+											? GradientColours[localGradient].solid
+											: GreyColours.GREY2
+									}
 									style={{ zIndex: 1 }}
 								/>
 							</TouchableOpacity>
@@ -303,7 +327,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 									{
 										backgroundColor:
 											type === 'timer'
-												? gradientSolid + 50
+												? GradientColours[localGradient].solid + 50
 												: GreyColours.GREY2 + 50,
 									},
 								]}>
@@ -311,7 +335,11 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 									family='antdesign'
 									name='clockcircle'
 									size={24}
-									colour={type === 'timer' ? gradientSolid : GreyColours.GREY2}
+									colour={
+										type === 'timer'
+											? GradientColours[localGradient].solid
+											: GreyColours.GREY2
+									}
 									style={{ zIndex: 1 }}
 								/>
 							</TouchableOpacity>
@@ -332,7 +360,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 									keyboardType='number-pad'
 									style={[
 										{
-											color: gradientSolid,
+											color: GradientColours[localGradient].solid,
 											flex: 1,
 											backgroundColor: colors.background,
 											borderRadius: 5,
@@ -351,7 +379,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 											marginRight: 10,
 											backgroundColor:
 												Number(count) > 1
-													? gradientSolid + 50
+													? GradientColours[localGradient].solid + 50
 													: GreyColours.GREY2 + 50,
 										},
 									]}>
@@ -360,7 +388,9 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 										name='minus'
 										size={24}
 										colour={
-											Number(count) > 1 ? gradientSolid : GreyColours.GREY2
+											Number(count) > 1
+												? GradientColours[localGradient].solid
+												: GreyColours.GREY2
 										}
 									/>
 								</TouchableOpacity>
@@ -370,14 +400,15 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 									style={[
 										globalStyles.count,
 										{
-											backgroundColor: gradientSolid + 50,
+											backgroundColor:
+												GradientColours[localGradient].solid + 50,
 										},
 									]}>
 									<Icon
 										family='fontawesome'
 										name='plus'
 										size={24}
-										colour={gradientSolid}
+										colour={GradientColours[localGradient].solid}
 									/>
 								</TouchableOpacity>
 							</View>
@@ -393,7 +424,7 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 								}}>
 								<Text
 									style={{
-										color: gradientSolid,
+										color: GradientColours[localGradient].solid,
 										textAlign: 'center',
 										fontFamily: 'Montserrat_800ExtraBold',
 										fontSize: 20,
@@ -424,7 +455,10 @@ export default function HabitEdtor({ navigation, habit, resetGradient }: EditPro
 							margin: 10,
 						}}>
 						<LinearGradient
-							colors={[gradientStart, gradientEnd]}
+							colors={[
+								GradientColours[localGradient].start,
+								GradientColours[localGradient].end,
+							]}
 							style={globalStyles.gradient}
 							start={{ x: 0, y: 0 }}
 							end={{ x: 1, y: 0 }}

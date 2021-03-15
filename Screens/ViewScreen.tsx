@@ -49,7 +49,6 @@ interface EditProps {
 
 export default function ViewScreen({ navigation, route }: EditProps) {
 	const { colors } = useTheme();
-	const { setGradient } = useContext(GradientContext);
 
 	// Habit state
 	const { habits, updateHabit } = useContext(AppContext);
@@ -61,7 +60,6 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	useEffect(() => {
 		InteractionManager.runAfterInteractions(() => {
 			setIsReady(true);
-			setGradient(habit.gradient);
 		});
 	}, []);
 
