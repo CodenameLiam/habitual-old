@@ -84,7 +84,6 @@ export default function ProgressCircle({
 		animateProgress();
 		updateHabit(count);
 		isTimerActive && incrementTimer();
-
 		return () => {
 			clearInterval(interval);
 		};

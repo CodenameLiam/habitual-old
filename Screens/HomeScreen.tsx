@@ -37,7 +37,7 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 	const [dayString, setDayString] = useState<string>('Today');
 	const [date, setDate] = useState<string>(moment().format('YYYY-MM-DD'));
 
-	// const [habitKey, setHabitKey] = useState(getRandomBytes(4).join(''));
+	const [habitId, setHabitId] = useState(getRandomBytes(4).join(''));
 
 	useFocusEffect(
 		useCallback(() => {
@@ -49,11 +49,17 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 		}, [dayString])
 	);
 
+	useFocusEffect(
+		useCallback(() => {
+			setHabitId(getRandomBytes(4).join(''));
+		}, [navigation])
+	);
+
 	const habitKey = (progress: number) => {
 		if (!navigation.isFocused()) {
 			return progress.toString();
 		}
-		return '';
+		return habitId;
 	};
 
 	const handleDayChange = (day: ScheduleTypeValue, index: number) => {

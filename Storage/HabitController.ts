@@ -50,7 +50,6 @@ export const useHabits = () => {
 	};
 
 	const createHabit = async (habit: IHabit) => {
-		console.log(habit);
 		let newHabits = { ...habits };
 		newHabits[habit.id] = habit;
 
