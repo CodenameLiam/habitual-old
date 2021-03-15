@@ -37,7 +37,7 @@ import Icon from '../Components/Icon';
 import { randomGradient } from '../Components/ColourPicker';
 import { TimerContext } from '../Context/TimerContext';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
-import ProgressCircle from '../Components/ProgressCircle';
+import ProgressCircle, { getProgress } from '../Components/ProgressCircle';
 
 export type ViewNavProps = StackNavigationProp<AppStackParamList, 'View'>;
 export type ViewRoute = RouteProp<AppStackParamList, 'View'>;
@@ -48,19 +48,22 @@ interface EditProps {
 }
 
 export default function ViewScreen({ navigation, route }: EditProps) {
+	const { colors } = useTheme();
+	const { setGradient } = useContext(GradientContext);
+
+	// Habit state
+	const { habits, updateHabit } = useContext(AppContext);
+	const { id } = route.params;
+	const habit = habits[id];
+
 	// Ready state
 	const [isReady, setIsReady] = useState(false);
 	useEffect(() => {
 		InteractionManager.runAfterInteractions(() => {
 			setIsReady(true);
+			setGradient(habit.gradient);
 		});
 	}, []);
-
-	// Habit state
-	const { colors } = useTheme();
-	const { habits, updateHabit } = useContext(AppContext);
-	const { id } = route.params;
-	const habit = habits[id];
 
 	// Day state
 	const [day, setDay] = useState<ScheduleTypeValue>(getInitialDate(habit.schedule));
@@ -69,13 +72,6 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	const allDates = Object.keys(habit.dates);
 	const sortedDates = sortDates(allDates);
 	let markedDates = getMarkedDates(habit, month, allDates);
-
-	// Progress state
-	const getProgress = (): number => {
-		return habit.dates[date] ? habit.dates[date].progress : 0;
-	};
-
-	const [progress, setProgress] = useState(getProgress());
 
 	useFocusEffect(
 		useCallback(() => {
@@ -126,7 +122,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 		const dayString = moment().subtract(index, 'd').format('YYYY-MM-DD');
 		setDay(day);
 		setDate(dayString);
-		setProgress(habit.dates[dayString] ? habit.dates[dayString].progress : 0);
+		// setProgress(habit.dates[dayString] ? habit.dates[dayString].progress : 0);
 	};
 
 	const getCurrentStreak = (date: string) => {
@@ -245,7 +241,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 				...habit,
 				dates: mergeDates(habit.dates, date, progress, habit.progressTotal),
 			}),
-		800
+		500
 	);
 
 	return (
@@ -281,10 +277,9 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 			</View>
 
 			<ProgressCircle
-				id={habit.id}
-				progress={progress}
-				progressTotal={habit.progressTotal}
-				type={habit.type}
+				habit={habit}
+				date={date}
+				progress={getProgress(habit, date)}
 				gradient={GradientColours[habit.gradient].solid}
 				updateHabit={updateHabitAsync}
 			/>
@@ -299,6 +294,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 				}}>
 				Yearly Progress
 			</Text>
+
 			<View style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
 				<View
 					style={{

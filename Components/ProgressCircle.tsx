@@ -25,27 +25,26 @@ import { getTimeString, HabitType } from './Habit';
 import Icon from './Icon';
 
 interface ProgressCircleProps {
-	id: string;
+	habit: IHabit;
+	date: string;
 	progress: number;
-	progressTotal: number;
-	type: HabitType;
 	gradient: string;
 	updateHabit: (count: number) => void;
 }
 
 export default function ProgressCircle({
-	id,
+	habit,
+	date,
 	progress,
-	progressTotal,
-	type,
 	gradient,
 	updateHabit,
 }: ProgressCircleProps) {
 	const { colors } = useTheme();
+	const { type, progressTotal } = habit;
 
 	useEffect(() => {
-		setCount(progress);
-	}, [progress]);
+		setCount(getProgress(habit, date));
+	}, [date]);
 
 	// Count values
 	const [count, setCount] = useState(progress);
@@ -53,7 +52,7 @@ export default function ProgressCircle({
 	// Timer values
 	let interval: NodeJS.Timeout;
 	const { activeTimer, setActiveTimer } = useContext(TimerContext);
-	const [isTimerActive, setIsTimerActive] = useState(activeTimer == id);
+	const [isTimerActive, setIsTimerActive] = useState(activeTimer == habit.id);
 
 	// Circle values
 	const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -64,7 +63,7 @@ export default function ProgressCircle({
 	// Progress values
 	const progressAnimation = useRef(new Animated.Value(activeTimer ? progress : 0)).current;
 	const interpolatedSize = progressAnimation.interpolate({
-		inputRange: [0, progressTotal],
+		inputRange: [0, habit.progressTotal],
 		outputRange: [radius * Math.PI * 2, 0],
 	});
 
@@ -90,6 +89,10 @@ export default function ProgressCircle({
 			clearInterval(interval);
 		};
 	}, [count, isTimerActive]);
+
+	useEffect(() => {
+		setActiveTimer(isTimerActive ? habit.id : undefined);
+	}, [isTimerActive]);
 
 	const incrementTimer = () => {
 		if (count == progressTotal) {
@@ -244,6 +247,11 @@ export default function ProgressCircle({
 		</View>
 	);
 }
+
+// Progress state
+export const getProgress = (habit: IHabit, date: string): number => {
+	return habit.dates[date] ? habit.dates[date].progress : 0;
+};
 
 const styles = StyleSheet.create({
 	count: {

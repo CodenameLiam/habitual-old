@@ -114,7 +114,7 @@ export const Habit = ({
 
 	const handleEdit = () => {
 		impactAsync(ImpactFeedbackStyle.Light);
-		setGradient(gradient);
+
 		navigation.navigate('View', { id: id });
 	};
 
@@ -242,8 +242,13 @@ export const Habit = ({
 				style={{
 					flexDirection: 'row',
 					transform: [{ translateX: trans }],
-					width: 80,
+					width: 160,
 				}}>
+				<TouchableOpacity
+					onPress={handleEdit}
+					style={[styles.rightAction, { backgroundColor: colors.card }]}>
+					<Icon family='feather' name='edit' size={30} colour={colors.text} />
+				</TouchableOpacity>
 				<TouchableOpacity
 					onPress={handleDelete}
 					style={[styles.rightAction, { backgroundColor: colors.card }]}>
