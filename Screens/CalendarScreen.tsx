@@ -133,6 +133,17 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 			}
 		};
 
+		const renderDisabledIcon = (
+			habit: IHabit,
+			day: string,
+			scheduleValue: ScheduleTypeValue
+		) => {
+			// if (habit.dates[day] && habit.dates[day].progress > 0) return false;
+			// console.log(habit.dates[day]);
+			if (!habit.schedule[scheduleValue]) return true;
+			return false;
+		};
+
 		return (
 			<View style={{ alignItems: 'center' }}>
 				<View
@@ -215,6 +226,12 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 								{Object.keys(DEFAULT_SCHEDULE).map((day, index) => {
 									const schedule = Object.keys(DEFAULT_SCHEDULE);
 									const scheduleValue = schedule[index] as ScheduleTypeValue;
+									const date = weekEnd
+										.clone()
+										.subtract(6 - index, 'd')
+										.format('YYYY-MM-DD');
+
+									// console.log(date);
 
 									return (
 										<TouchableOpacity
@@ -229,12 +246,12 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 													),
 												},
 											]}>
-											{habit.schedule[scheduleValue] === false && (
+											{renderDisabledIcon(habit, date, scheduleValue) && (
 												<Icon
 													family='fontawesome'
 													name='ban'
 													size={20}
-													colour={colors.background}
+													colour={GreyColours.GREY2}
 												/>
 											)}
 										</TouchableOpacity>

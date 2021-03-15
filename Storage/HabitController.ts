@@ -77,7 +77,12 @@ export const useHabits = () => {
 	return { habits, setHabits, createHabit, updateHabit, deleteHabit };
 };
 
-export const mergeDates = (dates: IHabitDate, date: string, progress: number, progressTotal: number) => {
+export const mergeDates = (
+	dates: IHabitDate,
+	date: string,
+	progress: number,
+	progressTotal: number
+) => {
 	let newDates = { ...dates };
 	newDates[date] = { progress: progress, progressTotal: progressTotal };
 	return newDates;

@@ -1,6 +1,6 @@
 import { RouteProp, useFocusEffect, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
 	View,
 	Text,
@@ -20,7 +20,7 @@ import { EditNavProps, EditRoute } from './EditScreen';
 import { Calendar, CalendarList, DateObject } from 'react-native-calendars';
 import moment from 'moment';
 import { GradientColours, GreyColours } from '../Styles/Colours';
-import { mergeDates } from '../Storage/HabitController';
+import { IHabit, mergeDates } from '../Storage/HabitController';
 import {
 	impactAsync,
 	ImpactFeedbackStyle,
@@ -32,11 +32,12 @@ import { GradientContext } from '../Context/GradientContext';
 import Svg, { Circle } from 'react-native-svg';
 import { getTimeString } from '../Components/Habit';
 import DisplayDay, { dayIndex, days, displayDays } from '../Components/DisplayDay';
-import { DEFAULT_SCHEDULE, ScheduleTypeValue } from '../Components/Scheduler';
+import { DEFAULT_SCHEDULE, ScheduleType, ScheduleTypeValue } from '../Components/Scheduler';
 import Icon from '../Components/Icon';
 import { randomGradient } from '../Components/ColourPicker';
 import { TimerContext } from '../Context/TimerContext';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
+import ProgressCircle from '../Components/ProgressCircle';
 
 export type ViewNavProps = StackNavigationProp<AppStackParamList, 'View'>;
 export type ViewRoute = RouteProp<AppStackParamList, 'View'>;
@@ -46,43 +47,35 @@ interface EditProps {
 	route: EditRoute;
 }
 
-const yearDates = Array.from(Array(365)).map((value, index) =>
-	moment().subtract(364, 'd').add(index, 'd').format('YYYY-MM-DD')
-);
-
 export default function ViewScreen({ navigation, route }: EditProps) {
-	const { colors } = useTheme();
-	const { habits, updateHabit } = useContext(AppContext);
-	const { activeTimer, setActiveTimer } = useContext(TimerContext);
-
-	const { id } = route.params;
-	const habit = habits[id];
-	const { solid: gradientSolid } = GradientColours[habit.gradient];
-
+	// Ready state
 	const [isReady, setIsReady] = useState(false);
-
 	useEffect(() => {
 		InteractionManager.runAfterInteractions(() => {
 			setIsReady(true);
 		});
 	}, []);
 
-	const getInitialDate = () => {
-		return Object.keys(habit.schedule).findIndex(
-			(schedule) => habit.schedule[schedule as ScheduleTypeValue] === true
-		);
+	// Habit state
+	const { colors } = useTheme();
+	const { habits, updateHabit } = useContext(AppContext);
+	const { id } = route.params;
+	const habit = habits[id];
+
+	// Day state
+	const [day, setDay] = useState<ScheduleTypeValue>(getInitialDate(habit.schedule));
+	const [date, setDate] = useState(today);
+	const [month, setMonth] = useState(today);
+	const allDates = Object.keys(habit.dates);
+	const sortedDates = sortDates(allDates);
+	let markedDates = getMarkedDates(habit, month, allDates);
+
+	// Progress state
+	const getProgress = (): number => {
+		return habit.dates[date] ? habit.dates[date].progress : 0;
 	};
 
-	const today = moment().format('YYYY-MM-DD');
-	const [day, setDay] = useState<ScheduleTypeValue>(days[getInitialDate()] as ScheduleTypeValue);
-	const [date, setDate] = useState<string>(moment().format('YYYY-MM-DD'));
-	const allDates = Object.keys(habit.dates);
-	const sortedDates = allDates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-
-	const [month, setMonth] = useState(moment().format('YYYY-MM-DD'));
-
-	const [isTimerActive, setIsTimerActive] = useState(activeTimer == habit.id);
-	let interval: NodeJS.Timeout;
+	const [progress, setProgress] = useState(getProgress());
 
 	useFocusEffect(
 		useCallback(() => {
@@ -92,61 +85,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 		}, [navigation, habit.name])
 	);
 
-	const getDaysToDisable = () => {
-		let unselectedDays: number[] = [];
-
-		Object.keys(habit.schedule).filter((schedule, index) => {
-			if (!habit.schedule[schedule as ScheduleTypeValue]) {
-				unselectedDays.push((index + 1) % 7);
-			}
-		});
-
-		// console.log(unselectedDays);
-
-		return unselectedDays;
-	};
-
-	const getDisabledDates = () => {
-		let disabledDates: any = {};
-
-		const start = moment(month).clone().startOf('month').subtract(1, 'month');
-		const end = moment(month).clone().endOf('month').add(1, 'month');
-		const daysToDisable = getDaysToDisable();
-
-		if (daysToDisable.length >= 0) {
-			for (let m = moment(start); m.diff(end, 'days') <= 0; m.add(1, 'days')) {
-				if (daysToDisable.includes(m.day())) {
-					const day = m.format('YYYY-MM-DD');
-
-					disabledDates[day] = {
-						...markedDates[day],
-						disabled: true,
-						disableTouchEvent: true,
-					};
-				}
-			}
-		}
-
-		return disabledDates;
-	};
-
-	let markedDates = Object.assign(
-		{},
-		...allDates
-			.filter(
-				(date) =>
-					habit.dates[date] &&
-					habit.dates[date].progress >= habit.dates[date].progressTotal
-			)
-			.map((date) => ({
-				[date]: { selected: true, customStyles: { container: { borderRadius: 10 } } },
-			}))
-	);
-	markedDates[today] = { ...markedDates[today], marked: true };
-	markedDates = { ...markedDates, ...getDisabledDates() };
-
-	const handlePress = (day: DateObject) => {
-		// console.log(day);
+	const handleCalendarPress = (day: DateObject) => {
 		const date = habit.dates[day.dateString];
 		const newProgress = date && date.progress >= date.progressTotal ? 0 : habit.progressTotal;
 
@@ -158,18 +97,10 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	};
 
 	const getAlphaValue = (index: number) => {
-		const date = moment()
+		let date = moment()
 			.subtract(6 - index, 'd')
 			.format('YYYY-MM-DD');
 
-		return habit.dates[date]
-			? habit.dates[date].progress >= habit.progressTotal
-				? 0
-				: 1 - habit.dates[date].progress / habit.progressTotal
-			: 1;
-	};
-
-	const getDateAlphaValue = () => {
 		return habit.dates[date]
 			? habit.dates[date].progress >= habit.progressTotal
 				? 0
@@ -191,125 +122,12 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 		return value;
 	};
 
-	const dimension = Dimensions.get('screen').width - 50;
-	const radius = dimension / 2 - 15;
-	const circumference = radius * 2 * Math.PI;
-	const alpha = getDateAlphaValue();
-
-	const progressAnimation = useRef(new Animated.Value(activeTimer ? alpha : 1)).current;
-	const interpolatedSize = progressAnimation.interpolate({
-		inputRange: [0, 1],
-		outputRange: [0, radius * Math.PI * 2],
-	});
-
-	const animateProgress = () => {
-		Animated.timing(progressAnimation, {
-			toValue: alpha,
-			duration: isTimerActive ? 1200 : 500,
-			useNativeDriver: true,
-			easing: isTimerActive ? Easing.linear : Easing.out(Easing.quad),
-		}).start();
-	};
-
-	const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-
-	let progressTotal =
-		habit.type === 'timer' ? getTimeString(habit.progressTotal) : habit.progressTotal;
-
-	const getProgress = (): number => {
-		return habit.dates[date] ? habit.dates[date].progress : 0;
-	};
-
-	const getProgressString = () => {
-		return habit.type === 'timer' ? getTimeString(progress) : progress;
-	};
-
-	const [progress, setProgress] = useState(getProgress());
-
-	useEffect(() => {
-		animateProgress();
-		// if (alpha === 0) {
-		// 	console.log('All complete');
-		// }
-	}, [alpha]);
-
-	useEffect(() => {
-		updateHabit({
-			...habit,
-			dates: mergeDates(habit.dates, date, progress, habit.progressTotal),
-		});
-		isTimerActive && incrementTimer();
-
-		return () => {
-			clearInterval(interval);
-		};
-	}, [progress, isTimerActive]);
-
-	useEffect(() => {
-		habit.dates[date] && setProgress(habit.dates[date].progress);
-	}, [habit.dates[date]]);
-
-	useEffect(() => {
-		setActiveTimer(isTimerActive ? habit.id : undefined);
-	}, [isTimerActive]);
-
-	const incrementTimer = () => {
-		if (progress == habit.progressTotal) {
-			setIsTimerActive(false);
-			notificationAsync(NotificationFeedbackType.Success);
-		}
-
-		if (isTimerActive && habit.type == 'timer') {
-			interval = setInterval(() => {
-				setProgress(progress + 1);
-				// debounceUpdateHabit();
-			}, 1000);
-		}
-	};
-
 	const handleDayChange = (day: ScheduleTypeValue, index: number) => {
 		const dayString = moment().subtract(index, 'd').format('YYYY-MM-DD');
 		setDay(day);
 		setDate(dayString);
 		setProgress(habit.dates[dayString] ? habit.dates[dayString].progress : 0);
 	};
-
-	const addProgress = () => {
-		// animateProgress();
-
-		setProgress(progress + 1);
-		progress + 1 == habit.progressTotal
-			? notificationAsync(NotificationFeedbackType.Success)
-			: impactAsync(ImpactFeedbackStyle.Medium);
-		// debounceUpdateHabit();
-		// Animated.timing(progressAnimation, {
-		// 	toValue: 1 - progress / 10,
-		// 	duration: isTimerActive ? 1200 : 500,
-		// 	useNativeDriver: true,
-		// 	easing: isTimerActive ? Easing.linear : Easing.out(Easing.quad),
-		// }).start();
-	};
-
-	const removeProgress = () => {
-		setProgress(progress - 1);
-		// debounceUpdateHabit();
-	};
-
-	const completeHabit = () => {
-		progress < progressTotal && notificationAsync(NotificationFeedbackType.Success);
-		setProgress(progress >= habit.progressTotal ? 0 : habit.progressTotal);
-		setIsTimerActive(false);
-		// debounceUpdateHabit();
-	};
-
-	const toggleTimer = () => {
-		if (progress < habit.progressTotal) {
-			setIsTimerActive(!isTimerActive);
-			impactAsync(ImpactFeedbackStyle.Medium);
-		}
-	};
-
-	const yearlyDateDimensions = (Dimensions.get('screen').width - 60) / 53 - 1;
 
 	const getCurrentStreak = (date: string) => {
 		let currentStreak = 0;
@@ -387,7 +205,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	const getCompletionRate = () => {
 		const startDate = moment(sortedDates[0]);
 
-		const daysToDisable = getDaysToDisable();
+		const daysToDisable = getDaysToDisable(habit);
 
 		let unselectedDays = 0;
 		let completedDays = getTotalComplete();
@@ -416,6 +234,19 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 
 		return Math.round(completionRate * 10) / 10;
 	};
+
+	const updateHabitAsync = (progress: number) => {
+		updateHabitDebounced(progress);
+	};
+
+	const updateHabitDebounced = AwesomeDebouncePromise(
+		(progress: number) =>
+			updateHabit({
+				...habit,
+				dates: mergeDates(habit.dates, date, progress, habit.progressTotal),
+			}),
+		800
+	);
 
 	return (
 		<ScrollView showsVerticalScrollIndicator={false}>
@@ -449,132 +280,14 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 				})}
 			</View>
 
-			<View
-				style={{
-					backgroundColor: colors.background,
-					height: Dimensions.get('screen').width,
-					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center',
-				}}>
-				<Text
-					style={{
-						fontFamily: 'Montserrat_800ExtraBold',
-						fontSize: 30,
-						color: colors.text,
-					}}>
-					{getProgressString()} / {progressTotal}
-				</Text>
-				<Svg
-					width={dimension}
-					height={dimension}
-					style={{
-						position: 'absolute',
-					}}>
-					<Circle
-						stroke={GradientColours[habit.gradient].solid + '50'}
-						cx={dimension / 2}
-						cy={dimension / 2}
-						r={radius}
-						strokeWidth={20}
-					/>
-				</Svg>
-				<Svg
-					width={dimension}
-					height={dimension}
-					style={{
-						position: 'absolute',
-						transform: [{ rotate: '-90deg' }],
-					}}>
-					<AnimatedCircle
-						stroke={GradientColours[habit.gradient].solid}
-						cx={dimension / 2}
-						cy={dimension / 2}
-						r={radius}
-						strokeWidth={20}
-						strokeLinecap={'round'}
-						strokeDashoffset={interpolatedSize}
-						strokeDasharray={[circumference, circumference]}
-					/>
-				</Svg>
-			</View>
-
-			<View
-				style={{
-					display: 'flex',
-					flexDirection: 'row',
-					justifyContent: 'center',
-					marginBottom: 20,
-				}}>
-				{habit.type === 'count' && (
-					<React.Fragment>
-						<TouchableOpacity
-							onPress={() => progress > 0 && removeProgress()}
-							style={[
-								styles.count,
-								{
-									marginRight: 10,
-									backgroundColor:
-										Number(progress) > 0
-											? gradientSolid + 50
-											: GreyColours.GREY2 + 50,
-								},
-							]}>
-							<Icon
-								family='fontawesome'
-								name='minus'
-								size={24}
-								colour={Number(progress) > 0 ? gradientSolid : GreyColours.GREY2}
-							/>
-						</TouchableOpacity>
-
-						<TouchableOpacity
-							onPress={addProgress}
-							style={[
-								styles.count,
-								{
-									marginRight: 10,
-									backgroundColor: gradientSolid + 50,
-								},
-							]}>
-							<Icon
-								family='fontawesome'
-								name='plus'
-								size={24}
-								colour={gradientSolid}
-							/>
-						</TouchableOpacity>
-					</React.Fragment>
-				)}
-				{habit.type === 'timer' && (
-					<TouchableOpacity
-						onPress={toggleTimer}
-						style={[
-							styles.count,
-							{
-								marginRight: 10,
-								backgroundColor: gradientSolid + 50,
-							},
-						]}>
-						<Icon
-							family='antdesign'
-							name='clockcircle'
-							size={24}
-							colour={gradientSolid}
-						/>
-					</TouchableOpacity>
-				)}
-				<TouchableOpacity
-					onPress={completeHabit}
-					style={[
-						styles.count,
-						{
-							backgroundColor: gradientSolid + 50,
-						},
-					]}>
-					<Icon family='fontawesome' name='check' size={24} colour={gradientSolid} />
-				</TouchableOpacity>
-			</View>
+			<ProgressCircle
+				id={habit.id}
+				progress={progress}
+				progressTotal={habit.progressTotal}
+				type={habit.type}
+				gradient={GradientColours[habit.gradient].solid}
+				updateHabit={updateHabitAsync}
+			/>
 
 			<Text
 				style={{
@@ -593,7 +306,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 						flexWrap: 'wrap',
 						height: 7 * 7,
 					}}>
-					{yearDates.map((day, index) => {
+					{yearDateArray.map((day, index) => {
 						return (
 							<View
 								key={index + day}
@@ -742,7 +455,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 					pagingEnabled={true}
 					maxDate={today}
 					markedDates={markedDates}
-					onDayPress={handlePress}
+					onDayPress={handleCalendarPress}
 					markingType={'custom'}
 					firstDay={1}
 					onVisibleMonthsChange={(months: DateObject[]) => setMonth(months[0].dateString)}
@@ -773,6 +486,81 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 		</ScrollView>
 	);
 }
+
+// Constants
+const today = moment().format('YYYY-MM-DD');
+const yearDateArray = Array.from(Array(365)).map((value, index) =>
+	moment().subtract(364, 'd').add(index, 'd').format('YYYY-MM-DD')
+);
+const yearlyDateDimensions = (Dimensions.get('screen').width - 60) / 53 - 1;
+
+// Helper functions
+const sortDates = (allDates: string[]) => {
+	return allDates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+};
+
+const getInitialDate = (schedule: ScheduleType): ScheduleTypeValue => {
+	for (let i = displayDays.length - 1; i >= 0; i--) {
+		if (schedule[displayDays[i] as ScheduleTypeValue]) {
+			return displayDays[i] as ScheduleTypeValue;
+		}
+	}
+
+	return displayDays[0] as ScheduleTypeValue;
+};
+
+const getDaysToDisable = (habit: IHabit) => {
+	let unselectedDays: number[] = [];
+	Object.keys(habit.schedule).filter((schedule, index) => {
+		if (!habit.schedule[schedule as ScheduleTypeValue]) {
+			unselectedDays.push((index + 1) % 7);
+		}
+	});
+	return unselectedDays;
+};
+
+const getMarkedDates = (habit: IHabit, month: string, allDates: string[]) => {
+	const getDisabledDates = () => {
+		let disabledDates: any = {};
+
+		const start = moment(month).clone().startOf('month').subtract(1, 'month');
+		const end = moment(month).clone().endOf('month').add(1, 'month');
+		const daysToDisable = getDaysToDisable(habit);
+
+		if (daysToDisable.length >= 0) {
+			for (let m = moment(start); m.diff(end, 'days') <= 0; m.add(1, 'days')) {
+				if (daysToDisable.includes(m.day())) {
+					const day = m.format('YYYY-MM-DD');
+
+					disabledDates[day] = {
+						...markedDates[day],
+						disabled: true,
+						disableTouchEvent: true,
+					};
+				}
+			}
+		}
+
+		return disabledDates;
+	};
+
+	let markedDates = Object.assign(
+		{},
+		...allDates
+			.filter(
+				(date) =>
+					habit.dates[date] &&
+					habit.dates[date].progress >= habit.dates[date].progressTotal
+			)
+			.map((date) => ({
+				[date]: { selected: true, customStyles: { container: { borderRadius: 10 } } },
+			}))
+	);
+	markedDates[today] = { ...markedDates[today], marked: true };
+	markedDates = { ...markedDates, ...getDisabledDates() };
+
+	return markedDates;
+};
 
 const styles = StyleSheet.create({
 	count: {
