@@ -56,12 +56,7 @@ interface EditProps {
 export default function HabitEdtor({ navigation, habit }: EditProps) {
 	const { colors } = useTheme();
 	const { createHabit } = useContext(AppContext);
-	// const { gradient, setGradient } = useContext(GradientContext);
 	const [localGradient, setLocalGradient] = useState(habit ? habit.gradient : randomGradient());
-
-	// const { solid: gradientSolid, start: gradientStart, end: gradientEnd } = GradientColours[
-	// 	habit ? habit.gradient : gradient
-	// ];
 
 	useFocusEffect(
 		useCallback(() => {
@@ -561,43 +556,118 @@ interface HeaderModalProps {
 	sheetRef: React.RefObject<BottomSheet>;
 }
 
-const IconOptions: Partial<IconProps>[] = [
-	{ family: 'feather', name: 'book' },
-	{ family: 'feather', name: 'award' },
-	{ family: 'feather', name: 'book-open' },
-	{ family: 'feather', name: 'bookmark' },
-	{ family: 'feather', name: 'briefcase' },
-	{ family: 'feather', name: 'camera' },
-	{ family: 'feather', name: 'compass' },
-	{ family: 'feather', name: 'film' },
-	{ family: 'feather', name: 'gift' },
-	{ family: 'feather', name: 'headphones' },
-	{ family: 'feather', name: 'heart' },
-	{ family: 'feather', name: 'moon' },
-	{ family: 'feather', name: 'sun' },
-	{ family: 'feather', name: 'monitor' },
-	{ family: 'feather', name: 'music' },
-	{ family: 'feather', name: 'pen-tool' },
-	{ family: 'feather', name: 'smile' },
-	{ family: 'feather', name: 'tablet' },
-	{ family: 'feather', name: 'database' },
-	{ family: 'feather', name: 'server' },
-	{ family: 'feather', name: 'star' },
-	{ family: 'feather', name: 'thumbs-up' },
-	{ family: 'feather', name: 'phone' },
-	{ family: 'feather', name: 'tool' },
-	{ family: 'feather', name: 'tv' },
-	{ family: 'feather', name: 'twitch' },
-	{ family: 'feather', name: 'twitter' },
-	{ family: 'feather', name: 'instagram' },
-	{ family: 'feather', name: 'facebook' },
-	{ family: 'feather', name: 'linkedin' },
-	{ family: 'feather', name: 'youtube' },
-	{ family: 'feather', name: 'video' },
-	{ family: 'materialcommunity', name: 'saxophone' },
-	{ family: 'materialcommunity', name: 'piano' },
-	{ family: 'fontawesome5', name: 'guitar' },
-	{ family: 'fontawesome5', name: 'drum' },
+interface IconGroup {
+	label: string;
+	icons: Partial<IconProps>[];
+}
+
+const IconOptions: IconGroup[] = [
+	{
+		label: 'IDK',
+		icons: [
+			{ family: 'feather', name: 'book' },
+			{ family: 'feather', name: 'award' },
+			{ family: 'feather', name: 'book-open' },
+			{ family: 'feather', name: 'bookmark' },
+			{ family: 'feather', name: 'briefcase' },
+			{ family: 'feather', name: 'camera' },
+			{ family: 'feather', name: 'compass' },
+			{ family: 'feather', name: 'film' },
+			{ family: 'feather', name: 'gift' },
+			{ family: 'feather', name: 'headphones' },
+			{ family: 'feather', name: 'heart' },
+			{ family: 'feather', name: 'moon' },
+			{ family: 'feather', name: 'sun' },
+			{ family: 'feather', name: 'monitor' },
+			{ family: 'feather', name: 'music' },
+			{ family: 'feather', name: 'pen-tool' },
+			{ family: 'feather', name: 'smile' },
+			{ family: 'feather', name: 'tablet' },
+			{ family: 'feather', name: 'database' },
+			{ family: 'feather', name: 'server' },
+			{ family: 'feather', name: 'star' },
+			{ family: 'feather', name: 'thumbs-up' },
+			{ family: 'feather', name: 'phone' },
+			{ family: 'feather', name: 'tool' },
+			{ family: 'feather', name: 'tv' },
+			{ family: 'feather', name: 'twitch' },
+			{ family: 'feather', name: 'twitter' },
+			{ family: 'feather', name: 'instagram' },
+			{ family: 'feather', name: 'facebook' },
+			{ family: 'feather', name: 'linkedin' },
+			{ family: 'feather', name: 'youtube' },
+			{ family: 'feather', name: 'video' },
+			{ family: 'materialcommunity', name: 'baguette' },
+			{ family: 'materialcommunity', name: 'baseball' },
+			{ family: 'materialcommunity', name: 'baseball-bat' },
+			{ family: 'materialcommunity', name: 'basketball' },
+			{ family: 'materialcommunity', name: 'basketball-hoop' },
+			{ family: 'materialcommunity', name: 'bed' },
+			{ family: 'materialcommunity', name: 'beer' },
+			{ family: 'materialcommunity', name: 'bike' },
+			{ family: 'materialcommunity', name: 'billiards' },
+			{ family: 'materialcommunity', name: 'bowling' },
+			{ family: 'materialcommunity', name: 'brain' },
+			{ family: 'materialcommunity', name: 'calculator' },
+			{ family: 'materialcommunity', name: 'calendar' },
+			{ family: 'materialcommunity', name: 'calendar-check' },
+			{ family: 'materialcommunity', name: 'calendar-heart' },
+			{ family: 'materialcommunity', name: 'camera' },
+			{ family: 'materialcommunity', name: 'car-sports' },
+			{ family: 'materialcommunity', name: 'cart' },
+			{ family: 'materialcommunity', name: 'cards' },
+			{ family: 'materialcommunity', name: 'cards-club' },
+			{ family: 'materialcommunity', name: 'cards-didmond' },
+			{ family: 'materialcommunity', name: 'cards-heart' },
+			{ family: 'materialcommunity', name: 'cards-spade' },
+			{ family: 'materialcommunity', name: 'charity' },
+			{ family: 'materialcommunity', name: 'chart-areaspline-variant' },
+			{ family: 'materialcommunity', name: 'chart-bar' },
+			{ family: 'materialcommunity', name: 'chart-pie' },
+			{ family: 'materialcommunity', name: 'chef-hat' },
+			{ family: 'materialcommunity', name: 'cupcake' },
+
+			// { family: 'materialcommunity', name: 'emoticon-' },
+			// { family: 'materialcommunity', name: 'emoticon-' },
+			// { family: 'materialcommunity', name: 'emoticon-' },
+			// { family: 'materialcommunity', name: 'emoticon-' },
+			// { family: 'materialcommunity', name: 'emoticon-' },
+			// { family: 'materialcommunity', name: 'emoticon-' },
+			// { family: 'materialcommunity', name: 'emoticon-' },
+		],
+	},
+	{
+		label: 'Instruments',
+		icons: [
+			{ family: 'materialcommunity', name: 'saxophone' },
+			{ family: 'fontawesome5', name: 'guitar' },
+			{ family: 'fontawesome5', name: 'drum' },
+			{ family: 'materialcommunity', name: 'piano' },
+			{ family: 'materialcommunity', name: 'violin' },
+			{ family: 'materialcommunity', name: 'trumpet' },
+			{ family: 'materialcommunity', name: 'album' },
+			{ family: 'materialcommunity', name: 'instrument-triangle' },
+		],
+	},
+	{
+		label: 'Emoticons',
+		icons: [
+			{ family: 'materialcommunity', name: 'emoticon' },
+			{ family: 'materialcommunity', name: 'emoticon-angry' },
+			{ family: 'materialcommunity', name: 'emoticon-confused' },
+			{ family: 'materialcommunity', name: 'emoticon-cool' },
+			{ family: 'materialcommunity', name: 'emoticon-cry' },
+			{ family: 'materialcommunity', name: 'emoticon-excited' },
+			{ family: 'materialcommunity', name: 'emoticon-frown' },
+			{ family: 'materialcommunity', name: 'emoticon-happy' },
+			{ family: 'materialcommunity', name: 'emoticon-kiss' },
+			{ family: 'materialcommunity', name: 'emoticon-lol' },
+			{ family: 'materialcommunity', name: 'emoticon-neutral' },
+			{ family: 'materialcommunity', name: 'emoticon-sad' },
+			{ family: 'materialcommunity', name: 'emoticon-tongue' },
+			{ family: 'materialcommunity', name: 'emoticon-wink' },
+		],
+	},
 ];
 
 interface IconModalProps {
@@ -618,35 +688,61 @@ const IconModal = ({ setIcon, closeSheet }: IconModalProps) => {
 			style={{
 				backgroundColor: colors.card,
 				padding: 16,
+
 				height: '100%',
 			}}
 			showsVerticalScrollIndicator={false}>
-			<View
-				style={{
-					width: '100%',
-					display: 'flex',
-					flexDirection: 'row',
-					flexWrap: 'wrap',
-					// justifyContent: 'space-evenly',
-				}}>
-				{IconOptions.map((icon, index) => (
-					<TouchableOpacity
-						key={index + icon.name}
-						onPress={() => handlePress(icon)}
-						style={{
-							padding: 10,
-							width: iconWidth,
-							// backgroundColor: 'red',
-							display: 'flex',
-							alignItems: 'center',
-						}}>
-						<Icon
-							family={icon.family}
-							name={icon.name}
-							colour={colors.text}
-							size={30}
-						/>
-					</TouchableOpacity>
+			<View style={{ paddingBottom: 50 }}>
+				{IconOptions.map((group, index) => (
+					<View key={group.label}>
+						<View
+							style={{
+								flexDirection: 'row',
+								marginTop: index == 0 ? 0 : 20,
+								marginBottom: 5,
+								marginLeft: 10,
+							}}>
+							<Text
+								style={{
+									padding: 10,
+									backgroundColor: colors.background,
+									color: colors.text,
+									fontSize: 16,
+									fontFamily: 'Montserrat_700Bold',
+									borderRadius: 10,
+									overflow: 'hidden',
+								}}>
+								{group.label}
+							</Text>
+						</View>
+
+						<View
+							style={{
+								width: '100%',
+								display: 'flex',
+								flexDirection: 'row',
+								flexWrap: 'wrap',
+							}}>
+							{group.icons.map((icon, index) => (
+								<TouchableOpacity
+									key={index + icon.name}
+									onPress={() => handlePress(icon)}
+									style={{
+										padding: 10,
+										width: iconWidth,
+										display: 'flex',
+										alignItems: 'center',
+									}}>
+									<Icon
+										family={icon.family}
+										name={icon.name}
+										colour={colors.text}
+										size={30}
+									/>
+								</TouchableOpacity>
+							))}
+						</View>
+					</View>
 				))}
 			</View>
 		</ScrollView>

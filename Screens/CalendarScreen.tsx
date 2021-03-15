@@ -199,70 +199,71 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 						</View>
 					))}
 				</View>
-				<ScrollView>
-					{Object.keys(habits).map((id) => {
-						const habit = habits[id];
-						return (
-							<View
-								key={id}
-								style={{
-									display: 'flex',
-									flexDirection: 'row',
-									alignItems: 'center',
-								}}>
-								<View style={{ width: weeklyTextContainer, paddingRight: 10 }}>
-									<TextTicker
-										scroll={false}
-										animationType='bounce'
-										duration={5000}
-										bounceDelay={1500}
-										marqueeDelay={1000}
-										bouncePadding={{ left: 0, right: 0 }}
-										style={[styles.dayTitle]}>
-										{habit.name}
-									</TextTicker>
+				<ScrollView
+					showsVerticalScrollIndicator={false}
+					// contentContainerStyle={{ flexGrow: 1 }}
+				>
+					<View style={{ paddingBottom: 350 }}>
+						{Object.keys(habits).map((id) => {
+							const habit = habits[id];
+							return (
+								<View
+									key={id}
+									style={{
+										display: 'flex',
+										flexDirection: 'row',
+										alignItems: 'center',
+									}}>
+									<View style={{ width: weeklyTextContainer, paddingRight: 10 }}>
+										<TextTicker
+											scroll={false}
+											animationType='bounce'
+											duration={5000}
+											bounceDelay={1500}
+											marqueeDelay={1000}
+											bouncePadding={{ left: 0, right: 0 }}
+											style={[styles.dayTitle]}>
+											{habit.name}
+										</TextTicker>
+									</View>
+
+									{Object.keys(DEFAULT_SCHEDULE).map((day, index) => {
+										const schedule = Object.keys(DEFAULT_SCHEDULE);
+										const scheduleValue = schedule[index] as ScheduleTypeValue;
+										const date = weekEnd
+											.clone()
+											.subtract(6 - index, 'd')
+											.format('YYYY-MM-DD');
+
+										return (
+											<TouchableOpacity
+												key={day}
+												onPress={() => handlePress(habit, index)}
+												style={[
+													styles.dayContainer,
+													{
+														backgroundColor: getBackgroundColour(
+															habit,
+															index
+														),
+													},
+												]}>
+												{renderDisabledIcon(habit, date, scheduleValue) && (
+													<Icon
+														family='fontawesome'
+														name='ban'
+														size={20}
+														colour={GreyColours.GREY2}
+													/>
+												)}
+											</TouchableOpacity>
+										);
+									})}
 								</View>
-
-								{Object.keys(DEFAULT_SCHEDULE).map((day, index) => {
-									const schedule = Object.keys(DEFAULT_SCHEDULE);
-									const scheduleValue = schedule[index] as ScheduleTypeValue;
-									const date = weekEnd
-										.clone()
-										.subtract(6 - index, 'd')
-										.format('YYYY-MM-DD');
-
-									// console.log(date);
-
-									return (
-										<TouchableOpacity
-											key={day}
-											onPress={() => handlePress(habit, index)}
-											style={[
-												styles.dayContainer,
-												{
-													backgroundColor: getBackgroundColour(
-														habit,
-														index
-													),
-												},
-											]}>
-											{renderDisabledIcon(habit, date, scheduleValue) && (
-												<Icon
-													family='fontawesome'
-													name='ban'
-													size={20}
-													colour={GreyColours.GREY2}
-												/>
-											)}
-										</TouchableOpacity>
-									);
-								})}
-							</View>
-						);
-					})}
+							);
+						})}
+					</View>
 				</ScrollView>
-
-				{/* {Object.keys(habits).map((id) => {return <Card></Card>})} */}
 			</View>
 		);
 	};
