@@ -245,14 +245,11 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 	};
 
 	const updateHabitDebounced = AwesomeDebouncePromise(
-		(progress: number) => {
-			console.log(progress);
+		(progress: number) =>
 			updateHabit({
 				...habit,
 				dates: mergeDates(habit.dates, date, progress, habit.progressTotal),
-			});
-		},
-
+			}),
 		200
 	);
 
@@ -544,7 +541,6 @@ const getMarkedDates = (habit: IHabit, month: string, allDates: string[]) => {
 					disabledDates[day] = {
 						...markedDates[day],
 						disabled: true,
-						disableTouchEvent: true,
 					};
 				}
 			}

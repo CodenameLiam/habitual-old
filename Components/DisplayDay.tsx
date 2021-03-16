@@ -72,7 +72,6 @@ export default function DisplayDay({
 
 	return (
 		<TouchableOpacity
-			disabled={disabled}
 			onPress={() => handleDayChange(displayDay, 6 - displayIndex)}
 			style={{
 				width: dimension,

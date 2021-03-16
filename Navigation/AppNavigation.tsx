@@ -131,6 +131,17 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 					headerStatusBarHeight: 2,
 					headerStyle: { height: 60 },
 					title: 'Create Habit',
+					headerBackground: () => (
+						<LinearGradient
+							colors={[
+								GradientColours[randomGradient()].start,
+								GradientColours[randomGradient()].end,
+							]}
+							style={styles.gradient}
+							start={{ x: 0, y: 0 }}
+							end={{ x: 1, y: 0 }}
+						/>
+					),
 					headerLeft: () => (
 						<TouchableOpacity
 							style={{

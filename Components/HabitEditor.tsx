@@ -100,7 +100,7 @@ export default function HabitEdtor({ navigation, habit }: EditProps) {
 	const [minutes, setMinutes] = useState(habit ? Math.floor((count % 3600) / 60) : 1);
 
 	const [schedule, setSchedule] = useState<ScheduleType>(
-		habit ? habit.schedule : { ...DEFAULT_SCHEDULE }
+		habit ? habit.schedule : { ...EVERYDAY_SCHEDULE }
 	);
 
 	const toastConfig = {

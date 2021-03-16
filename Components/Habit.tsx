@@ -101,6 +101,7 @@ export const Habit = ({
 	const [isDragging, setIsDragging] = useState(false);
 
 	const progressAnimation = useRef(new Animated.Value(progress)).current;
+	const swipableRef = useRef<Swipeable>(null);
 	const panRef = useRef<PanGestureHandler>(null);
 	let interpolatedSize = progressAnimation.interpolate({
 		inputRange: [0, progressTotal],
@@ -111,10 +112,16 @@ export const Habit = ({
 	const progressInterval = progressOffset * 2;
 	let interval: NodeJS.Timeout;
 
-	const handleEdit = () => {
+	const handleView = () => {
 		impactAsync(ImpactFeedbackStyle.Light);
 
 		navigation.navigate('View', { id: id });
+	};
+
+	const handleEdit = () => {
+		swipableRef.current?.close();
+		impactAsync(ImpactFeedbackStyle.Light);
+		navigation.navigate('Edit', { id: id });
 	};
 
 	useEffect(() => {
@@ -318,7 +325,7 @@ export const Habit = ({
 	};
 
 	return (
-		<Swipeable renderRightActions={renderRightActions} waitFor={panRef}>
+		<Swipeable renderRightActions={renderRightActions} waitFor={panRef} ref={swipableRef}>
 			<PanGestureHandler
 				ref={panRef}
 				activeOffsetX={[-1000, 20]}
@@ -342,7 +349,7 @@ export const Habit = ({
 						margin: 5,
 					}}>
 					<TouchableWithoutFeedback
-						onPress={handleEdit}
+						onPress={handleView}
 						style={{
 							flex: 1,
 						}}>

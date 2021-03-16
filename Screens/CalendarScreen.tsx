@@ -6,7 +6,7 @@ import moment from 'moment';
 import React, { useCallback, useContext, useLayoutEffect, useState } from 'react';
 import { View, Text, Button, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import { CalendarList } from 'react-native-calendars';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Directions, FlingGestureHandler, TouchableOpacity } from 'react-native-gesture-handler';
 import TextTicker from 'react-native-text-ticker';
 import { ColourButtonGroup } from '../Components/ColourButtonGroup';
 import Icon from '../Components/Icon';
@@ -37,7 +37,7 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 	const { colour } = useContext(GradientContext);
 
 	const [range, setRange] = useState<dateRange>('Weekly');
-	const [weekIndex, setWeekIndex] = useState<number>(1);
+	const [weekIndex, setWeekIndex] = useState<number>(0);
 
 	const today = moment().format('YYYY-MM-DD');
 
@@ -59,8 +59,7 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 		const weekStart = moment().subtract(weekIndex, 'w').startOf('w').add(1, 'd');
 		const weekEnd = moment()
 			.subtract(weekIndex - 1, 'w')
-			.startOf('w')
-			.add(1, 'd');
+			.startOf('w');
 
 		const styles = StyleSheet.create({
 			dayContainer: {
@@ -116,21 +115,19 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 			const weekStart = moment().subtract(weekIndex, 'w').startOf('w').add(1, 'd');
 			let date = weekStart.clone().add(index, 'd');
 
-			if (!date.isAfter(moment())) {
-				const dateString = date.format('YYYY-MM-DD');
+			const dateString = date.format('YYYY-MM-DD');
 
-				const newProgress =
-					habit.dates[dateString] &&
-					habit.dates[dateString].progress >= habit.dates[dateString].progressTotal
-						? 0
-						: habit.progressTotal;
+			const newProgress =
+				habit.dates[dateString] &&
+				habit.dates[dateString].progress >= habit.dates[dateString].progressTotal
+					? 0
+					: habit.progressTotal;
 
-				updateHabit({
-					...habit,
-					dates: mergeDates(habit.dates, dateString, newProgress, habit.progressTotal),
-				});
-				notificationAsync(NotificationFeedbackType.Success);
-			}
+			updateHabit({
+				...habit,
+				dates: mergeDates(habit.dates, dateString, newProgress, habit.progressTotal),
+			});
+			notificationAsync(NotificationFeedbackType.Success);
 		};
 
 		const renderDisabledIcon = (
@@ -138,8 +135,7 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 			day: string,
 			scheduleValue: ScheduleTypeValue
 		) => {
-			// if (habit.dates[day] && habit.dates[day].progress > 0) return false;
-			// console.log(habit.dates[day]);
+			if (habit.dates[day] && habit.dates[day].progress > 0) return false;
 			if (!habit.schedule[scheduleValue]) return true;
 			return false;
 		};
@@ -235,9 +231,15 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 											.subtract(6 - index, 'd')
 											.format('YYYY-MM-DD');
 
+										const isDisabled = weekStart
+											.clone()
+											.add(index, 'd')
+											.isAfter(moment());
+
 										return (
 											<TouchableOpacity
 												key={day}
+												disabled={isDisabled}
 												onPress={() => handlePress(habit, index)}
 												style={[
 													styles.dayContainer,
