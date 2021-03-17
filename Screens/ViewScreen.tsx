@@ -1,5 +1,5 @@
 import { RouteProp, useFocusEffect, useTheme } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { GestureHandlerRefContext, StackNavigationProp } from '@react-navigation/stack';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
 	View,
@@ -10,6 +10,7 @@ import {
 	Animated,
 	Easing,
 	TouchableOpacity,
+	// ScrollView,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Card } from '../Components/Card';
@@ -21,12 +22,7 @@ import { Calendar, CalendarList, DateObject } from 'react-native-calendars';
 import moment from 'moment';
 import { GradientColours, GreyColours } from '../Styles/Colours';
 import { IHabit, mergeDates } from '../Storage/HabitController';
-import {
-	impactAsync,
-	ImpactFeedbackStyle,
-	notificationAsync,
-	NotificationFeedbackType,
-} from 'expo-haptics';
+import { impactAsync, ImpactFeedbackStyle, notificationAsync, NotificationFeedbackType } from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GradientContext } from '../Context/GradientContext';
 import Svg, { Circle } from 'react-native-svg';
@@ -101,9 +97,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 		if (indexDate == date) {
 			// return 0.2;
 
-			return circleProgress >= habit.progressTotal
-				? 0
-				: 1 - circleProgress / habit.progressTotal;
+			return circleProgress >= habit.progressTotal ? 0 : 1 - circleProgress / habit.progressTotal;
 		}
 
 		return habit.dates[indexDate]
@@ -144,10 +138,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 		let dayIndex = moment(dayPointer).format('ddd').toUpperCase();
 
 		do {
-			if (
-				habit.dates[dayPointer] &&
-				habit.dates[dayPointer].progress >= habit.dates[dayPointer].progressTotal
-			) {
+			if (habit.dates[dayPointer] && habit.dates[dayPointer].progress >= habit.dates[dayPointer].progressTotal) {
 				currentStreak++;
 			}
 			dayPointerIndex++;
@@ -156,8 +147,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 				.format('YYYY-MM-DD');
 			dayIndex = moment(dayPointer).format('ddd').toUpperCase();
 		} while (
-			(habit.dates[dayPointer] &&
-				habit.dates[dayPointer].progress >= habit.dates[dayPointer].progressTotal) ||
+			(habit.dates[dayPointer] && habit.dates[dayPointer].progress >= habit.dates[dayPointer].progressTotal) ||
 			habit.schedule[dayIndex as ScheduleTypeValue] === false
 		);
 
@@ -253,6 +243,8 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 		200
 	);
 
+	// const scrollRef = useRef<ScrollView>(null);
+
 	return (
 		<ScrollView showsVerticalScrollIndicator={false}>
 			<View
@@ -262,7 +254,8 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 					justifyContent: 'space-between',
 					padding: 20,
 					paddingBottom: 0,
-				}}>
+				}}
+			>
 				{displayDays.map((displayDay, index) => {
 					const date = moment()
 						.subtract(6 - index, 'd')
@@ -301,7 +294,8 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 					padding: 15,
 					textAlign: 'center',
 					color: colors.text,
-				}}>
+				}}
+			>
 				Yearly Progress
 			</Text>
 
@@ -311,7 +305,8 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 						display: 'flex',
 						flexWrap: 'wrap',
 						height: 7 * 7,
-					}}>
+					}}
+				>
 					{yearDateArray.map((day, index) => {
 						return (
 							<View
@@ -321,8 +316,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 									width: yearlyDateDimensions,
 									backgroundColor:
 										habit.dates[day] && habit.dates[day].progress > 0
-											? GradientColours[habit.gradient].solid +
-											  getYearAlphaValue(day)
+											? GradientColours[habit.gradient].solid + getYearAlphaValue(day)
 											: colors.border,
 									margin: 0.9,
 									borderRadius: 1,
@@ -340,15 +334,13 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 					padding: 15,
 					textAlign: 'center',
 					color: colors.text,
-				}}>
+				}}
+			>
 				Stats
 			</Text>
 
 			<View style={{ display: 'flex', flexDirection: 'row', marginRight: 15 }}>
-				<Card
-					title='Current Streak'
-					themeText={true}
-					style={{ ...styles.statCard, marginTop: 0 }}>
+				<Card title='Current Streak' themeText={true} style={{ ...styles.statCard, marginTop: 0 }}>
 					<View
 						style={[
 							styles.statBar,
@@ -365,15 +357,13 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 								{
 									color: colors.text,
 								},
-							]}>
+							]}
+						>
 							{isReady && getCurrentStreak(today).currentStreak}
 						</Text>
 					</View>
 				</Card>
-				<Card
-					title='Highest Streak'
-					themeText={true}
-					style={{ ...styles.statCard, marginTop: 0 }}>
+				<Card title='Highest Streak' themeText={true} style={{ ...styles.statCard, marginTop: 0 }}>
 					<View
 						style={[
 							styles.statBar,
@@ -390,7 +380,8 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 								{
 									color: colors.text,
 								},
-							]}>
+							]}
+						>
 							{isReady && getHighestStreak()}
 						</Text>
 					</View>
@@ -402,7 +393,8 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 					flexDirection: 'row',
 					marginRight: 15,
 					marginBottom: 15,
-				}}>
+				}}
+			>
 				<Card title='Total Complete' themeText={true} style={styles.statCard}>
 					<View
 						style={[
@@ -420,7 +412,8 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 								{
 									color: colors.text,
 								},
-							]}>
+							]}
+						>
 							{isReady && getTotalComplete()}
 						</Text>
 					</View>
@@ -435,19 +428,15 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 						]}
 					/>
 					<View style={styles.statIconContainer}>
-						<Icon
-							family='fontawesome5'
-							name='percentage'
-							colour={colors.text}
-							size={30}
-						/>
+						<Icon family='fontawesome5' name='percentage' colour={colors.text} size={30} />
 						<Text
 							style={[
 								styles.statIconText,
 								{
 									color: colors.text,
 								},
-							]}>
+							]}
+						>
 							{isReady && getCompletionRate()}
 						</Text>
 					</View>
@@ -484,9 +473,7 @@ export default function ViewScreen({ navigation, route }: EditProps) {
 				/>
 			)}
 
-			<TouchableOpacity
-				style={{ padding: 30 }}
-				onPress={() => updateHabit({ ...habit, dates: {} })}>
+			<TouchableOpacity style={{ padding: 30 }} onPress={() => updateHabit({ ...habit, dates: {} })}>
 				<Text style={{ color: 'red' }}>Reset</Text>
 			</TouchableOpacity>
 		</ScrollView>
@@ -552,11 +539,7 @@ const getMarkedDates = (habit: IHabit, month: string, allDates: string[]) => {
 	let markedDates = Object.assign(
 		{},
 		...allDates
-			.filter(
-				(date) =>
-					habit.dates[date] &&
-					habit.dates[date].progress >= habit.dates[date].progressTotal
-			)
+			.filter((date) => habit.dates[date] && habit.dates[date].progress >= habit.dates[date].progressTotal)
 			.map((date) => ({
 				[date]: { selected: true, customStyles: { container: { borderRadius: 10 } } },
 			}))

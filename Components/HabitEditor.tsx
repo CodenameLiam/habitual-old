@@ -667,7 +667,7 @@ const IconOptions: IconGroup[] = [
 		],
 	},
 	{
-		label: 'Social Media',
+		label: 'Social',
 		icons: [
 			{ family: 'materialcommunity', name: 'facebook' },
 			{ family: 'materialcommunity', name: 'facebook-messenger' },
@@ -681,13 +681,6 @@ const IconOptions: IconGroup[] = [
 			{ family: 'materialcommunity', name: 'microsoft-xbox' },
 			{ family: 'materialcommunity', name: 'sony-playstation' },
 			{ family: 'materialcommunity', name: 'snapchat' },
-
-			// { family: 'feather', name: 'instagram' },
-			// { family: 'feather', name: 'twitter' },
-			// { family: 'feather', name: 'youtube' },
-			// { family: 'feather', name: 'facebook' },
-			// { family: 'feather', name: 'linkedin' },
-			// { family: 'feather', name: 'twitch' },
 		],
 	},
 	{

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { RouteProp, useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -26,12 +26,8 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 
 	const { habits } = useContext(AppContext);
 	const { activeTimer } = useContext(TimerContext);
-	const habitArray = Object.values(habits);
+	const habitArray = habits && Object.values(habits);
 	const rootNavigation: AppNavProps = navigation.dangerouslyGetParent();
-
-	// let days = Object.keys(DEFAULT_SCHEDULE);
-	// const dayIndex = moment().subtract(1, 'd').day();
-	// const displayDays = days.slice(dayIndex + 1, days.length).concat(days.slice(0, dayIndex + 1));
 
 	const [day, setDay] = useState<ScheduleTypeValue>(days[dayIndex] as ScheduleTypeValue);
 	const [dayString, setDayString] = useState<string>('Today');
@@ -78,19 +74,20 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 		let habitDayLength = 0;
 		let habitDayCompleteLength = 0;
 
-		habitArray.forEach((habit) => {
-			if (habit.schedule[displayDay as ScheduleTypeValue]) {
-				habitDayLength += 1;
+		habits &&
+			habitArray.forEach((habit) => {
+				if (habit.schedule[displayDay as ScheduleTypeValue]) {
+					habitDayLength += 1;
 
-				const date =
-					habit.dates[
-						moment()
-							.subtract(6 - index, 'd')
-							.format('YYYY-MM-DD')
-					] ?? 0;
-				if (date.progress >= date.progressTotal) habitDayCompleteLength += 1;
-			}
-		});
+					const date =
+						habit.dates[
+							moment()
+								.subtract(6 - index, 'd')
+								.format('YYYY-MM-DD')
+						] ?? 0;
+					if (date.progress >= date.progressTotal) habitDayCompleteLength += 1;
+				}
+			});
 		return habitDayCompleteLength === 0 ? 1 : 1 - habitDayCompleteLength / habitDayLength;
 	};
 
@@ -103,7 +100,8 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 					justifyContent: 'space-between',
 					padding: 20,
 					paddingBottom: 10,
-				}}>
+				}}
+			>
 				{displayDays.map((displayDay, index) => (
 					<DisplayDay
 						key={index + habitKey(getAlphaValue(displayDay, index))}

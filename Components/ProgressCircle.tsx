@@ -1,21 +1,8 @@
 import { useTheme } from '@react-navigation/native';
 
-import {
-	impactAsync,
-	ImpactFeedbackStyle,
-	notificationAsync,
-	NotificationFeedbackType,
-} from 'expo-haptics';
+import { impactAsync, ImpactFeedbackStyle, notificationAsync, NotificationFeedbackType } from 'expo-haptics';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import {
-	View,
-	Text,
-	Animated,
-	Dimensions,
-	Easing,
-	TouchableOpacity,
-	StyleSheet,
-} from 'react-native';
+import { View, Text, Animated, Dimensions, Easing, TouchableOpacity, StyleSheet } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { AppContext } from '../Context/AppContext';
 import { TimerContext } from '../Context/TimerContext';
@@ -82,10 +69,14 @@ export default function ProgressCircle({
 		return type === 'timer' ? getTimeString(count) : count;
 	};
 
+	const countRef = useRef<boolean>(false);
+	const updateCountRef = () => (countRef.current = true);
+
 	useEffect(() => {
 		animateProgress();
 		setCircleProgress(count);
-		updateHabit(count);
+		countRef.current && updateHabit(count);
+		!countRef.current && updateCountRef();
 		isTimerActive && incrementTimer();
 		return () => {
 			clearInterval(interval);
@@ -140,13 +131,15 @@ export default function ProgressCircle({
 					display: 'flex',
 					justifyContent: 'center',
 					alignItems: 'center',
-				}}>
+				}}
+			>
 				<Text
 					style={{
 						fontFamily: 'Montserrat_800ExtraBold',
 						fontSize: 30,
 						color: colors.text,
-					}}>
+					}}
+				>
 					{getProgressString(count)} / {getProgressString(progressTotal)}
 				</Text>
 				<Svg
@@ -154,7 +147,8 @@ export default function ProgressCircle({
 					height={dimension}
 					style={{
 						position: 'absolute',
-					}}>
+					}}
+				>
 					<Circle
 						stroke={gradient + '50'}
 						cx={dimension / 2}
@@ -169,7 +163,8 @@ export default function ProgressCircle({
 					style={{
 						position: 'absolute',
 						transform: [{ rotate: '-90deg' }],
-					}}>
+					}}
+				>
 					<AnimatedCircle
 						stroke={gradient}
 						cx={dimension / 2}
@@ -188,7 +183,8 @@ export default function ProgressCircle({
 					flexDirection: 'row',
 					justifyContent: 'center',
 					marginBottom: 20,
-				}}>
+				}}
+			>
 				{type === 'count' && (
 					<React.Fragment>
 						<TouchableOpacity
@@ -197,10 +193,10 @@ export default function ProgressCircle({
 								styles.count,
 								{
 									marginRight: 10,
-									backgroundColor:
-										count > 0 ? gradient + 50 : GreyColours.GREY2 + 50,
+									backgroundColor: count > 0 ? gradient + 50 : GreyColours.GREY2 + 50,
 								},
-							]}>
+							]}
+						>
 							<Icon
 								family='fontawesome'
 								name='minus'
@@ -217,7 +213,8 @@ export default function ProgressCircle({
 									marginRight: 10,
 									backgroundColor: gradient + 50,
 								},
-							]}>
+							]}
+						>
 							<Icon family='fontawesome' name='plus' size={24} colour={gradient} />
 						</TouchableOpacity>
 					</React.Fragment>
@@ -231,7 +228,8 @@ export default function ProgressCircle({
 								marginRight: 10,
 								backgroundColor: gradient + 50,
 							},
-						]}>
+						]}
+					>
 						<Icon family='antdesign' name='clockcircle' size={24} colour={gradient} />
 					</TouchableOpacity>
 				)}
@@ -242,7 +240,8 @@ export default function ProgressCircle({
 						{
 							backgroundColor: gradient + 50,
 						},
-					]}>
+					]}
+				>
 					<Icon family='fontawesome' name='check' size={24} colour={gradient} />
 				</TouchableOpacity>
 			</View>
