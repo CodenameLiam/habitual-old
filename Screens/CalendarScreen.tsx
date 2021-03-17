@@ -4,20 +4,16 @@ import { RouteProp, useFocusEffect, useTheme } from '@react-navigation/native';
 import { notificationAsync, NotificationFeedbackType } from 'expo-haptics';
 import moment from 'moment';
 import React, { useCallback, useContext, useLayoutEffect, useState } from 'react';
-import { View, Text, Button, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Button, ScrollView, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { CalendarList } from 'react-native-calendars';
-import { Directions, FlingGestureHandler, TouchableOpacity } from 'react-native-gesture-handler';
+// import { Directions, FlingGestureHandler, TouchableOpacity } from 'react-native-gesture-handler';
 import TextTicker from 'react-native-text-ticker';
 import { ColourButtonGroup } from '../Components/ColourButtonGroup';
 import Icon from '../Components/Icon';
-import {
-	DEFAULT_SCHEDULE,
-	Scheduler,
-	ScheduleType,
-	ScheduleTypeValue,
-} from '../Components/Scheduler';
+import { DEFAULT_SCHEDULE, Scheduler, ScheduleType, ScheduleTypeValue } from '../Components/Scheduler';
 import { AppContext } from '../Context/AppContext';
 import { GradientContext } from '../Context/GradientContext';
+import { AppNavProps } from '../Navigation/AppNavigation';
 import { TabParamList } from '../Navigation/TabNavigation';
 import { IHabit, mergeDates } from '../Storage/HabitController';
 import { GradientColours, GreyColours } from '../Styles/Colours';
@@ -25,7 +21,7 @@ import { GradientColours, GreyColours } from '../Styles/Colours';
 type NavProps = BottomTabNavigationProp<TabParamList, 'Calendar'>;
 type RouteProps = RouteProp<TabParamList, 'Calendar'>;
 interface CalendarProps {
-	navigation: NavProps;
+	navigation: AppNavProps;
 	route: RouteProps;
 }
 
@@ -99,11 +95,10 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 			const date = weekStart.add(index, 'd').format('YYYY-MM-DD');
 
 			if (habit.dates[date] && habit.dates[date].progress > 0) {
-				let progress: number | string =
-					habit.dates[date].progress / habit.dates[date].progressTotal;
+				let progress: number | string = habit.dates[date].progress / habit.dates[date].progressTotal;
 				progress = (Math.round(progress * 10) / 10) * 100;
 				if (progress <= 10) progress = 20;
-				if (progress === 100) progress = '';
+				if (progress >= 100) progress = '';
 
 				return GradientColours[habit.gradient].solid + progress;
 			}
@@ -118,8 +113,7 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 			const dateString = date.format('YYYY-MM-DD');
 
 			const newProgress =
-				habit.dates[dateString] &&
-				habit.dates[dateString].progress >= habit.dates[dateString].progressTotal
+				habit.dates[dateString] && habit.dates[dateString].progress >= habit.dates[dateString].progressTotal
 					? 0
 					: habit.progressTotal;
 
@@ -130,11 +124,7 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 			notificationAsync(NotificationFeedbackType.Success);
 		};
 
-		const renderDisabledIcon = (
-			habit: IHabit,
-			day: string,
-			scheduleValue: ScheduleTypeValue
-		) => {
+		const renderDisabledIcon = (habit: IHabit, day: string, scheduleValue: ScheduleTypeValue) => {
 			if (habit.dates[day] && habit.dates[day].progress > 0) return false;
 			if (!habit.schedule[scheduleValue]) return true;
 			return false;
@@ -148,7 +138,8 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 						flexDirection: 'row',
 						marginBottom: 15,
 						alignItems: 'center',
-					}}>
+					}}
+				>
 					<TouchableOpacity
 						onPress={() => setWeekIndex(weekIndex + 1)}
 						style={[
@@ -156,7 +147,8 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 							{
 								backgroundColor: GradientColours[colour].solid + 50,
 							},
-						]}>
+						]}
+					>
 						<Icon
 							family='fontawesome5'
 							name='angle-left'
@@ -174,7 +166,8 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 							{
 								backgroundColor: GradientColours[colour].solid + 50,
 							},
-						]}>
+						]}
+					>
 						<Icon
 							family='fontawesome5'
 							name='angle-right'
@@ -188,7 +181,8 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 						display: 'flex',
 						flexDirection: 'row',
 						marginLeft: weeklyTextContainer,
-					}}>
+					}}
+				>
 					{Object.keys(DEFAULT_SCHEDULE).map((day) => (
 						<View key={day} style={styles.dayContainer}>
 							<Text style={styles.dayTitle}>{day[0]}</Text>
@@ -209,8 +203,18 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 										display: 'flex',
 										flexDirection: 'row',
 										alignItems: 'center',
-									}}>
-									<View style={{ width: weeklyTextContainer, paddingRight: 10 }}>
+									}}
+								>
+									<TouchableOpacity
+										onPress={() => navigation.navigate('View', { id: id })}
+										style={{
+											width: weeklyTextContainer,
+											paddingRight: 10,
+											// backgroundColor: 'red',
+											height: weeklyCellContainer,
+											justifyContent: 'center',
+										}}
+									>
 										<TextTicker
 											scroll={false}
 											animationType='bounce'
@@ -218,10 +222,11 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 											bounceDelay={1500}
 											marqueeDelay={1000}
 											bouncePadding={{ left: 0, right: 0 }}
-											style={[styles.dayTitle]}>
+											style={[styles.dayTitle]}
+										>
 											{habit.name}
 										</TextTicker>
-									</View>
+									</TouchableOpacity>
 
 									{Object.keys(DEFAULT_SCHEDULE).map((day, index) => {
 										const schedule = Object.keys(DEFAULT_SCHEDULE);
@@ -231,10 +236,7 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 											.subtract(6 - index, 'd')
 											.format('YYYY-MM-DD');
 
-										const isDisabled = weekStart
-											.clone()
-											.add(index, 'd')
-											.isAfter(moment());
+										const isDisabled = weekStart.clone().add(index, 'd').isAfter(moment());
 
 										return (
 											<TouchableOpacity
@@ -244,12 +246,10 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 												style={[
 													styles.dayContainer,
 													{
-														backgroundColor: getBackgroundColour(
-															habit,
-															index
-														),
+														backgroundColor: getBackgroundColour(habit, index),
 													},
-												]}>
+												]}
+											>
 												{renderDisabledIcon(habit, date, scheduleValue) && (
 													<Icon
 														family='fontawesome'
@@ -271,11 +271,7 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 	};
 
 	const renderSwitch = () => {
-		const switchFunctions = [
-			() => setRange('Weekly'),
-			() => setRange('Monthly'),
-			() => setRange('Yearly'),
-		];
+		const switchFunctions = [() => setRange('Weekly'), () => setRange('Monthly'), () => setRange('Yearly')];
 		return (
 			<View style={{ padding: 20, marginBottom: 10 }}>
 				<ColourButtonGroup
