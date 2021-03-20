@@ -26,7 +26,7 @@ interface CalendarProps {
 
 type dateRange = 'Weekly' | 'Monthly' | 'Yearly';
 
-export default function CalendarScreen ({ navigation, route }: CalendarProps) {
+const CalendarScreen: React.FC<CalendarProps> = ({ navigation, route }) => {
     const { colors } = useTheme();
     const { habits, updateHabit } = useContext(AppContext);
     const { colour } = useContext(GradientContext);
@@ -47,7 +47,7 @@ export default function CalendarScreen ({ navigation, route }: CalendarProps) {
     // 	}, [navigation, range])
     // );
 
-    const renderWeeklyHabits = () => {
+    const renderWeeklyHabits = (): JSX.Element => {
         const weeklyCellContainer = Dimensions.get('screen').width / 13.5;
         const weeklyTextContainer = Dimensions.get('screen').width - weeklyCellContainer * 9.5;
 
@@ -89,7 +89,7 @@ export default function CalendarScreen ({ navigation, route }: CalendarProps) {
             }
         });
 
-        const getBackgroundColour = (habit: IHabit, index: number) => {
+        const getBackgroundColour = (habit: IHabit, index: number): string => {
             const weekStart = moment().subtract(weekIndex, 'w').startOf('w').add(1, 'd');
             const date = weekStart.add(index, 'd').format('YYYY-MM-DD');
 
@@ -105,7 +105,7 @@ export default function CalendarScreen ({ navigation, route }: CalendarProps) {
             return colors.card;
         };
 
-        const handlePress = (habit: IHabit, index: number) => {
+        const handlePress = (habit: IHabit, index: number): void => {
             const weekStart = moment().subtract(weekIndex, 'w').startOf('w').add(1, 'd');
             const date = weekStart.clone().add(index, 'd');
 
@@ -123,7 +123,7 @@ export default function CalendarScreen ({ navigation, route }: CalendarProps) {
             notificationAsync(NotificationFeedbackType.Success);
         };
 
-        const renderDisabledIcon = (habit: IHabit, day: string, scheduleValue: ScheduleTypeValue) => {
+        const renderDisabledIcon = (habit: IHabit, day: string, scheduleValue: ScheduleTypeValue): boolean => {
             if (habit.dates[day] && habit.dates[day].progress > 0) return false;
             if (!habit.schedule[scheduleValue]) return true;
             return false;
@@ -269,7 +269,7 @@ export default function CalendarScreen ({ navigation, route }: CalendarProps) {
         );
     };
 
-    const renderSwitch = () => {
+    const renderSwitch = (): JSX.Element => {
         const switchFunctions = [() => setRange('Weekly'), () => setRange('Monthly'), () => setRange('Yearly')];
         return (
             <View style={{ padding: 20, marginBottom: 10 }}>
@@ -283,7 +283,7 @@ export default function CalendarScreen ({ navigation, route }: CalendarProps) {
         );
     };
 
-    const renderView = () => {
+    const renderView = (): JSX.Element => {
         switch (range) {
             case 'Weekly':
                 return renderWeeklyHabits();
@@ -336,4 +336,6 @@ export default function CalendarScreen ({ navigation, route }: CalendarProps) {
         </View>
     // </ScrollView>
     );
-}
+};
+
+export default CalendarScreen;

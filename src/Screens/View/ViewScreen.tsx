@@ -5,7 +5,6 @@ import {
     View,
     Text,
     Dimensions,
-    StyleSheet,
     InteractionManager,
     TouchableOpacity
 } from 'react-native';
@@ -13,28 +12,36 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Card } from 'Components/Card/Card';
 import { AppContext } from 'Context/AppContext';
 import { AppStackParamList } from 'Navigation/AppNavigation';
-import { EditNavProps, EditRoute } from 'Screens/Edit';
 
 import { CalendarList, DateObject } from 'react-native-calendars';
 import moment from 'moment';
 import { GradientColours, GreyColours } from 'Styles/Colours';
-import { IHabit, mergeDates } from 'Controllers/HabitController';
+import { mergeDates } from 'Controllers/HabitController';
 import { notificationAsync, NotificationFeedbackType } from 'expo-haptics';
 import DisplayDay, { displayDays } from 'Components/DisplayDay';
-import { ScheduleType, ScheduleTypeValue } from 'Components/Scheduler';
+import { ScheduleTypeValue } from 'Components/Scheduler';
 import Icon from 'Components/Icon';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import ProgressCircle, { getProgress } from 'Components/ProgressCircle';
+import { styles } from './ViewScreen.styles';
+import { sortDates, getDaysToDisable, getMarkedDates, getInitialDate } from 'Helpers/DateHelpers';
 
 export type ViewNavProps = StackNavigationProp<AppStackParamList, 'View'>;
 export type ViewRoute = RouteProp<AppStackParamList, 'View'>;
 
-interface EditProps {
-	navigation: EditNavProps;
-	route: EditRoute;
+
+// Constants
+const today = moment().format('YYYY-MM-DD');
+const yearDateArray = Array.from(Array(365)).map((value, index) =>
+    moment().subtract(364, 'd').add(index, 'd').format('YYYY-MM-DD')
+);
+const yearlyDateDimensions = (Dimensions.get('screen').width - 60) / 53 - 1;
+interface ViewProps {
+	navigation: ViewNavProps;
+	route: ViewRoute;
 }
 
-export default function ViewScreen ({ navigation, route }: EditProps) {
+const ViewScreen: React.FC<ViewProps> = ({ navigation, route }: ViewProps) => {
     const { colors } = useTheme();
 
     // Habit state
@@ -51,12 +58,12 @@ export default function ViewScreen ({ navigation, route }: EditProps) {
     }, []);
 
     // Day state
-    const [day, setDay] = useState<ScheduleTypeValue>(getInitialDate(habit.schedule));
+    const [day, setDay] = useState<ScheduleTypeValue>(getInitialDate(habit.schedule, displayDays));
     const [date, setDate] = useState(today);
     const [month, setMonth] = useState(today);
     const allDates = Object.keys(habit.dates);
     const sortedDates = sortDates(allDates);
-    const markedDates = getMarkedDates(habit, month, allDates);
+    const markedDates = getMarkedDates(habit, today, month, allDates);
 
     // Progress from child
     const [circleProgress, setCircleProgress] = useState(getProgress(habit, date));
@@ -69,7 +76,7 @@ export default function ViewScreen ({ navigation, route }: EditProps) {
         }, [navigation, habit.name])
     );
 
-    const handleCalendarPress = (day: DateObject) => {
+    const handleCalendarPress = (day: DateObject): void => {
         const date = habit.dates[day.dateString];
         const newProgress = date && date.progress >= date.progressTotal ? 0 : habit.progressTotal;
 
@@ -80,7 +87,7 @@ export default function ViewScreen ({ navigation, route }: EditProps) {
         notificationAsync(NotificationFeedbackType.Success);
     };
 
-    const getAlphaValue = (index: number) => {
+    const getAlphaValue = (index: number): number => {
         const indexDate = moment()
             .subtract(6 - index, 'd')
             .format('YYYY-MM-DD');
@@ -98,7 +105,7 @@ export default function ViewScreen ({ navigation, route }: EditProps) {
             : 1;
     };
 
-    const getYearAlphaValue = (day: string) => {
+    const getYearAlphaValue = (day: string): string | number => {
         let value: number | string = habit.dates[day]
             ? habit.dates[day].progress >= habit.dates[day].progressTotal
                 ? 1
@@ -112,14 +119,17 @@ export default function ViewScreen ({ navigation, route }: EditProps) {
         return value;
     };
 
-    const handleDayChange = (day: ScheduleTypeValue, index: number) => {
+    const handleDayChange = (day: ScheduleTypeValue, index: number): void => {
         const dayString = moment().subtract(index, 'd').format('YYYY-MM-DD');
         setDay(day);
         setDate(dayString);
     // setProgress(habit.dates[dayString] ? habit.dates[dayString].progress : 0);
     };
 
-    const getCurrentStreak = (date: string) => {
+    const getCurrentStreak = (date: string): {
+        currentStreak: number;
+        dayPointer: string;
+    } => {
         let currentStreak = 0;
         let dayPointerIndex = 0;
         let dayPointer = moment(date)
@@ -152,7 +162,7 @@ export default function ViewScreen ({ navigation, route }: EditProps) {
         return { currentStreak, dayPointer };
     };
 
-    const getHighestStreak = () => {
+    const getHighestStreak = (): number => {
         let highestStreak = 0;
 
         if (sortedDates.length > 0) {
@@ -184,11 +194,11 @@ export default function ViewScreen ({ navigation, route }: EditProps) {
         return highestStreak;
     };
 
-    const getTotalComplete = () => {
+    const getTotalComplete = (): number => {
         return Object.keys(markedDates).filter((date) => markedDates[date].selected === true).length;
     };
 
-    const getCompletionRate = () => {
+    const getCompletionRate = (): number => {
         const startDate = moment(sortedDates[0]);
 
         const daysToDisable = getDaysToDisable(habit);
@@ -221,10 +231,6 @@ export default function ViewScreen ({ navigation, route }: EditProps) {
         return Math.round(completionRate * 10) / 10;
     };
 
-    const updateHabitAsync = (progress: number) => {
-        updateHabitDebounced(progress);
-    };
-
     const updateHabitDebounced = AwesomeDebouncePromise(
         (progress: number) =>
             updateHabit({
@@ -233,6 +239,10 @@ export default function ViewScreen ({ navigation, route }: EditProps) {
             }),
         200
     );
+
+    const updateHabitAsync = async (progress: number): Promise<void> => {
+        updateHabitDebounced(progress);
+    };
 
     // const scrollRef = useRef<ScrollView>(null);
 
@@ -469,134 +479,6 @@ export default function ViewScreen ({ navigation, route }: EditProps) {
             </TouchableOpacity>
         </ScrollView>
     );
-}
-
-// Constants
-const today = moment().format('YYYY-MM-DD');
-const yearDateArray = Array.from(Array(365)).map((value, index) =>
-    moment().subtract(364, 'd').add(index, 'd').format('YYYY-MM-DD')
-);
-const yearlyDateDimensions = (Dimensions.get('screen').width - 60) / 53 - 1;
-
-// Helper functions
-const sortDates = (allDates: string[]) => {
-    return allDates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
 };
 
-const getInitialDate = (schedule: ScheduleType): ScheduleTypeValue => {
-    for (let i = displayDays.length - 1; i >= 0; i--) {
-        if (schedule[displayDays[i] as ScheduleTypeValue]) {
-            return displayDays[i] as ScheduleTypeValue;
-        }
-    }
-
-    return displayDays[0] as ScheduleTypeValue;
-};
-
-const getDaysToDisable = (habit: IHabit) => {
-    const unselectedDays: number[] = [];
-    Object.keys(habit.schedule).filter((schedule, index) => {
-        if (!habit.schedule[schedule as ScheduleTypeValue]) {
-            unselectedDays.push((index + 1) % 7);
-        }
-    });
-    return unselectedDays;
-};
-
-const getMarkedDates = (habit: IHabit, month: string, allDates: string[]) => {
-    const getDisabledDates = () => {
-        const disabledDates: any = {};
-
-        const start = moment(month).clone().startOf('month').subtract(1, 'month');
-        const end = moment(month).clone().endOf('month').add(1, 'month');
-        const daysToDisable = getDaysToDisable(habit);
-
-        if (daysToDisable.length >= 0) {
-            for (let m = moment(start); m.diff(end, 'days') <= 0; m.add(1, 'days')) {
-                if (daysToDisable.includes(m.day())) {
-                    const day = m.format('YYYY-MM-DD');
-
-                    disabledDates[day] = {
-                        ...markedDates[day],
-                        disabled: true
-                    };
-                }
-            }
-        }
-
-        return disabledDates;
-    };
-
-    let markedDates = Object.assign(
-        {},
-        ...allDates
-            .filter((date) => habit.dates[date] && habit.dates[date].progress >= habit.dates[date].progressTotal)
-            .map((date) => ({
-                [date]: { selected: true, customStyles: { container: { borderRadius: 10 } } }
-            }))
-    );
-    markedDates[today] = { ...markedDates[today], marked: true };
-    markedDates = { ...markedDates, ...getDisabledDates() };
-
-    return markedDates;
-};
-
-const styles = StyleSheet.create({
-    count: {
-        alignItems: 'center',
-        borderRadius: 5,
-        height: 45,
-        justifyContent: 'center',
-        overflow: 'hidden',
-        width: 45
-    },
-    statBar: {
-        bottom: 0,
-        left: 0,
-        position: 'absolute',
-        top: 0,
-        width: 10
-    },
-    statCard: {
-        alignItems: 'center',
-        flex: 1,
-        marginRight: 0,
-        overflow: 'hidden'
-    },
-    statIconContainer: {
-        alignItems: 'center',
-        display: 'flex',
-        flexDirection: 'row',
-        padding: 5
-    },
-    statIconText: {
-        fontFamily: 'Montserrat_600SemiBold',
-        fontSize: 30,
-        paddingLeft: 15,
-        textAlign: 'center'
-    }
-
-    // paragraph: {
-    // 	margin: 24,
-    // 	fontSize: 18,
-    // 	fontWeight: 'bold',
-    // 	textAlign: 'center',
-    // },
-    // scrollView: {
-    // 	height: '20%',
-    // 	width: '80%',
-    // 	margin: 20,
-    // 	alignSelf: 'center',
-    // 	padding: 20,
-    // 	borderWidth: 5,
-    // 	borderRadius: 5,
-    // 	borderColor: 'black',
-    // 	backgroundColor: 'lightblue',
-    // },
-    // contentContainer: {
-    // 	justifyContent: 'center',
-    // 	alignItems: 'center',
-    // 	backgroundColor: 'lightgrey',
-    // 	paddingBottom: 50,
-    // },
-});
+export default ViewScreen;
