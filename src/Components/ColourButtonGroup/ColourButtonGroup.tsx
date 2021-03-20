@@ -15,10 +15,7 @@ interface GetColour {
 }
 
 const getColour = (colour: string, title: string, background: boolean, activeTitle?: string): GetColour => {
-    const style: GetColour = {
-        backgroundColor: undefined,
-        color: undefined,
-    };
+    const style: GetColour = {};
 
     if (activeTitle) {
         const backgroundColour = title === activeTitle ? colour : GreyColours.GREY2;

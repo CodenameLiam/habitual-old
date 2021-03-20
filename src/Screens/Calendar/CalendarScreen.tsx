@@ -209,7 +209,7 @@ const CalendarScreen: React.FC<CalendarProps> = ({ navigation, route }) => {
                                         style={{
 										  width: weeklyTextContainer,
 										  paddingRight: 10,
-										  // backgroundColor: 'red',
+										  backgroundColor: 'red',
 										  height: weeklyCellContainer,
 										  justifyContent: 'center'
                                         }}

@@ -24,7 +24,6 @@ export const IconModal: React.FC<IconModalProps> = ({ setIcon, closeSheet }) => 
             style={{
                 backgroundColor: colors.card,
                 padding: 16,
-
                 height: '100%',
             }}
             showsVerticalScrollIndicator={false}

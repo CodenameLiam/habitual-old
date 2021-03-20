@@ -7,7 +7,7 @@ import { useCustomFonts } from 'Controllers/FontController';
 import AppLoading from 'expo-app-loading';
 import { StatusBar } from 'react-native';
 import { GradientType } from 'Styles/Colours';
-import { randomGradient } from 'Components/ColourPicker';
+import { randomGradient } from 'Helpers';
 import { GradientContext } from 'Context/GradientContext';
 import { AppContext } from 'Context/AppContext';
 import { useHabits } from 'Controllers/HabitController';

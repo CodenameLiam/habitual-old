@@ -19,7 +19,7 @@ const SettingsScreen: React.FC<SettingsProps> = ({ theme, setTheme, toggleTheme,
     };
 
     return (
-        <View style={{ flex: 1, overflow: 'hidden', backgroundColor: '0F2028 ' }}>
+        <View style={{ flex: 1, overflow: 'hidden', backgroundColor: '#0F2028' }}>
             <View
                 style={{
 				  position: 'absolute',

@@ -24,7 +24,7 @@ import Icon from 'Components/Icon';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import ProgressCircle, { getProgress } from 'Components/ProgressCircle';
 import { styles } from './ViewScreen.styles';
-import { sortDates, getDaysToDisable, getMarkedDates, getInitialDate } from 'Helpers/DateHelpers';
+import { sortDates, getDaysToDisable, getMarkedDates, getInitialDate } from 'Helpers';
 
 export type ViewNavProps = StackNavigationProp<AppStackParamList, 'View'>;
 export type ViewRoute = RouteProp<AppStackParamList, 'View'>;

@@ -68,13 +68,6 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
     );
 
     const [isReady, setIsReady] = useState(false);
-
-    useEffect(() => {
-        InteractionManager.runAfterInteractions(() => {
-            setIsReady(true);
-        });
-    }, []);
-
     const sheetRef = React.useRef<BottomSheet>(null);
     const timeRef = React.useRef<BottomSheet>(null);
     const shadow = useRef(new Animated.Value<number>(1)).current;
@@ -208,13 +201,6 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
         count === 0 && setCount(1);
     };
 
-    useEffect(() => {
-        keyboardDidHideListener.current = Keyboard.addListener('keyboardDidHide', onKeyboardHide);
-        return () => {
-			keyboardDidHideListener.current!.remove();
-        };
-    }, [count]);
-
     const getFormattedTimeCount = (): string => {
         const h = Math.floor(count / 3600);
         const m = Math.floor((count % 3600) / 60);
@@ -224,6 +210,19 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
 
         return hString + mString;
     };
+
+    useEffect(() => {
+        keyboardDidHideListener.current = Keyboard.addListener('keyboardDidHide', onKeyboardHide);
+        return () => {
+			keyboardDidHideListener.current!.remove();
+        };
+    }, [count]);
+
+    useEffect(() => {
+        InteractionManager.runAfterInteractions(() => {
+            setIsReady(true);
+        });
+    });
 
     return (
         <React.Fragment>
@@ -349,7 +348,7 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
 									    marginLeft: 10,
 									    marginRight: 10,
 									    backgroundColor:
-												Number(count) > 1
+												count > 1
 												  ? GradientColours[localGradient].solid + 50
 												  : GreyColours.GREY2 + 50
 									  }
@@ -360,7 +359,7 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
                                             name='minus'
                                             size={24}
                                             colour={
-                                                Number(count) > 1 ? GradientColours[localGradient].solid : GreyColours.GREY2
+                                                count > 1 ? GradientColours[localGradient].solid : GreyColours.GREY2
                                             }
                                         />
                                     </TouchableOpacity>

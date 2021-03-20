@@ -42,7 +42,6 @@ export const globalStyles = StyleSheet.create({
         overflow: 'hidden',
         width: 45,
     },
-
     gradient: {
         bottom: 0,
         left: 0,

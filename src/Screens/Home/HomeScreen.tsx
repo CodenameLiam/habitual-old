@@ -12,7 +12,7 @@ import moment from 'moment';
 import DisplayDay, { dayIndex, days, displayDays } from 'Components/DisplayDay';
 import { getRandomBytes } from 'expo-random';
 import { TimerContext } from 'Context/TimerContext';
-import { getDayString } from 'Helpers/DateHelpers';
+import { getDayString } from 'Helpers';
 
 export type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
 export type HomeRoute = RouteProp<AppStackParamList, 'Tabs'>;
@@ -26,7 +26,7 @@ const HomeScreen: React.FC<HomeProps> = ({ navigation, route }) => {
 
     const { habits } = useContext(AppContext);
     const { activeTimer } = useContext(TimerContext);
-    const habitArray = habits && Object.values(habits);
+    const habitArray = habits ? Object.values(habits) : [];
     const rootNavigation: AppNavProps = navigation.dangerouslyGetParent();
 
     const [day, setDay] = useState<ScheduleTypeValue>(days[dayIndex] as ScheduleTypeValue);
@@ -68,20 +68,19 @@ const HomeScreen: React.FC<HomeProps> = ({ navigation, route }) => {
         let habitDayLength = 0;
         let habitDayCompleteLength = 0;
 
-        habits &&
-            habitArray.forEach(habit => {
-                if (habit.schedule[displayDay as ScheduleTypeValue]) {
-                    habitDayLength += 1;
+        habitArray.forEach(habit => {
+            if (habit.schedule[displayDay as ScheduleTypeValue]) {
+                habitDayLength += 1;
 
-                    const date =
-                        habit.dates[
-                            moment()
-                                .subtract(6 - index, 'd')
-                                .format('YYYY-MM-DD')
-                        ] ?? 0;
-                    if (date.progress >= date.progressTotal) habitDayCompleteLength += 1;
-                }
-            });
+                const date =
+                    habit.dates[
+                        moment()
+                            .subtract(6 - index, 'd')
+                            .format('YYYY-MM-DD')
+                    ] ?? 0;
+                if (date.progress >= date.progressTotal) habitDayCompleteLength += 1;
+            }
+        });
         return habitDayCompleteLength === 0 ? 1 : 1 - habitDayCompleteLength / habitDayLength;
     };
 
@@ -110,37 +109,36 @@ const HomeScreen: React.FC<HomeProps> = ({ navigation, route }) => {
 
             <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
                 <View style={{ flex: 1, padding: 10, paddingTop: 0 }}>
-                    {habits &&
-                        habitArray.map(habit => {
-                            if (habit.schedule[day]) {
-                                const progress = habit.dates[date]
-                                    ? habit.dates[date].progress >= habit.progressTotal
-                                        ? habit.progressTotal
-                                        : habit.dates[date].progress
-                                    : 0;
+                    {habitArray.map(habit => {
+                        if (habit.schedule[day]) {
+                            const progress = habit.dates[date]
+                                ? habit.dates[date].progress >= habit.progressTotal
+                                    ? habit.progressTotal
+                                    : habit.dates[date].progress
+                                : 0;
 
-                                return (
-                                    <Habit
-                                        key={habit.id + day + habitKey(progress)}
-                                        navigation={rootNavigation}
-                                        id={habit.id}
-                                        name={habit.name}
-                                        icon={habit.icon}
-                                        gradient={habit.gradient}
-                                        progress={progress}
-                                        progressTotal={habit.progressTotal}
-                                        type={habit.type}
-                                        schedule={habit.schedule}
-                                        date={date}
-                                        dates={habit.dates}
-                                        timerActive={habit.id === activeTimer}
-                                        // firstMount={firstMount}
-                                    />
-                                );
-                            } else {
-                                return <></>;
-                            }
-                        })}
+                            return (
+                                <Habit
+                                    key={habit.id + day + habitKey(progress)}
+                                    navigation={rootNavigation}
+                                    id={habit.id}
+                                    name={habit.name}
+                                    icon={habit.icon}
+                                    gradient={habit.gradient}
+                                    progress={progress}
+                                    progressTotal={habit.progressTotal}
+                                    type={habit.type}
+                                    schedule={habit.schedule}
+                                    date={date}
+                                    dates={habit.dates}
+                                    timerActive={habit.id === activeTimer}
+                                    // firstMount={firstMount}
+                                />
+                            );
+                        } else {
+                            return null;
+                        }
+                    })}
                 </View>
             </ScrollView>
         </View>

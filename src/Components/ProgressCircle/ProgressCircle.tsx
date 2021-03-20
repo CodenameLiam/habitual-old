@@ -253,3 +253,5 @@ const ProgressCircle: React.FC<ProgressCircleProps> = ({
         </View>
     );
 };
+
+export default ProgressCircle;
