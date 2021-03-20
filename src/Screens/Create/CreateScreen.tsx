@@ -6,6 +6,6 @@ interface CreateProps {
 	navigation: EditNavProps;
 }
 
-export default function CreateScreen({ navigation }: CreateProps) {
-	return <HabitEdtor navigation={navigation} />;
+export default function CreateScreen ({ navigation }: CreateProps) {
+    return <HabitEdtor navigation={navigation} />;
 }

@@ -13,33 +13,33 @@ interface HabitIdeas {
 // type HabitIdeaType = "WATER"
 
 const Habits: HabitIdeas = {
-	WATER: {
-		id: 'temp',
-		name: 'Drink Water',
-		progressTotal: 3,
-		icon: {
-			family: 'feather',
-			name: 'sun',
-		},
-		gradient: 'BLUE',
-		type: 'count',
-		schedule: EVERYDAY_SCHEDULE,
-		dates: {},
-	},
+    WATER: {
+        id: 'temp',
+        name: 'Drink Water',
+        progressTotal: 3,
+        icon: {
+            family: 'feather',
+            name: 'sun'
+        },
+        gradient: 'BLUE',
+        type: 'count',
+        schedule: EVERYDAY_SCHEDULE,
+        dates: {}
+    }
 };
 
-export default function IdeaScreen() {
-	const { createHabit } = useContext(AppContext);
+export default function IdeaScreen () {
+    const { createHabit } = useContext(AppContext);
 
-	const handleCreate = () => {
-		const habit: IHabit = { ...Habits['WATER'], id: getRandomBytes(8).join('') };
-		createHabit(habit);
-	};
-	return (
-		<View>
-			<TouchableOpacity onPress={handleCreate}>
-				<Text>Idea Drink Water</Text>
-			</TouchableOpacity>
-		</View>
-	);
+    const handleCreate = () => {
+        const habit: IHabit = { ...Habits.WATER, id: getRandomBytes(8).join('') };
+        createHabit(habit);
+    };
+    return (
+        <View>
+            <TouchableOpacity onPress={handleCreate}>
+                <Text>Idea Drink Water</Text>
+            </TouchableOpacity>
+        </View>
+    );
 }

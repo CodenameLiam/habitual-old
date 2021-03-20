@@ -26,279 +26,279 @@ interface CalendarProps {
 
 type dateRange = 'Weekly' | 'Monthly' | 'Yearly';
 
-export default function CalendarScreen({ navigation, route }: CalendarProps) {
-	const { colors } = useTheme();
-	const { habits, updateHabit } = useContext(AppContext);
-	const { colour } = useContext(GradientContext);
+export default function CalendarScreen ({ navigation, route }: CalendarProps) {
+    const { colors } = useTheme();
+    const { habits, updateHabit } = useContext(AppContext);
+    const { colour } = useContext(GradientContext);
 
-	const [range, setRange] = useState<dateRange>('Weekly');
-	const [weekIndex, setWeekIndex] = useState<number>(0);
+    const [range, setRange] = useState<dateRange>('Weekly');
+    const [weekIndex, setWeekIndex] = useState<number>(0);
 
-	const today = moment().format('YYYY-MM-DD');
+    const today = moment().format('YYYY-MM-DD');
 
-	// useFocusEffect(
-	// 	useCallback(() => {
-	// 		const stackNavigator = navigation.dangerouslyGetParent();
-	// 		if (stackNavigator) {
-	// 			stackNavigator.setOptions({
-	// 				title: range,
-	// 			});
-	// 		}
-	// 	}, [navigation, range])
-	// );
+    // useFocusEffect(
+    // 	useCallback(() => {
+    // 		const stackNavigator = navigation.dangerouslyGetParent();
+    // 		if (stackNavigator) {
+    // 			stackNavigator.setOptions({
+    // 				title: range,
+    // 			});
+    // 		}
+    // 	}, [navigation, range])
+    // );
 
-	const renderWeeklyHabits = () => {
-		const weeklyCellContainer = Dimensions.get('screen').width / 13.5;
-		const weeklyTextContainer = Dimensions.get('screen').width - weeklyCellContainer * 9.5;
+    const renderWeeklyHabits = () => {
+        const weeklyCellContainer = Dimensions.get('screen').width / 13.5;
+        const weeklyTextContainer = Dimensions.get('screen').width - weeklyCellContainer * 9.5;
 
-		const weekStart = moment().subtract(weekIndex, 'w').startOf('w').add(1, 'd');
-		const weekEnd = moment()
-			.subtract(weekIndex - 1, 'w')
-			.startOf('w');
+        const weekStart = moment().subtract(weekIndex, 'w').startOf('w').add(1, 'd');
+        const weekEnd = moment()
+            .subtract(weekIndex - 1, 'w')
+            .startOf('w');
 
-		const styles = StyleSheet.create({
-			dayContainer: {
-				height: weeklyCellContainer,
-				width: weeklyCellContainer,
-				margin: 3,
-				backgroundColor: colors.card,
-				borderRadius: 10,
-				justifyContent: 'center',
-				alignItems: 'center',
-			},
-			dayTitle: {
-				color: colors.text,
-				fontFamily: 'Montserrat_700Bold',
-				fontSize: 16,
-			},
-			weekTitle: {
-				color: colors.text,
-				fontFamily: 'Montserrat_700Bold',
-				fontSize: 18,
-				width: '60%',
-				textAlign: 'center',
-			},
-			arrow: {
-				width: 25,
-				height: 25,
-				borderRadius: 5,
-				marginRight: 10,
-				marginLeft: 10,
-				justifyContent: 'center',
-				alignItems: 'center',
-			},
-		});
+        const styles = StyleSheet.create({
+            arrow: {
+                alignItems: 'center',
+                borderRadius: 5,
+                height: 25,
+                justifyContent: 'center',
+                marginLeft: 10,
+                marginRight: 10,
+                width: 25
+            },
+            dayContainer: {
+                alignItems: 'center',
+                backgroundColor: colors.card,
+                borderRadius: 10,
+                height: weeklyCellContainer,
+                justifyContent: 'center',
+                margin: 3,
+                width: weeklyCellContainer
+            },
+            dayTitle: {
+                color: colors.text,
+                fontFamily: 'Montserrat_700Bold',
+                fontSize: 16
+            },
+            weekTitle: {
+                color: colors.text,
+                fontFamily: 'Montserrat_700Bold',
+                fontSize: 18,
+                textAlign: 'center',
+                width: '60%'
+            }
+        });
 
-		const getBackgroundColour = (habit: IHabit, index: number) => {
-			const weekStart = moment().subtract(weekIndex, 'w').startOf('w').add(1, 'd');
-			const date = weekStart.add(index, 'd').format('YYYY-MM-DD');
+        const getBackgroundColour = (habit: IHabit, index: number) => {
+            const weekStart = moment().subtract(weekIndex, 'w').startOf('w').add(1, 'd');
+            const date = weekStart.add(index, 'd').format('YYYY-MM-DD');
 
-			if (habit.dates[date] && habit.dates[date].progress > 0) {
-				let progress: number | string = habit.dates[date].progress / habit.dates[date].progressTotal;
-				progress = (Math.round(progress * 10) / 10) * 100;
-				if (progress <= 10) progress = 20;
-				if (progress >= 100) progress = '';
+            if (habit.dates[date] && habit.dates[date].progress > 0) {
+                let progress: number | string = habit.dates[date].progress / habit.dates[date].progressTotal;
+                progress = (Math.round(progress * 10) / 10) * 100;
+                if (progress <= 10) progress = 20;
+                if (progress >= 100) progress = '';
 
-				return GradientColours[habit.gradient].solid + progress;
-			}
+                return GradientColours[habit.gradient].solid + progress;
+            }
 
-			return colors.card;
-		};
+            return colors.card;
+        };
 
-		const handlePress = (habit: IHabit, index: number) => {
-			const weekStart = moment().subtract(weekIndex, 'w').startOf('w').add(1, 'd');
-			let date = weekStart.clone().add(index, 'd');
+        const handlePress = (habit: IHabit, index: number) => {
+            const weekStart = moment().subtract(weekIndex, 'w').startOf('w').add(1, 'd');
+            const date = weekStart.clone().add(index, 'd');
 
-			const dateString = date.format('YYYY-MM-DD');
+            const dateString = date.format('YYYY-MM-DD');
 
-			const newProgress =
+            const newProgress =
 				habit.dates[dateString] && habit.dates[dateString].progress >= habit.dates[dateString].progressTotal
-					? 0
-					: habit.progressTotal;
+				  ? 0
+				  : habit.progressTotal;
 
-			updateHabit({
-				...habit,
-				dates: mergeDates(habit.dates, dateString, newProgress, habit.progressTotal),
-			});
-			notificationAsync(NotificationFeedbackType.Success);
-		};
+            updateHabit({
+                ...habit,
+                dates: mergeDates(habit.dates, dateString, newProgress, habit.progressTotal)
+            });
+            notificationAsync(NotificationFeedbackType.Success);
+        };
 
-		const renderDisabledIcon = (habit: IHabit, day: string, scheduleValue: ScheduleTypeValue) => {
-			if (habit.dates[day] && habit.dates[day].progress > 0) return false;
-			if (!habit.schedule[scheduleValue]) return true;
-			return false;
-		};
+        const renderDisabledIcon = (habit: IHabit, day: string, scheduleValue: ScheduleTypeValue) => {
+            if (habit.dates[day] && habit.dates[day].progress > 0) return false;
+            if (!habit.schedule[scheduleValue]) return true;
+            return false;
+        };
 
-		return (
-			<View style={{ alignItems: 'center' }}>
-				<View
-					style={{
-						display: 'flex',
-						flexDirection: 'row',
-						marginBottom: 15,
-						alignItems: 'center',
-					}}
-				>
-					<TouchableOpacity
-						onPress={() => setWeekIndex(weekIndex + 1)}
-						style={[
-							styles.arrow,
-							{
-								backgroundColor: GradientColours[colour].solid + 50,
-							},
-						]}
-					>
-						<Icon
-							family='fontawesome5'
-							name='angle-left'
-							size={20}
-							colour={GradientColours[colour].solid}
-						/>
-					</TouchableOpacity>
-					<Text style={styles.weekTitle}>
-						{weekStart.format('MMM Do')} - {weekEnd.format('MMM Do, YYYY')}{' '}
-					</Text>
-					<TouchableOpacity
-						onPress={() => setWeekIndex(weekIndex - 1)}
-						style={[
-							styles.arrow,
-							{
-								backgroundColor: GradientColours[colour].solid + 50,
-							},
-						]}
-					>
-						<Icon
-							family='fontawesome5'
-							name='angle-right'
-							size={20}
-							colour={GradientColours[colour].solid}
-						/>
-					</TouchableOpacity>
-				</View>
-				<View
-					style={{
-						display: 'flex',
-						flexDirection: 'row',
-						marginLeft: weeklyTextContainer,
-					}}
-				>
-					{Object.keys(DEFAULT_SCHEDULE).map((day) => (
-						<View key={day} style={styles.dayContainer}>
-							<Text style={styles.dayTitle}>{day[0]}</Text>
-						</View>
-					))}
-				</View>
-				<ScrollView
-					showsVerticalScrollIndicator={false}
-					// contentContainerStyle={{ flexGrow: 1 }}
-				>
-					<View style={{ paddingBottom: 350 }}>
-						{Object.keys(habits).map((id) => {
-							const habit = habits[id];
-							return (
-								<View
-									key={id}
-									style={{
-										display: 'flex',
-										flexDirection: 'row',
-										alignItems: 'center',
-									}}
-								>
-									<TouchableOpacity
-										onPress={() => navigation.navigate('View', { id: id })}
-										style={{
-											width: weeklyTextContainer,
-											paddingRight: 10,
-											// backgroundColor: 'red',
-											height: weeklyCellContainer,
-											justifyContent: 'center',
-										}}
-									>
-										<TextTicker
-											scroll={false}
-											animationType='bounce'
-											duration={5000}
-											bounceDelay={1500}
-											marqueeDelay={1000}
-											bouncePadding={{ left: 0, right: 0 }}
-											style={[styles.dayTitle]}
-										>
-											{habit.name}
-										</TextTicker>
-									</TouchableOpacity>
+        return (
+            <View style={{ alignItems: 'center' }}>
+                <View
+                    style={{
+					  display: 'flex',
+					  flexDirection: 'row',
+					  marginBottom: 15,
+					  alignItems: 'center'
+                    }}
+                >
+                    <TouchableOpacity
+                        onPress={() => setWeekIndex(weekIndex + 1)}
+                        style={[
+						  styles.arrow,
+						  {
+						    backgroundColor: GradientColours[colour].solid + 50
+						  }
+                        ]}
+                    >
+                        <Icon
+                            family='fontawesome5'
+                            name='angle-left'
+                            size={20}
+                            colour={GradientColours[colour].solid}
+                        />
+                    </TouchableOpacity>
+                    <Text style={styles.weekTitle}>
+                        {weekStart.format('MMM Do')} - {weekEnd.format('MMM Do, YYYY')}{' '}
+                    </Text>
+                    <TouchableOpacity
+                        onPress={() => setWeekIndex(weekIndex - 1)}
+                        style={[
+						  styles.arrow,
+						  {
+						    backgroundColor: GradientColours[colour].solid + 50
+						  }
+                        ]}
+                    >
+                        <Icon
+                            family='fontawesome5'
+                            name='angle-right'
+                            size={20}
+                            colour={GradientColours[colour].solid}
+                        />
+                    </TouchableOpacity>
+                </View>
+                <View
+                    style={{
+					  display: 'flex',
+					  flexDirection: 'row',
+					  marginLeft: weeklyTextContainer
+                    }}
+                >
+                    {Object.keys(DEFAULT_SCHEDULE).map((day) => (
+                        <View key={day} style={styles.dayContainer}>
+                            <Text style={styles.dayTitle}>{day[0]}</Text>
+                        </View>
+                    ))}
+                </View>
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    // contentContainerStyle={{ flexGrow: 1 }}
+                >
+                    <View style={{ paddingBottom: 350 }}>
+                        {Object.keys(habits).map((id) => {
+						  const habit = habits[id];
+						  return (
+                                <View
+                                    key={id}
+                                    style={{
+									  display: 'flex',
+									  flexDirection: 'row',
+									  alignItems: 'center'
+                                    }}
+                                >
+                                    <TouchableOpacity
+                                        onPress={() => navigation.navigate('View', { id: id })}
+                                        style={{
+										  width: weeklyTextContainer,
+										  paddingRight: 10,
+										  // backgroundColor: 'red',
+										  height: weeklyCellContainer,
+										  justifyContent: 'center'
+                                        }}
+                                    >
+                                        <TextTicker
+                                            scroll={false}
+                                            animationType='bounce'
+                                            duration={5000}
+                                            bounceDelay={1500}
+                                            marqueeDelay={1000}
+                                            bouncePadding={{ left: 0, right: 0 }}
+                                            style={[styles.dayTitle]}
+                                        >
+                                            {habit.name}
+                                        </TextTicker>
+                                    </TouchableOpacity>
 
-									{Object.keys(DEFAULT_SCHEDULE).map((day, index) => {
-										const schedule = Object.keys(DEFAULT_SCHEDULE);
-										const scheduleValue = schedule[index] as ScheduleTypeValue;
-										const date = weekEnd
-											.clone()
-											.subtract(6 - index, 'd')
-											.format('YYYY-MM-DD');
+                                    {Object.keys(DEFAULT_SCHEDULE).map((day, index) => {
+									  const schedule = Object.keys(DEFAULT_SCHEDULE);
+									  const scheduleValue = schedule[index] as ScheduleTypeValue;
+									  const date = weekEnd
+									    .clone()
+									    .subtract(6 - index, 'd')
+									    .format('YYYY-MM-DD');
 
-										const isDisabled = weekStart.clone().add(index, 'd').isAfter(moment());
+									  const isDisabled = weekStart.clone().add(index, 'd').isAfter(moment());
 
-										return (
-											<TouchableOpacity
-												key={day}
-												disabled={isDisabled}
-												onPress={() => handlePress(habit, index)}
-												style={[
-													styles.dayContainer,
-													{
-														backgroundColor: getBackgroundColour(habit, index),
-													},
-												]}
-											>
-												{renderDisabledIcon(habit, date, scheduleValue) && (
-													<Icon
-														family='fontawesome'
-														name='ban'
-														size={20}
-														colour={GreyColours.GREY2}
-													/>
-												)}
-											</TouchableOpacity>
-										);
-									})}
-								</View>
-							);
-						})}
-					</View>
-				</ScrollView>
-			</View>
-		);
-	};
+									  return (
+                                            <TouchableOpacity
+                                                key={day}
+                                                disabled={isDisabled}
+                                                onPress={() => handlePress(habit, index)}
+                                                style={[
+												  styles.dayContainer,
+												  {
+												    backgroundColor: getBackgroundColour(habit, index)
+												  }
+                                                ]}
+                                            >
+                                                {renderDisabledIcon(habit, date, scheduleValue) && (
+                                                    <Icon
+                                                        family='fontawesome'
+                                                        name='ban'
+                                                        size={20}
+                                                        colour={GreyColours.GREY2}
+                                                    />
+                                                )}
+                                            </TouchableOpacity>
+									  );
+                                    })}
+                                </View>
+						  );
+                        })}
+                    </View>
+                </ScrollView>
+            </View>
+        );
+    };
 
-	const renderSwitch = () => {
-		const switchFunctions = [() => setRange('Weekly'), () => setRange('Monthly'), () => setRange('Yearly')];
-		return (
-			<View style={{ padding: 20, marginBottom: 10 }}>
-				<ColourButtonGroup
-					buttons={['Weekly', 'Monthly', 'Yearly']}
-					buttonFunctions={switchFunctions}
-					colour={GradientColours[colour].solid}
-					activeTitle={range}
-				/>
-			</View>
-		);
-	};
+    const renderSwitch = () => {
+        const switchFunctions = [() => setRange('Weekly'), () => setRange('Monthly'), () => setRange('Yearly')];
+        return (
+            <View style={{ padding: 20, marginBottom: 10 }}>
+                <ColourButtonGroup
+                    buttons={['Weekly', 'Monthly', 'Yearly']}
+                    buttonFunctions={switchFunctions}
+                    colour={GradientColours[colour].solid}
+                    activeTitle={range}
+                />
+            </View>
+        );
+    };
 
-	const renderView = () => {
-		switch (range) {
-			case 'Weekly':
-				return renderWeeklyHabits();
-			default:
-				return <View></View>;
-		}
-	};
+    const renderView = () => {
+        switch (range) {
+            case 'Weekly':
+                return renderWeeklyHabits();
+            default:
+                return <View></View>;
+        }
+    };
 
-	return (
-		// <ScrollView showsVerticalScrollIndicator={false}>
-		<View>
-			{renderSwitch()}
-			{renderView()}
+    return (
+    // <ScrollView showsVerticalScrollIndicator={false}>
+        <View>
+            {renderSwitch()}
+            {renderView()}
 
-			{/* {Object.keys(habits).map((id) => {
+            {/* {Object.keys(habits).map((id) => {
 				const habit = habits[id];
 				return (
 					<CalendarList
@@ -329,11 +329,11 @@ export default function CalendarScreen({ navigation, route }: CalendarProps) {
 				);
 			})} */}
 
-			{/* <Text>Calendar</Text>
+            {/* <Text>Calendar</Text>
 			<Text>Looking at {habit}</Text> */}
-			{/* <Button title='Habit 1' onPress={() => setHabit('Habit 1')} />
+            {/* <Button title='Habit 1' onPress={() => setHabit('Habit 1')} />
 			<Button title='All' onPress={() => setHabit('All')} /> */}
-		</View>
-		// </ScrollView>
-	);
+        </View>
+    // </ScrollView>
+    );
 }

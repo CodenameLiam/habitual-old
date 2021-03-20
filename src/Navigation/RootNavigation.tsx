@@ -19,25 +19,25 @@ interface RootNavigationProps {
 	setColour: (colour: GradientType) => void;
 }
 
-export default function RootNavigation({
-	theme,
-	setTheme,
-	toggleTheme,
-	setColour,
+export default function RootNavigation ({
+    theme,
+    setTheme,
+    toggleTheme,
+    setColour
 }: RootNavigationProps) {
-	return (
-		<Drawer.Navigator
-			drawerType='slide'
-			overlayColor={'none'}
-			drawerContent={() => (
-				<SettingsSreen
-					theme={theme}
-					setTheme={setTheme}
-					toggleTheme={toggleTheme}
-					setColour={setColour}
-				/>
-			)}>
-			<Drawer.Screen name='App' component={AppNavigation} />
-		</Drawer.Navigator>
-	);
+    return (
+        <Drawer.Navigator
+            drawerType='slide'
+            overlayColor={'none'}
+            drawerContent={() => (
+                <SettingsSreen
+                    theme={theme}
+                    setTheme={setTheme}
+                    toggleTheme={toggleTheme}
+                    setColour={setColour}
+                />
+            )}>
+            <Drawer.Screen name='App' component={AppNavigation} />
+        </Drawer.Navigator>
+    );
 }

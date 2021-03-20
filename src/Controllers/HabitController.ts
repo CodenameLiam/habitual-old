@@ -8,7 +8,7 @@ import { getData, storeData } from './StorageController';
 const HABITS_KEY = '@Habits';
 
 const getAllHabits = async () => {
-	return await getData(HABITS_KEY);
+    return await getData(HABITS_KEY);
 };
 
 export interface IHabit {
@@ -36,51 +36,51 @@ export interface IHabitRecord {
 }
 
 export const useHabits = () => {
-	const [habits, setHabits] = useState<IHabitRecord>({});
+    const [habits, setHabits] = useState<IHabitRecord>({});
 
-	useEffect(() => {
-		parseHabits();
-	}, []);
+    const parseHabits = async () => {
+        const allHabits = await getAllHabits();
+        allHabits && setHabits(allHabits);
+    };
 
-	const parseHabits = async () => {
-		const allHabits = await getAllHabits();
-		allHabits && setHabits(allHabits);
-	};
+    const createHabit = async (habit: IHabit) => {
+        const newHabits = { ...habits };
+        newHabits[habit.id] = habit;
 
-	const createHabit = async (habit: IHabit) => {
-		let newHabits = { ...habits };
-		newHabits[habit.id] = habit;
+        setHabits(newHabits);
+        storeData(HABITS_KEY, newHabits);
+    };
 
-		setHabits(newHabits);
-		storeData(HABITS_KEY, newHabits);
-	};
+    const updateHabit = async (habit: IHabit) => {
+        const newHabits = { ...habits };
+        newHabits[habit.id] = habit;
 
-	const updateHabit = async (habit: IHabit) => {
-		let newHabits = { ...habits };
-		newHabits[habit.id] = habit;
+        setHabits(newHabits);
+        storeData(HABITS_KEY, newHabits);
+    };
 
-		setHabits(newHabits);
-		storeData(HABITS_KEY, newHabits);
-	};
+    const deleteHabit = async (id: string) => {
+        const newHabits = { ...habits };
+        delete newHabits[id];
 
-	const deleteHabit = async (id: string) => {
-		let newHabits = { ...habits };
-		delete newHabits[id];
+        setHabits(newHabits);
+        storeData(HABITS_KEY, newHabits);
+    };
 
-		setHabits(newHabits);
-		storeData(HABITS_KEY, newHabits);
-	};
+    useEffect(() => {
+        parseHabits();
+    }, []);
 
-	return { habits, setHabits, createHabit, updateHabit, deleteHabit };
+    return { habits, setHabits, createHabit, updateHabit, deleteHabit };
 };
 
 export const mergeDates = (
-	dates: IHabitDate,
-	date: string,
-	progress: number,
-	progressTotal: number
+    dates: IHabitDate,
+    date: string,
+    progress: number,
+    progressTotal: number
 ) => {
-	let newDates = { ...dates };
-	newDates[date] = { progress: progress, progressTotal: progressTotal };
-	return newDates;
+    const newDates = { ...dates };
+    newDates[date] = { progress: progress, progressTotal: progressTotal };
+    return newDates;
 };

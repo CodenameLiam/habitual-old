@@ -9,10 +9,10 @@ interface IGradientContext {
 }
 
 const DEFAULT_VALUE: IGradientContext = {
-	gradient: 'RED',
-	setGradient: () => {},
-	colour: 'RED',
-	setColour: async () => {},
+    gradient: 'RED',
+    setGradient: () => {},
+    colour: 'RED',
+    setColour: async () => {}
 };
 
 export const GradientContext = createContext<IGradientContext>(DEFAULT_VALUE);

@@ -10,11 +10,11 @@ interface IAppContext {
 }
 
 const DEFAULT_VALUE = {
-	habits: {},
-	setHabits: () => {},
-	createHabit: async () => {},
-	updateHabit: async () => {},
-	deleteHabit: async () => {},
+    habits: {},
+    setHabits: () => {},
+    createHabit: async () => {},
+    updateHabit: async () => {},
+    deleteHabit: async () => {}
 };
 
 export const AppContext = createContext<IAppContext>(DEFAULT_VALUE);

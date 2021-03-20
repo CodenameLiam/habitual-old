@@ -6,8 +6,8 @@ interface ITimerContext {
 }
 
 const DEFAULT_VALUE: ITimerContext = {
-	activeTimer: undefined,
-	setActiveTimer: () => {},
+    activeTimer: undefined,
+    setActiveTimer: () => {}
 };
 
 export const TimerContext = createContext<ITimerContext>(DEFAULT_VALUE);

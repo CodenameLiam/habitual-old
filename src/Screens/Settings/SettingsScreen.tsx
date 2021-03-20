@@ -14,35 +14,35 @@ interface SettingsProps {
 	setColour: (colour: GradientType) => void;
 }
 
-export default function SettingsScreen({ theme, setTheme, toggleTheme, setColour }: SettingsProps) {
-	const toggleThemeSwitch = () => {
-		setTheme(toggleTheme(theme));
-	};
+export default function SettingsScreen ({ theme, setTheme, toggleTheme, setColour }: SettingsProps) {
+    const toggleThemeSwitch = () => {
+        setTheme(toggleTheme(theme));
+    };
 
-	return (
-		<View style={{ flex: 1, overflow: 'hidden', backgroundColor: '0F2028 ' }}>
-			<View
-				style={{
-					position: 'absolute',
-					top: 0,
-					right: 0,
-					height: '100%',
-					width: 15,
-					marginRight: -15,
-					backgroundColor: 'rgb(48, 47, 60)',
-					alignSelf: 'center',
-					shadowColor: 'black',
+    return (
+        <View style={{ flex: 1, overflow: 'hidden', backgroundColor: '0F2028 ' }}>
+            <View
+                style={{
+				  position: 'absolute',
+				  top: 0,
+				  right: 0,
+				  height: '100%',
+				  width: 15,
+				  marginRight: -15,
+				  backgroundColor: 'rgb(48, 47, 60)',
+				  alignSelf: 'center',
+				  shadowColor: 'black',
 
-					shadowRadius: 15,
-					shadowOpacity: 0.3,
-				}}
-			/>
+				  shadowRadius: 15,
+				  shadowOpacity: 0.3
+                }}
+            />
 
-			<SafeAreaView style={{ flex: 1 }}>
-				<Text>Test</Text>
-				<Switch value={theme == 'light' ? false : true} onValueChange={toggleThemeSwitch} />
-				<ColourPicker updateGradient={(gradient) => setColour(gradient)} />
-			</SafeAreaView>
-		</View>
-	);
+            <SafeAreaView style={{ flex: 1 }}>
+                <Text>Test</Text>
+                <Switch value={theme != 'light'} onValueChange={toggleThemeSwitch} />
+                <ColourPicker updateGradient={(gradient) => setColour(gradient)} />
+            </SafeAreaView>
+        </View>
+    );
 }

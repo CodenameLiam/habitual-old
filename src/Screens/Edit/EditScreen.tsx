@@ -13,9 +13,9 @@ interface EditProps {
 	route: EditRoute;
 }
 
-export default function EditScreen({ navigation, route }: EditProps) {
-	const { habits } = useContext(AppContext);
-	const { id } = route.params;
+export default function EditScreen ({ navigation, route }: EditProps) {
+    const { habits } = useContext(AppContext);
+    const { id } = route.params;
 
-	return <HabitEdtor navigation={navigation} habit={habits[id]} />;
+    return <HabitEdtor navigation={navigation} habit={habits[id]} />;
 }

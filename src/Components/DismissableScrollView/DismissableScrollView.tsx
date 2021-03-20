@@ -11,27 +11,27 @@ interface DismissableScrollViewProps {
 }
 
 const DismissableScrollView = ({ children, scrollProps }: DismissableScrollViewProps) => {
-	const [scrolledTop, setScrolledTop] = useState(true);
-	const onScroll = useCallback(({ nativeEvent }) => {
-		const scrolledTop = nativeEvent.contentOffset.y <= 0;
-		setScrolledTop(scrolledTop);
-	}, []);
+    const [scrolledTop, setScrolledTop] = useState(true);
+    const onScroll = useCallback(({ nativeEvent }) => {
+        const scrolledTop = nativeEvent.contentOffset.y <= 0;
+        setScrolledTop(scrolledTop);
+    }, []);
 
-	return (
-		<GestureHandlerRefContext.Consumer>
-			{(ref) => (
-				<ScrollView
-					waitFor={scrolledTop ? ref : undefined}
-					onScroll={onScroll}
-					scrollEventThrottle={16}
-					showsVerticalScrollIndicator={false}
-					{...scrollProps}
-				>
-					{children}
-				</ScrollView>
-			)}
-		</GestureHandlerRefContext.Consumer>
-	);
+    return (
+        <GestureHandlerRefContext.Consumer>
+            {(ref) => (
+                <ScrollView
+                    waitFor={scrolledTop ? ref : undefined}
+                    onScroll={onScroll}
+                    scrollEventThrottle={16}
+                    showsVerticalScrollIndicator={false}
+                    {...scrollProps}
+                >
+                    {children}
+                </ScrollView>
+            )}
+        </GestureHandlerRefContext.Consumer>
+    );
 };
 
 export default DismissableScrollView;
