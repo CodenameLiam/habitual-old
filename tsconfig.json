@@ -7,6 +7,16 @@
     "noEmit": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "strict": true
+    "strict": true,
+    "baseUrl": "./src",
+    /* Make imports more concise by importing from @FolderName */
+    "paths": {
+      "@Components": ["./src/Components"],
+      "@Context": ["./src/Context"],
+      "@Navigation": ["./src/Navigation"],
+      "@Screens": ["./src/Screens"],
+      "@Controllers": ["src/Controllers"],
+      "@Styles": ["./src/Styles"],
+    }
   }
 }
