@@ -7,47 +7,50 @@ import { useCustomFonts } from 'Controllers/FontController';
 import AppLoading from 'expo-app-loading';
 import { StatusBar } from 'react-native';
 import { GradientType } from 'Styles/Colours';
-import { randomGradient } from 'Components/ColourPicker';
-import { GradientContext } from 'Context/GradientContext';
 import { AppContext } from 'Context/AppContext';
 import { useHabits } from 'Controllers/HabitController';
 import { TimerContext } from 'Context/TimerContext';
+import { ThemeProvider } from '@emotion/react';
 
 export default function App() {
-	const { fontsLoaded } = useCustomFonts();
-	const { theme, setTheme, toggleTheme, colour, setColour } = useCustomTheme();
+    const { fontsLoaded } = useCustomFonts();
+    const { theme, setTheme, toggleTheme, colour, setColour } = useCustomTheme();
 
-	const [gradient, setGradient] = useState<GradientType>(randomGradient());
-	const gradientValue = { gradient, setGradient, colour, setColour };
+    const [activeTimer, setActiveTimer] = useState<string | undefined>();
+    const timerValue = { activeTimer, setActiveTimer };
 
-	const [activeTimer, setActiveTimer] = useState<string | undefined>();
-	const timerValue = { activeTimer, setActiveTimer };
+    const { habits, createHabit, updateHabit, deleteHabit } = useHabits();
+    const appValue = {
+        habits,
+        createHabit,
+        updateHabit,
+        deleteHabit,
+        colour,
+        setColour,
+    };
 
-	const { habits, setHabits, createHabit, updateHabit, deleteHabit } = useHabits();
-	const appValue = { habits, setHabits, createHabit, updateHabit, deleteHabit };
+    if (!theme || !colour || !fontsLoaded) return <AppLoading />;
 
-	if (!theme || !colour || !fontsLoaded) return <AppLoading />;
-
-	return (
-		<AppearanceProvider>
-			<AppContext.Provider value={appValue}>
-				<TimerContext.Provider value={timerValue}>
-					<GradientContext.Provider value={gradientValue}>
-						<NavigationContainer
-							theme={theme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
-							<StatusBar
-								barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
-							/>
-							<RootNavigation
-								theme={theme}
-								setTheme={setTheme}
-								toggleTheme={toggleTheme}
-								setColour={setColour}
-							/>
-						</NavigationContainer>
-					</GradientContext.Provider>
-				</TimerContext.Provider>
-			</AppContext.Provider>
-		</AppearanceProvider>
-	);
+    return (
+        <AppearanceProvider>
+            <ThemeProvider theme={theme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
+                <AppContext.Provider value={appValue}>
+                    <TimerContext.Provider value={timerValue}>
+                        <NavigationContainer
+                            theme={theme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
+                            <StatusBar
+                                barStyle={theme === 'dark' ? 'light-content' : 'dark-content'}
+                            />
+                            <RootNavigation
+                                theme={theme}
+                                setTheme={setTheme}
+                                toggleTheme={toggleTheme}
+                                setColour={setColour}
+                            />
+                        </NavigationContainer>
+                    </TimerContext.Provider>
+                </AppContext.Provider>
+            </ThemeProvider>
+        </AppearanceProvider>
+    );
 }
