@@ -7,16 +7,9 @@ import { GradientColours, GradientType } from 'Styles/Colours';
 
 interface HeaderBackgroundProps {
     colour: GradientType;
-    setColour?: React.Dispatch<React.SetStateAction<GradientType>>;
 }
 
-const HeaderBackground: React.FC<HeaderBackgroundProps> = ({ colour, setColour }) => {
-    useEffect(() => {
-        return () => {
-            setColour && setColour(getRandomColour());
-        };
-    }, []);
-
+const HeaderBackground: React.FC<HeaderBackgroundProps> = ({ colour }) => {
     return (
         <LinearGradient
             colors={[GradientColours[colour].start, GradientColours[colour].end]}
