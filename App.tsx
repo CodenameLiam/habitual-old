@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import RootNavigation from './Navigation/RootNavigation';
+import RootNavigation from 'Navigation/RootNavigation';
 import { NavigationContainer } from '@react-navigation/native';
 import { AppearanceProvider } from 'react-native-appearance';
-import { CustomDarkTheme, CustomLightTheme, useCustomTheme } from './Storage/ThemeController';
-import { useCustomFonts } from './Storage/FontController';
+import { CustomDarkTheme, CustomLightTheme, useCustomTheme } from 'Controllers/ThemeController';
+import { useCustomFonts } from 'Controllers/FontController';
 import AppLoading from 'expo-app-loading';
 import { StatusBar } from 'react-native';
-import { GradientType } from './Styles/Colours';
-import { randomGradient } from './Components/ColourPicker';
-import { GradientContext } from './Context/GradientContext';
-import { AppContext } from './Context/AppContext';
-import { useHabits } from './Storage/HabitController';
-import { TimerContext } from './Context/TimerContext';
+import { GradientType } from 'Styles/Colours';
+import { randomGradient } from 'Components/ColourPicker';
+import { GradientContext } from 'Context/GradientContext';
+import { AppContext } from 'Context/AppContext';
+import { useHabits } from 'Controllers/HabitController';
+import { TimerContext } from 'Context/TimerContext';
 
 export default function App() {
 	const { fontsLoaded } = useCustomFonts();
