@@ -11,7 +11,7 @@ interface ScheduleProps {
 	setSchedule: React.Dispatch<React.SetStateAction<ScheduleType>>;
 }
 
-export const Scheduler = ({ gradient, schedule, setSchedule }: ScheduleProps) => {
+export const Scheduler: React.FC<ScheduleProps> = ({ gradient, schedule, setSchedule }) => {
     const { colors } = useTheme();
 
     const dimensions = Dimensions.get('screen').width / 10;
@@ -44,7 +44,7 @@ export const Scheduler = ({ gradient, schedule, setSchedule }: ScheduleProps) =>
         text: { fontFamily: 'Montserrat_600SemiBold', fontSize: 16 }
     });
 
-    const handleSchedule = (day: ScheduleTypeValue) => {
+    const handleSchedule = (day: ScheduleTypeValue): void => {
         const tempSchedule = schedule;
         tempSchedule[day] = !tempSchedule[day];
         setSchedule({ ...tempSchedule });

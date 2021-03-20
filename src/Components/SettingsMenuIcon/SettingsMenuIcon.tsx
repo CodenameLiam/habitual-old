@@ -3,242 +3,242 @@ import React, { Component } from 'react';
 import { Animated, TouchableWithoutFeedback } from 'react-native';
 
 interface SettingsMenuIconProps {
-	type: string;
-	active: boolean;
-	onPress: () => void;
-	underlayColor: string;
-	color: string;
+    type: string;
+    active: boolean;
+    onPress: () => void;
+    underlayColor: string;
+    color: string;
 }
 
 /**
- * TODO: Unfuck this component
+ * TODO: Make this component work with TS after uncommenting ts-nocheck
  */
 
 export default class SettingsMenuIcon extends Component<SettingsMenuIconProps> {
-    constructor (props: any) {
+    constructor(props: any) {
         super(props);
         this.state = {
-            active: false
+            active: false,
         };
     }
 
-    spinCross () {
+    spinCross(): void {
         if (!this.state.active) {
             Animated.spring(this.containerAnim, {
                 toValue: 1,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.topBar, {
                 toValue: 0.9,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.bottomBar, {
                 toValue: 0.9,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.bottomBarMargin, {
                 toValue: -10,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.middleBarOpacity, {
                 toValue: 0,
                 duration: 30,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
         } else {
             this.setState({
-                active: false
+                active: false,
             });
             Animated.spring(this.containerAnim, {
                 toValue: 0,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.topBar, {
                 toValue: 0,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.bottomBar, {
                 toValue: 0,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.bottomBarMargin, {
                 toValue: 4,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.timing(this.middleBarOpacity, {
                 toValue: 1,
                 duration: 600,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
         }
     }
 
-    cross () {
+    cross(): void {
         if (!this.state.active) {
             Animated.spring(this.topBar, {
                 toValue: 0.9,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.bottomBar, {
                 toValue: 0.9,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.bottomBarMargin, {
                 toValue: -10,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.timing(this.middleBarOpacity, {
                 toValue: 0,
                 duration: 30,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
         } else {
             this.setState({
-                active: false
+                active: false,
             });
             Animated.spring(this.topBar, {
                 toValue: 0,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.bottomBar, {
                 toValue: 0,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.bottomBarMargin, {
                 toValue: 4,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.middleBarOpacity, {
                 toValue: 1,
                 duration: 1200,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
         }
     }
 
-    spinArrow () {
+    spinArrow(): void {
         if (!this.state.active) {
             Animated.spring(this.containerAnim, {
                 toValue: 1,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.topBar, {
                 toValue: 1,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.bottomBar, {
                 toValue: 1,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.width, {
                 toValue: 14,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.marginLeft, {
                 toValue: -13,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.bottomBarMargin, {
                 toValue: 2,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.topBarMargin, {
                 toValue: -2,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
         } else {
             Animated.spring(this.containerAnim, {
                 toValue: 0,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.topBar, {
                 toValue: 0,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.bottomBar, {
                 toValue: 0,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.width, {
                 toValue: 25,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.marginLeft, {
                 toValue: 0,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.bottomBarMargin, {
                 toValue: 4,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.topBarMargin, {
                 toValue: 0,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
         }
     }
 
-    arrow () {
+    arrow(): void {
         if (!this.state.active) {
             Animated.spring(this.topBar, {
                 toValue: 1,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.bottomBar, {
                 toValue: 1,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.width, {
                 toValue: 14,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.marginLeft, {
                 toValue: -13,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.bottomBarMargin, {
                 toValue: 2,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.topBarMargin, {
                 toValue: -2,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
         } else {
             this.setState({
-                active: false
+                active: false,
             });
             Animated.spring(this.topBar, {
                 toValue: 0,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.bottomBar, {
                 toValue: 0,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.width, {
                 toValue: 25,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.marginLeft, {
                 toValue: 0,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.bottomBarMargin, {
                 toValue: 4,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
             Animated.spring(this.topBarMargin, {
                 toValue: 0,
-                useNativeDriver: false
+                useNativeDriver: false,
             }).start();
         }
     }
 
-    _animate (active: any) {
+    _animate(active: any): void {
         this.setState({ active });
         const {
-            props: { type }
+            props: { type },
         } = this;
 
         switch (type) {
@@ -257,27 +257,27 @@ export default class SettingsMenuIcon extends Component<SettingsMenuIconProps> {
         }
     }
 
-    UNSAFE_componentWillReceiveProps (nextProps: { active: any }) {
+    UNSAFE_componentWillReceiveProps(nextProps: { active: any }): void {
         if (nextProps.active !== this.state.active) {
             this._animate(nextProps.active);
         }
     }
 
-    componentDidMount () {
+    componentDidMount(): void {
         setTimeout(() => {
             this.setState({
-                active: this.props.active
+                active: this.props.active,
             });
         }, 0);
     }
 
-    render () {
+    render(): JSX.Element {
         const {
-            props: { color, type }
+            props: { color, type },
         } = this;
 
         if (this.props.active) {
-            if (type == 'spinArrow') {
+            if (type === 'spinArrow') {
                 this.containerAnim = this.containerAnim || new Animated.Value(1);
                 this.topBar = this.topBar || new Animated.Value(1);
                 this.bottomBar = this.bottomBar || new Animated.Value(1);
@@ -285,14 +285,14 @@ export default class SettingsMenuIcon extends Component<SettingsMenuIconProps> {
                 this.marginLeft = this.marginLeft || new Animated.Value(-13);
                 this.bottomBarMargin = this.bottomBarMargin || new Animated.Value(2);
                 this.topBarMargin = this.topBarMargin || new Animated.Value(-2);
-            } else if (type == 'arrow') {
+            } else if (type === 'arrow') {
                 this.topBar = this.topBar || new Animated.Value(1);
                 this.bottomBar = this.bottomBar || new Animated.Value(1);
                 this.width = this.width || new Animated.Value(14);
                 this.marginLeft = this.marginLeft || new Animated.Value(-13);
                 this.bottomBarMargin = this.bottomBarMargin || new Animated.Value(2);
                 this.topBarMargin = this.topBarMargin || new Animated.Value(-2);
-            } else if (type == 'spinCross') {
+            } else if (type === 'spinCross') {
                 this.containerAnim = this.containerAnim || new Animated.Value(1);
                 this.topBar = this.topBar || new Animated.Value(0.9);
                 this.bottomBar = this.bottomBar || new Animated.Value(0.9);
@@ -316,66 +316,64 @@ export default class SettingsMenuIcon extends Component<SettingsMenuIconProps> {
         this.width = this.width || new Animated.Value(25);
 
         return (
-            <TouchableWithoutFeedback
-                onPress={() => {
-				  this.props.onPress ? this.props.onPress() : undefined;
-                }}>
+            <TouchableWithoutFeedback onPress={() => this.props.onPress && this.props.onPress()}>
                 <Animated.View
                     style={{
-					  width: 35,
-					  justifyContent: 'center',
-					  alignItems: 'center',
-					  height: 35,
-					  transform: [
-					    {
-					      rotate: this.containerAnim.interpolate({
-					        inputRange: [0, 1],
-					        outputRange: ['0deg', '360deg']
-					      })
-					    }
-					  ]
-                    }}>
+                        width: 35,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: 35,
+                        transform: [
+                            {
+                                rotate: this.containerAnim.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: ['0deg', '360deg'],
+                                }),
+                            },
+                        ],
+                    }}
+                >
                     <Animated.View
                         style={{
-						  height: 3,
-						  marginLeft: this.marginLeft,
-						  width: this.width,
-						  marginBottom: this.topBarMargin,
-						  backgroundColor: color || 'black',
-						  transform: [
-						    {
-						      rotate: this.topBar.interpolate({
-						        inputRange: [0, 1],
-						        outputRange: ['0deg', '-50deg']
-						      })
-						    }
-						  ]
+                            height: 3,
+                            marginLeft: this.marginLeft,
+                            width: this.width,
+                            marginBottom: this.topBarMargin,
+                            backgroundColor: color || 'black',
+                            transform: [
+                                {
+                                    rotate: this.topBar.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: ['0deg', '-50deg'],
+                                    }),
+                                },
+                            ],
                         }}
                     />
                     <Animated.View
                         style={{
-						  height: 3,
-						  width: 25,
-						  opacity: this.middleBarOpacity,
-						  backgroundColor: color || 'black',
-						  marginTop: 4
+                            height: 3,
+                            width: 25,
+                            opacity: this.middleBarOpacity,
+                            backgroundColor: color || 'black',
+                            marginTop: 4,
                         }}
                     />
                     <Animated.View
                         style={{
-						  height: 3,
-						  marginLeft: this.marginLeft,
-						  width: this.width,
-						  backgroundColor: color || 'black',
-						  marginTop: this.bottomBarMargin,
-						  transform: [
-						    {
-						      rotate: this.bottomBar.interpolate({
-						        inputRange: [0, 1],
-						        outputRange: ['0deg', '50deg']
-						      })
-						    }
-						  ]
+                            height: 3,
+                            marginLeft: this.marginLeft,
+                            width: this.width,
+                            backgroundColor: color || 'black',
+                            marginTop: this.bottomBarMargin,
+                            transform: [
+                                {
+                                    rotate: this.bottomBar.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: ['0deg', '50deg'],
+                                    }),
+                                },
+                            ],
                         }}
                     />
                 </Animated.View>

@@ -6,7 +6,15 @@ import { getValue, storeValue } from './StorageController';
 export type ThemeType = 'dark' | 'light';
 export const DEFAULT_COLOUR = 'GREEN';
 
-export const useCustomTheme = () => {
+interface UseCustomeTheme {
+    theme: ThemeType | undefined;
+    setTheme: (theme: ThemeType) => Promise<void>;
+    toggleTheme: (theme: ThemeType) => 'light' | 'dark';
+    colour: GradientType;
+    setColour: (colour: GradientType) => Promise<void>;
+}
+
+export const useCustomTheme = (): UseCustomeTheme => {
     const systemTheme = useColorScheme();
     const THEME_KEY = '@Theme';
     const DEFAULT_THEME = systemTheme === 'dark' ? 'dark' : 'light';
@@ -16,21 +24,21 @@ export const useCustomTheme = () => {
     const [theme, setCustomTheme] = useState<ThemeType | undefined>();
     const [colour, setCustomColour] = useState<GradientType>(DEFAULT_COLOUR);
 
-    const toggleTheme = (theme: ThemeType) => {
+    const toggleTheme = (theme: ThemeType): ThemeType => {
         return theme === 'dark' ? 'light' : 'dark';
     };
 
-    const setTheme = async (theme: ThemeType) => {
+    const setTheme = async (theme: ThemeType): Promise<void> => {
         setCustomTheme(theme);
         await storeValue(THEME_KEY, theme);
     };
 
-    const setColour = async (colour: GradientType) => {
+    const setColour = async (colour: GradientType): Promise<void> => {
         setCustomColour(colour);
         await storeValue(COLOUR_KEY, colour);
     };
 
-    const configureTheme = async () => {
+    const configureTheme = async (): Promise<void> => {
         const themeSettings = await getValue(THEME_KEY);
 
         if (!themeSettings) {
@@ -40,7 +48,7 @@ export const useCustomTheme = () => {
         }
     };
 
-    const configureColour = async () => {
+    const configureColour = async (): Promise<void> => {
         const colourSettings = await getValue(COLOUR_KEY);
 
         if (!colourSettings) {

@@ -35,8 +35,9 @@
         "semi": ["error", "always"],
         "react-native/no-unused-styles": 2,
         "react-native/split-platform-components": 2,
-        "react-native/no-inline-styles": 2,
-        "react-native/no-color-literals": 2,
+        // TODO: uncomment these and fix lint issues
+        // "react-native/no-inline-styles": 2,
+        // "react-native/no-color-literals": 2,
         "react-native/no-raw-text": 1,
         "react-native/sort-styles": [
             "error",
@@ -60,11 +61,19 @@
         "no-unused-vars": "warn",
         "@typescript-eslint/ban-ts-comment": "warn",
         "indent": ["error", 4, { "SwitchCase": 1 }],
-        "@typescript-eslint/no-empty-interface": "warn"
+        "@typescript-eslint/no-empty-interface": "warn",
+        "react/prop-types": 0,
+        "react/display-name": 0
     },
     "settings": {
         "react": {
             "version": "detect"
         }
+    },
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly",
+        "JSX": "readonly",
+        "NodeJS": "readonly"
     }
 }

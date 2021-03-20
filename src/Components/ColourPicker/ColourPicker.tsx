@@ -2,13 +2,13 @@ import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import { GradientShape, GradientColours, GradientType } from 'Styles/Colours';
+import { GradientColours, GradientType } from 'Styles/Colours';
 
 interface ColourPickerProps {
 	updateGradient: (gradient: GradientType) => void;
 }
 
-export const ColourPicker = ({ updateGradient }: ColourPickerProps) => {
+export const ColourPicker: React.FC<ColourPickerProps> = ({ updateGradient }) => {
     const colourPickerDimensions = Dimensions.get('screen').width / 8.5;
 
     const gradientValues = Object.keys(GradientColours);
@@ -35,7 +35,7 @@ export const ColourPicker = ({ updateGradient }: ColourPickerProps) => {
         }
     });
 
-    const handlePress = (gradient: GradientType) => {
+    const handlePress = (gradient: GradientType): void => {
         updateGradient(gradient);
         impactAsync(ImpactFeedbackStyle.Light);
     };
@@ -64,15 +64,4 @@ export const ColourPicker = ({ updateGradient }: ColourPickerProps) => {
             ))}
         </View>
     );
-};
-
-const getRandomInt = (max: number) => {
-    return Math.floor(Math.random() * max);
-};
-
-export const randomGradient = (): GradientType => {
-    const gradientKeys = Object.keys(GradientColours);
-    const randomGradientIndex = getRandomInt(gradientKeys.length);
-    const randomGradientResult = gradientKeys[randomGradientIndex];
-    return randomGradientResult as GradientType;
 };

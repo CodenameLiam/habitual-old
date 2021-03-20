@@ -1,6 +1,6 @@
 import { useTheme } from '@react-navigation/native';
 import React from 'react';
-import { ViewStyle, StyleSheet, View, Text } from 'react-native';
+import { ViewStyle, StyleSheet, View } from 'react-native';
 import TextTicker from 'react-native-text-ticker';
 import { GreyColours } from '../../Styles/Colours';
 
@@ -11,7 +11,7 @@ interface CardProps {
 	themeText?: boolean;
 }
 
-export const Card = ({ children, title, style, themeText }: CardProps) => {
+export const Card: React.FC<CardProps> = ({ children, title, style, themeText }) => {
     const { colors } = useTheme();
 
     const styles = StyleSheet.create({

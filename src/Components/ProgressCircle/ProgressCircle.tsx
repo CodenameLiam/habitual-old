@@ -9,6 +9,7 @@ import { IHabit } from 'Controllers/HabitController';
 import { GreyColours } from 'Styles/Colours';
 import { getTimeString } from 'Components/Habit';
 import Icon from '../Icon/Icon';
+import { styles } from './ProgressCircle.styles';
 
 interface ProgressCircleProps {
 	habit: IHabit;
@@ -19,20 +20,21 @@ interface ProgressCircleProps {
 	setCircleProgress: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export default function ProgressCircle ({
+// Progress state
+export const getProgress = (habit: IHabit, date: string): number => {
+    return habit.dates[date] ? habit.dates[date].progress : 0;
+};
+
+const ProgressCircle: React.FC<ProgressCircleProps> = ({
     habit,
     date,
     progress,
     gradient,
     updateHabit,
     setCircleProgress
-}: ProgressCircleProps) {
+}) => {
     const { colors } = useTheme();
     const { type, progressTotal } = habit;
-
-    useEffect(() => {
-        setCount(getProgress(habit, date));
-    }, [date]);
 
     // Count values
     const [count, setCount] = useState(progress);
@@ -40,7 +42,7 @@ export default function ProgressCircle ({
     // Timer values
     let interval: NodeJS.Timeout;
     const { activeTimer, setActiveTimer } = useContext(TimerContext);
-    const [isTimerActive, setIsTimerActive] = useState(activeTimer == habit.id);
+    const [isTimerActive, setIsTimerActive] = useState(activeTimer === habit.id);
 
     // Circle values
     const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -55,7 +57,7 @@ export default function ProgressCircle ({
         outputRange: [radius * Math.PI * 2, 0]
     });
 
-    const animateProgress = () => {
+    const animateProgress = (): void => {
         Animated.timing(progressAnimation, {
             toValue: count >= progressTotal ? progressTotal : count,
             duration: isTimerActive ? 1200 : 500,
@@ -64,12 +66,51 @@ export default function ProgressCircle ({
         }).start();
     };
 
-    const getProgressString = (count: number) => {
+    const getProgressString = (count: number): string | number => {
         return type === 'timer' ? getTimeString(count) : count;
     };
 
     const countRef = useRef<boolean>(false);
-    const updateCountRef = () => (countRef.current = true);
+    const updateCountRef = (): void => { countRef.current = true; };
+
+    const incrementTimer = (): void => {
+        if (count === progressTotal) {
+            setIsTimerActive(false);
+            notificationAsync(NotificationFeedbackType.Success);
+        }
+
+        if (isTimerActive && type === 'timer') {
+            interval = setInterval(() => {
+                setCount(count + 1);
+            }, 1000);
+        }
+    };
+
+    const toggleTimer = (): void => {
+        if (count < progressTotal) {
+            setIsTimerActive(!isTimerActive);
+            impactAsync(ImpactFeedbackStyle.Medium);
+        }
+    };
+
+    const removeProgress = (): void => {
+        count > 0 && setCount(count - 1);
+    };
+
+    const addProgress = (): void => {
+        impactAsync(ImpactFeedbackStyle.Medium);
+        setCount(count + 1);
+    };
+
+    const completeHabit = (): void => {
+        count < progressTotal && notificationAsync(NotificationFeedbackType.Success);
+        setCount(count >= progressTotal ? 0 : progressTotal);
+        setIsTimerActive(false);
+    };
+
+    useEffect(() => {
+        setCount(getProgress(habit, date));
+    }, [date]);
 
     useEffect(() => {
         animateProgress();
@@ -85,41 +126,6 @@ export default function ProgressCircle ({
     useEffect(() => {
         setActiveTimer(isTimerActive ? habit.id : undefined);
     }, [isTimerActive]);
-
-    const incrementTimer = () => {
-        if (count == progressTotal) {
-            setIsTimerActive(false);
-            notificationAsync(NotificationFeedbackType.Success);
-        }
-
-        if (isTimerActive && type == 'timer') {
-            interval = setInterval(() => {
-                setCount(count + 1);
-            }, 1000);
-        }
-    };
-
-    const toggleTimer = () => {
-        if (count < progressTotal) {
-            setIsTimerActive(!isTimerActive);
-            impactAsync(ImpactFeedbackStyle.Medium);
-        }
-    };
-
-    const removeProgress = () => {
-        count > 0 && setCount(count - 1);
-    };
-
-    const addProgress = () => {
-        impactAsync(ImpactFeedbackStyle.Medium);
-        setCount(count + 1);
-    };
-
-    const completeHabit = () => {
-        count < progressTotal && notificationAsync(NotificationFeedbackType.Success);
-        setCount(count >= progressTotal ? 0 : progressTotal);
-        setIsTimerActive(false);
-    };
 
     return (
         <View>
@@ -246,45 +252,4 @@ export default function ProgressCircle ({
             </View>
         </View>
     );
-}
-
-// Progress state
-export const getProgress = (habit: IHabit, date: string): number => {
-    return habit.dates[date] ? habit.dates[date].progress : 0;
 };
-
-const styles = StyleSheet.create({
-    count: {
-        alignItems: 'center',
-        borderRadius: 5,
-        height: 45,
-        justifyContent: 'center',
-        overflow: 'hidden',
-        width: 45
-    },
-    statBar: {
-        bottom: 0,
-        left: 0,
-        position: 'absolute',
-        top: 0,
-        width: 10
-    },
-    statCard: {
-        alignItems: 'center',
-        flex: 1,
-        marginRight: 0,
-        overflow: 'hidden'
-    },
-    statIconContainer: {
-        alignItems: 'center',
-        display: 'flex',
-        flexDirection: 'row',
-        padding: 5
-    },
-    statIconText: {
-        fontFamily: 'Montserrat_600SemiBold',
-        fontSize: 30,
-        paddingLeft: 15,
-        textAlign: 'center'
-    }
-});

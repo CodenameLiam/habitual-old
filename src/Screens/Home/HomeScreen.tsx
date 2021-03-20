@@ -64,8 +64,8 @@ export default function HomeScreen ({ navigation, route }: HomeProps) {
     };
 
     const getDayString = (index: number) => {
-        if (index == 0) return 'Today';
-        else if (index == 1) return 'Yesterday';
+        if (index === 0) return 'Today';
+        else if (index === 1) return 'Yesterday';
         else return moment().subtract(index, 'd').format('MMMM Do');
     };
 

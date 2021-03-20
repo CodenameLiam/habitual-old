@@ -3,9 +3,7 @@ import {
     impactAsync,
     ImpactFeedbackStyle,
     notificationAsync,
-    NotificationFeedbackType,
-    selectionAsync
-} from 'expo-haptics';
+    NotificationFeedbackType} from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
@@ -27,11 +25,12 @@ import Swipeable from 'react-native-gesture-handler/Swipeable';
 import TextTicker from 'react-native-text-ticker';
 import { AppContext } from 'Context/AppContext';
 import { TimerContext } from 'Context/TimerContext';
-import { AppNavProps, RootNavProps } from 'Navigation/AppNavigation';
-import { IHabitDate, mergeDates, useHabits } from 'Controllers/HabitController';
-import { GradientColours, GradientType, GradientShape } from 'Styles/Colours';
+import { AppNavProps } from 'Navigation/AppNavigation';
+import { IHabitDate, mergeDates } from 'Controllers/HabitController';
+import { GradientColours, GradientType } from 'Styles/Colours';
 import Icon, { IconProps } from 'Components/Icon';
 import { ScheduleType } from 'Components/Scheduler';
+import { styles } from './Habit.styles';
 
 export type HabitType = 'check' | 'count' | 'timer';
 
@@ -63,7 +62,7 @@ export const getTimeString = (seconds: number): string => {
 
     const hString = h > 0 ? `${h}h` : '';
     const mString = m > 0 ? `${m}m` : '';
-    const sString = s > 0 || (s == 0 && m == 0 && h == 0) ? `${s}s` : '';
+    const sString = s > 0 || (s === 0 && m === 0 && h === 0) ? `${s}s` : '';
 
     return hString + mString + sString;
 };
@@ -72,7 +71,7 @@ const CircleDimensions = 35;
 const HabitMaxInterpolation = Dimensions.get('screen').width - 120;
 const HabitTransformInterpolation = Dimensions.get('screen').width / 20.5;
 
-export const Habit = ({
+export const Habit: React.FC<HabitProps> = ({
     navigation,
     id,
     name,
@@ -85,14 +84,14 @@ export const Habit = ({
     date,
     dates,
     timerActive
-}: HabitProps) => {
+}) => {
     const { colors } = useTheme();
     const { updateHabit, deleteHabit } = useContext(AppContext);
     const { activeTimer, setActiveTimer } = useContext(TimerContext);
 
     const [count, setCount] = useState(progress);
     const [animatedCount, setAnimatedCount] = useState(progress);
-    const [complete, setComplete] = useState(progress == progressTotal);
+    const [complete, setComplete] = useState(progress === progressTotal);
     const [showCounter, setShowCounter] = useState(progress > 0);
     const [isTimerActive, setIsTimerActive] = useState(timerActive ?? false);
     const [isDragging, setIsDragging] = useState(false);
@@ -105,38 +104,23 @@ export const Habit = ({
         outputRange: [1, HabitTransformInterpolation]
     });
 
-    const progressOffset = type == 'timer' ? getTimeOffset(progressTotal) : 0.5;
+    const progressOffset = type === 'timer' ? getTimeOffset(progressTotal) : 0.5;
     const progressInterval = progressOffset * 2;
     let interval: NodeJS.Timeout;
 
-    const handleView = () => {
+    const handleView = (): void => {
         impactAsync(ImpactFeedbackStyle.Light);
 
         navigation.navigate('View', { id: id });
     };
 
-    const handleEdit = () => {
+    const handleEdit = (): void => {
         swipableRef.current?.close();
         impactAsync(ImpactFeedbackStyle.Light);
         navigation.navigate('Edit', { id: id });
     };
 
-    useEffect(() => {
-        isTimerActive && incrementTimer();
-        !isDragging && animateProgress();
-        !isDragging && runUpdateHabit();
-        count >= progressTotal && handleComplete();
-
-        return () => {
-            clearInterval(interval);
-        };
-    }, [count, isTimerActive, isDragging, activeTimer]);
-
-    useEffect(() => {
-        if (!activeTimer) clearInterval(interval);
-    }, [activeTimer]);
-
-    const runUpdateHabit = () => {
+    const runUpdateHabit = (): void => {
         updateHabit({
             id: id,
             name: name,
@@ -149,7 +133,7 @@ export const Habit = ({
         });
     };
 
-    const animateProgress = () => {
+    const animateProgress = (): void => {
         Animated.timing(progressAnimation, {
             toValue: count,
             duration: 500,
@@ -158,22 +142,15 @@ export const Habit = ({
         }).start();
     };
 
-    const incrementTimer = () => {
-        if (isTimerActive && type == 'timer') {
+    const incrementTimer = (): void => {
+        if (isTimerActive && type === 'timer') {
             interval = setInterval(() => {
                 setCount(count + 1);
             }, 1000);
         }
     };
 
-    const addProgress = () => {
-        count + 1 !== progressTotal && setShowCounter(true);
-        setCount(count + 1);
-        setAnimatedCount(count + 1);
-        hapticFeedback(count + 1);
-    };
-
-    const resetHabit = () => {
+    const resetHabit = (): void => {
         setCount(0);
         setAnimatedCount(0);
         setComplete(false);
@@ -181,30 +158,37 @@ export const Habit = ({
         setShowCounter(false);
     };
 
-    const hapticFeedback = (count: number) => {
-        if (count == progressTotal) {
+    const hapticFeedback = (count: number): void => {
+        if (count === progressTotal) {
             notificationAsync(NotificationFeedbackType.Success);
         } else if (type !== 'timer') {
             impactAsync(ImpactFeedbackStyle.Medium);
         }
     };
 
-    const toggleTimer = () => {
+    const addProgress = (): void => {
+        count + 1 !== progressTotal && setShowCounter(true);
+        setCount(count + 1);
+        setAnimatedCount(count + 1);
+        hapticFeedback(count + 1);
+    };
+
+    const toggleTimer = (): void => {
         setShowCounter(true);
         setIsTimerActive(!isTimerActive);
         impactAsync(ImpactFeedbackStyle.Medium);
         setActiveTimer(!isTimerActive ? id : undefined);
     };
 
-    const handleComplete = () => {
+    const handleComplete = (): void => {
         setComplete(true);
         setShowCounter(false);
         setIsTimerActive(false);
     };
 
-    const handlePress = () => {
+    const handlePress = (): void => {
         if (!complete) {
-            if (type == 'timer') {
+            if (type === 'timer') {
                 toggleTimer();
             } else {
                 addProgress();
@@ -214,32 +198,33 @@ export const Habit = ({
         }
     };
 
-    const confirmDelete = () => {
+    const confirmDelete = (): void => {
         deleteHabit(id);
         notificationAsync(NotificationFeedbackType.Success);
     };
 
-    const renderRightActions = (progress: Animated.AnimatedInterpolation) => {
+    const handleDelete = (): void => {
+        Alert.alert(
+            'Delete',
+            'Are you sure you want to delete this habit?',
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel'
+                },
+                { text: 'Yes', onPress: confirmDelete }
+            ],
+            { cancelable: false }
+        );
+    };
+
+    const renderRightActions = (progress: Animated.AnimatedInterpolation): JSX.Element => {
         const trans = progress.interpolate({
             inputRange: [0, 1],
             outputRange: [192, 0],
             extrapolate: 'clamp'
         });
 
-        const handleDelete = () => {
-            Alert.alert(
-                'Delete',
-                'Are you sure you want to delete this habit?',
-                [
-                    {
-                        text: 'Cancel',
-                        style: 'cancel'
-                    },
-                    { text: 'Yes', onPress: confirmDelete }
-                ],
-                { cancelable: false }
-            );
-        };
         return (
             <Animated.View
                 style={{
@@ -261,7 +246,7 @@ export const Habit = ({
         );
     };
 
-    const handleGesture = (event: PanGestureHandlerGestureEvent) => {
+    const handleGesture = (event: PanGestureHandlerGestureEvent): void => {
         if (event.nativeEvent.velocityX > 1000) {
             setCount(progressTotal);
             handleComplete();
@@ -305,21 +290,36 @@ export const Habit = ({
         }
     };
 
-    const handleGestureEnd = (event: PanGestureHandlerGestureEvent) => {
-        if (event.nativeEvent.state == 5) {
+    const handleGestureEnd = (event: PanGestureHandlerGestureEvent): void => {
+        if (event.nativeEvent.state === 5) {
             setIsDragging(false);
             animateProgress();
             setAnimatedCount(count);
-            if (complete == true) {
+            if (complete === true) {
                 notificationAsync(NotificationFeedbackType.Success);
             }
-            if (count == 0) {
+            if (count === 0) {
                 setShowCounter(false);
             }
-        } else if (event.nativeEvent.state == 2) {
+        } else if (event.nativeEvent.state === 2) {
             setIsDragging(true);
         }
     };
+
+    useEffect(() => {
+        isTimerActive && incrementTimer();
+        !isDragging && animateProgress();
+        !isDragging && runUpdateHabit();
+        count >= progressTotal && handleComplete();
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, [count, isTimerActive, isDragging, activeTimer]);
+
+    useEffect(() => {
+        if (!activeTimer) clearInterval(interval);
+    }, [activeTimer]);
 
     return (
         <Swipeable renderRightActions={renderRightActions} waitFor={panRef} ref={swipableRef}>
@@ -430,12 +430,12 @@ export const Habit = ({
 								  fontFamily: 'Montserrat_600SemiBold',
 								  color: colors.text
                                         }}>
-                                        {type == 'count'
+                                        {type === 'count'
 								  ? `${count}/${progressTotal}`
 								  : getTimeString(count)}
                                     </Text>
 						      )
-						    : type == 'timer'
+						    : type === 'timer'
 						      ? (
                                         <Icon
                                             family='antdesign'
@@ -444,7 +444,7 @@ export const Habit = ({
                                             colour={colors.text}
                                         />
 						        )
-						      : type == 'count'
+						      : type === 'count'
 						        ? (
                                             <Icon
                                                 family='fontawesome'
@@ -467,24 +467,3 @@ export const Habit = ({
         </Swipeable>
     );
 };
-
-const styles = StyleSheet.create({
-    actionText: {
-        backgroundColor: 'transparent',
-        color: 'white',
-        fontSize: 16,
-        padding: 10
-    },
-    leftAction: {
-        backgroundColor: '#497AFC',
-        flex: 1,
-        justifyContent: 'center'
-    },
-    rightAction: {
-        alignItems: 'center',
-        borderRadius: 10,
-        flex: 1,
-        justifyContent: 'center',
-        margin: 5
-    }
-});

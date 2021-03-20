@@ -24,7 +24,8 @@ module.exports = function (api) {
                         Context: './src/Context',
                         Screens: './src/Screens',
                         Controllers: './src/Controllers',
-                        Styles: './src/Styles'
+                        Styles: './src/Styles',
+                        Helpers: './src/Helpers',
                     }
                 }
             ]

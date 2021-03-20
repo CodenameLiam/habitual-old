@@ -1,5 +1,5 @@
-import { createContext } from 'react';
-import { GradientColours, GradientType, GradientShape } from '../Styles/Colours';
+import React, { createContext } from 'react';
+import { GradientType } from 'Styles/Colours';
 
 interface IGradientContext {
 	gradient: GradientType;

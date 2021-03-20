@@ -20,7 +20,7 @@ export interface IconProps {
 	style?: StyleProp<TextStyle>;
 }
 
-export default function Icon ({ family, name, size, colour, style }: IconProps) {
+export default function Icon ({ family, name, size, colour, style }: IconProps): JSX.Element {
     switch (family) {
         case 'entypo':
             return <Entypo name={name} size={size} color={colour} style={style} />;

@@ -44,7 +44,11 @@ interface EditProps {
 	// resetGradient?: boolean;
 }
 
-export default function HabitEdtor ({ navigation, habit }: EditProps) {
+/**
+ * TODO: Modularise this file
+ */
+
+const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
     const { colors } = useTheme();
     const { createHabit } = useContext(AppContext);
     const [localGradient, setLocalGradient] = useState(habit ? habit.gradient : randomGradient());
@@ -90,7 +94,7 @@ export default function HabitEdtor ({ navigation, habit }: EditProps) {
     const [schedule, setSchedule] = useState<ScheduleType>(habit ? habit.schedule : { ...EVERYDAY_SCHEDULE });
 
     const toastConfig = {
-        error: ({ text1, ...rest }: BaseToastProps) => (
+        error: ({ text1 }: BaseToastProps): JSX.Element => (
             <View
                 style={{
 				  height: 40,
@@ -122,19 +126,19 @@ export default function HabitEdtor ({ navigation, habit }: EditProps) {
         }
     ];
 
-    const openSheet = () => {
+    const openSheet = (): void => {
         sheetRef.current && sheetRef.current.snapTo(0);
     };
 
-    const closeSheet = () => {
+    const closeSheet = (): void => {
         sheetRef.current && sheetRef.current.snapTo(1);
     };
 
-    const openTime = () => {
+    const openTime = (): void => {
         timeRef.current && timeRef.current.snapTo(0);
     };
 
-    const handleSave = async () => {
+    const handleSave = async (): Promise<void> => {
         if (name === '') {
             Toast.show({
                 type: 'error',
@@ -177,31 +181,31 @@ export default function HabitEdtor ({ navigation, habit }: EditProps) {
         }
     };
 
-    const handleCountType = (text: string) => {
+    const handleCountType = (text: string): void => {
         setCount(Number(text));
     };
 
-    const handleTimeType = (values: { hours: number; minutes: number }) => {
+    const handleTimeType = (values: { hours: number; minutes: number }): void => {
         const { hours, minutes } = values;
         setHours(hours);
         setMinutes(minutes);
         setCount(hours * 3600 + minutes * 60);
     };
 
-    const handleCountChange = () => {
+    const handleCountChange = (): void => {
         setCount(1);
         setType('count');
         setHours(0);
         setMinutes(1);
     };
 
-    const handleTimeChange = () => {
+    const handleTimeChange = (): void => {
         setCount(60);
         setType('timer');
     };
 
     const keyboardDidHideListener = useRef<EmitterSubscription>();
-    const onKeyboardHide = () => {
+    const onKeyboardHide = (): void => {
         count === 0 && setCount(1);
     };
 
@@ -212,12 +216,12 @@ export default function HabitEdtor ({ navigation, habit }: EditProps) {
         };
     }, [count]);
 
-    const getFormattedTimeCount = () => {
+    const getFormattedTimeCount = (): string => {
         const h = Math.floor(count / 3600);
         const m = Math.floor((count % 3600) / 60);
 
         const hString = h > 0 ? `${h} hr ` : '';
-        const mString = m > 0 || (m == 0 && h == 0) ? `${m} m ` : '';
+        const mString = m > 0 || (m === 0 && h === 0) ? `${m} m ` : '';
 
         return hString + mString;
     };
@@ -470,7 +474,7 @@ export default function HabitEdtor ({ navigation, habit }: EditProps) {
             <Toast config={toastConfig} ref={(ref) => Toast.setRef(ref)} />
         </React.Fragment>
     );
-}
+};
 
 interface ShadowModalProps {
 	shadow: Animated.Value<number>;
@@ -734,7 +738,7 @@ const IconModal = ({ setIcon, closeSheet }: IconModalProps) => {
                         <View
                             style={{
 							  flexDirection: 'row',
-							  marginTop: index == 0 ? 0 : 20,
+							  marginTop: index === 0 ? 0 : 20,
 							  marginBottom: 5,
 							  marginLeft: 10
                             }}
@@ -942,3 +946,5 @@ const globalStyles = StyleSheet.create({
 // 	// { family: 'materialcommunity', name: 'emoticon-' },
 // 	// { family: 'materialcommunity', name: 'emoticon-' },
 // ],
+
+export default HabitEdtor;

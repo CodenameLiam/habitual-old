@@ -1,6 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const storeValue = async (key: string, value: string) => {
+/**
+ * TODO: Make these generic to properly type in/out data
+ */
+
+export const storeValue = async (key: string, value: string): Promise<any> => {
     try {
         await AsyncStorage.setItem(key, value);
         console.log(`${key} successfully saved as ${value}`);
@@ -9,7 +13,7 @@ export const storeValue = async (key: string, value: string) => {
     }
 };
 
-export const getValue = async (key: string) => {
+export const getValue = async (key: string): Promise<any> => {
     try {
         const value = await AsyncStorage.getItem(key);
         if (value !== null) {
@@ -20,7 +24,7 @@ export const getValue = async (key: string) => {
     }
 };
 
-export const storeData = async (key: string, value: any) => {
+export const storeData = async (key: string, value: any): Promise<any> => {
     try {
         const jsonValue = JSON.stringify(value);
         await AsyncStorage.setItem(key, jsonValue);
@@ -29,7 +33,7 @@ export const storeData = async (key: string, value: any) => {
     }
 };
 
-export const getData = async (key: string) => {
+export const getData = async (key: string): Promise<any> => {
     try {
         const jsonValue = await AsyncStorage.getItem(key);
         return jsonValue != null ? JSON.parse(jsonValue) : null;

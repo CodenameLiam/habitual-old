@@ -1,5 +1,3 @@
-// DismissableFlatList.js
-
 import React, { useState, useCallback } from 'react';
 
 import { GestureHandlerRefContext } from '@react-navigation/stack';
@@ -10,7 +8,7 @@ interface DismissableScrollViewProps {
 	scrollProps?: NativeViewGestureHandlerProperties;
 }
 
-const DismissableScrollView = ({ children, scrollProps }: DismissableScrollViewProps) => {
+const DismissableScrollView: React.FC<DismissableScrollViewProps> = ({ children, scrollProps }) => {
     const [scrolledTop, setScrolledTop] = useState(true);
     const onScroll = useCallback(({ nativeEvent }) => {
         const scrolledTop = nativeEvent.contentOffset.y <= 0;

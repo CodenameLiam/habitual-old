@@ -9,12 +9,35 @@ interface ColouredButtonGroupProps {
 	buttonFunctions: (() => void)[];
 }
 
-export const ColourButtonGroup = ({
+interface GetColour {
+    backgroundColor?: string,
+    color?: string,
+}
+
+const getColour = (colour: string, title: string, background: boolean, activeTitle?: string): GetColour => {
+    const style: GetColour = {
+        backgroundColor: undefined,
+        color: undefined,
+    };
+
+    if (activeTitle) {
+        const backgroundColour = title === activeTitle ? colour : GreyColours.GREY2;
+        if (background) {
+            style.backgroundColor = backgroundColour + '50';
+        } else {
+            style.color = backgroundColour;
+        }
+    }
+
+    return style;
+};
+
+export const ColourButtonGroup: React.FC<ColouredButtonGroupProps> = ({
     buttons,
     buttonFunctions,
     colour,
     activeTitle
-}: ColouredButtonGroupProps) => {
+}) => {
     const width = 95 / buttons.length;
 
     const styles = StyleSheet.create({
@@ -34,22 +57,13 @@ export const ColourButtonGroup = ({
         }
     });
 
-    const getColour = (title: string, background: boolean) => {
-        if (activeTitle !== undefined) {
-            const backgroundColour = title === activeTitle ? colour : GreyColours.GREY2;
-            return background
-                ? { backgroundColor: backgroundColour + '50' }
-                : { color: backgroundColour };
-        }
-    };
-
     return (
         <View style={styles.container}>
-            {buttons.length == buttonFunctions.length &&
+            {buttons.length === buttonFunctions.length &&
 				buttons.map((title, index) => (
-				    <View key={index + title} style={[styles.button, getColour(title, true)]}>
+				    <View key={index + title} style={[styles.button, getColour(colour, title, false, activeTitle)]}>
 				        <TouchableOpacity style={styles.touchable} onPress={buttonFunctions[index]}>
-				            <Text style={[styles.text, getColour(title, false)]}>{title}</Text>
+				            <Text style={[styles.text, getColour(colour, title, false, activeTitle)]}>{title}</Text>
 				        </TouchableOpacity>
 				    </View>
 				))}

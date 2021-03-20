@@ -17,6 +17,7 @@
       "@Screens": ["./src/Screens"],
       "@Controllers": ["src/Controllers"],
       "@Styles": ["./src/Styles"],
+      "@Helpers": ["./src/Helpers"]
     }
   }
 }

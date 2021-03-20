@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { HabitType } from 'Components/Habit';
 import { IconProps } from 'Components/Icon/Icon';
 import { ScheduleType } from 'Components/Scheduler';
@@ -7,7 +7,7 @@ import { getData, storeData } from './StorageController';
 
 const HABITS_KEY = '@Habits';
 
-const getAllHabits = async () => {
+const getAllHabits = async (): Promise<any> => {
     return await getData(HABITS_KEY);
 };
 
@@ -35,15 +35,23 @@ export interface IHabitRecord {
 	[id: string]: IHabit;
 }
 
-export const useHabits = () => {
+interface UseHabits {
+    habits: IHabitRecord;
+    setHabits: React.Dispatch<React.SetStateAction<IHabitRecord>>;
+    createHabit: (habit: IHabit) => Promise<void>;
+    updateHabit: (habit: IHabit) => Promise<void>;
+    deleteHabit: (id: string) => Promise<void>;
+}
+
+export const useHabits = (): UseHabits => {
     const [habits, setHabits] = useState<IHabitRecord>({});
 
-    const parseHabits = async () => {
+    const parseHabits = async (): Promise<void> => {
         const allHabits = await getAllHabits();
         allHabits && setHabits(allHabits);
     };
 
-    const createHabit = async (habit: IHabit) => {
+    const createHabit = async (habit: IHabit): Promise<void> => {
         const newHabits = { ...habits };
         newHabits[habit.id] = habit;
 
@@ -51,7 +59,7 @@ export const useHabits = () => {
         storeData(HABITS_KEY, newHabits);
     };
 
-    const updateHabit = async (habit: IHabit) => {
+    const updateHabit = async (habit: IHabit): Promise<void>  => {
         const newHabits = { ...habits };
         newHabits[habit.id] = habit;
 
@@ -59,7 +67,7 @@ export const useHabits = () => {
         storeData(HABITS_KEY, newHabits);
     };
 
-    const deleteHabit = async (id: string) => {
+    const deleteHabit = async (id: string): Promise<void> => {
         const newHabits = { ...habits };
         delete newHabits[id];
 
@@ -79,8 +87,8 @@ export const mergeDates = (
     date: string,
     progress: number,
     progressTotal: number
-) => {
-    const newDates = { ...dates };
+): IHabitDate => {
+    const newDates = dates;
     newDates[date] = { progress: progress, progressTotal: progressTotal };
     return newDates;
 };

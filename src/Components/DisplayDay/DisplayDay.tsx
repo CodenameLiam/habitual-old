@@ -24,7 +24,7 @@ interface DisplayDayProps {
 	handleDayChange: (day: ScheduleTypeValue, index: number) => void;
 }
 
-export default function DisplayDay ({
+const DisplayDay: React.FC<DisplayDayProps> = ({
     alpha,
     disabled,
     selectedDay,
@@ -32,7 +32,7 @@ export default function DisplayDay ({
     displayIndex,
     gradient,
     handleDayChange
-}: DisplayDayProps) {
+}) => {
     const { colors } = useTheme();
     const { colour } = useContext(GradientContext);
 
@@ -46,14 +46,9 @@ export default function DisplayDay ({
         outputRange: [0, radius * Math.PI * 2]
     });
 
-    useEffect(() => {
-        animateProgress();
-    // if (alpha === 0) {
-    // 	console.log('All complete');
-    // }
-    }, [alpha]);
+    const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-    const animateProgress = () => {
+    const animateProgress = (): void => {
         Animated.timing(progressAnimation, {
             toValue: alpha,
             duration: 500,
@@ -62,13 +57,13 @@ export default function DisplayDay ({
         }).start();
     };
 
-    const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-
-    const getCircleColour = () => {
+    const getCircleColour = (): string => {
         return disabled ? colors.border : GradientColours[gradient ?? colour].solid;
     };
 
-    // console.log(disabled);
+    useEffect(() => {
+        animateProgress();
+    }, [alpha]);
 
     return (
         <TouchableOpacity
@@ -127,4 +122,6 @@ export default function DisplayDay ({
             </View>
         </TouchableOpacity>
     );
-}
+};
+
+export default DisplayDay;

@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import React, { createContext } from 'react';
 import { IHabit, IHabitRecord } from 'Controllers/HabitController';
 
 interface IAppContext {

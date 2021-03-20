@@ -85,7 +85,7 @@ export default function ViewScreen ({ navigation, route }: EditProps) {
             .subtract(6 - index, 'd')
             .format('YYYY-MM-DD');
 
-        if (indexDate == date) {
+        if (indexDate === date) {
             // return 0.2;
 
             return circleProgress >= habit.progressTotal ? 0 : 1 - circleProgress / habit.progressTotal;
@@ -185,7 +185,7 @@ export default function ViewScreen ({ navigation, route }: EditProps) {
     };
 
     const getTotalComplete = () => {
-        return Object.keys(markedDates).filter((date) => markedDates[date].selected == true).length;
+        return Object.keys(markedDates).filter((date) => markedDates[date].selected === true).length;
     };
 
     const getCompletionRate = () => {
@@ -198,7 +198,7 @@ export default function ViewScreen ({ navigation, route }: EditProps) {
 
         let totalDays = moment().add(1, 'd').diff(startDate, 'd');
 
-        if (totalDays == 0) {
+        if (totalDays === 0) {
             totalDays = 1;
         }
 
