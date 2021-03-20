@@ -13,7 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import CreateScreen from 'Screens/Create';
 import Icon from 'Components/Icon';
 import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
-import { randomGradient } from 'Components/ColourPicker';
+import { randomGradient } from 'Helpers/GradientHelpers';
 import { GradientColours } from '../Styles/Colours';
 import EditScreen from 'Screens/Edit';
 import ViewScreen from 'Screens/View';
@@ -38,7 +38,18 @@ interface AppNavigationProps {
 	navigation: RootNavProps;
 }
 
-export default function AppNavigation ({ navigation }: AppNavigationProps) {
+const styles = StyleSheet.create({
+    gradient: {
+        bottom: 0,
+        left: 0,
+        position: 'absolute',
+        right: 0,
+        top: 0
+    },
+    headerTitle: { fontFamily: 'Montserrat_700Bold', fontSize: 20 }
+});
+
+const AppNavigation: React.FC<AppNavigationProps> = ({ navigation }) => {
     const { colors } = useTheme();
     const { habits } = useContext(AppContext);
     // const { activeTimer, setActiveTimer } = useContext(TimerContext);
@@ -50,34 +61,34 @@ export default function AppNavigation ({ navigation }: AppNavigationProps) {
         setOpen(isDrawerOpen);
     }, [isDrawerOpen]);
 
-    const handleOpen = () => {
+    const handleOpen = (): void => {
         impactAsync(ImpactFeedbackStyle.Light);
         setOpen(!isOpen);
         navigation.toggleDrawer();
     };
 
-    const handleCreate = (navigation: AppNavProps) => {
+    const handleCreate = (navigation: AppNavProps): void => {
         impactAsync(ImpactFeedbackStyle.Medium);
         navigation.navigate('Create');
     };
 
-    const handleEdit = (navigation: AppNavProps, route: ViewRoute) => {
+    const handleEdit = (navigation: AppNavProps, route: ViewRoute): void => {
         impactAsync(ImpactFeedbackStyle.Medium);
         navigation.navigate('Edit', { id: route.params.id });
     };
 
-    const handleIdeas = (navigation: AppNavProps) => {
+    const handleIdeas = (navigation: AppNavProps): void => {
         impactAsync(ImpactFeedbackStyle.Medium);
         navigation.navigate('Ideas');
     };
 
-    const handleBack = (navigation: AppNavProps) => {
+    const handleBack = (navigation: AppNavProps): void => {
         impactAsync(ImpactFeedbackStyle.Light);
         navigation.navigate('Tabs');
     // setTimeout(() => setGradient(randomGradient), 100);
     };
 
-    const handleStackBack = (navigation: AppNavProps) => {
+    const handleStackBack = (navigation: AppNavProps): void => {
         impactAsync(ImpactFeedbackStyle.Light);
         navigation.goBack();
     };
@@ -247,15 +258,6 @@ export default function AppNavigation ({ navigation }: AppNavigationProps) {
             />
         </Stack.Navigator>
     );
-}
+};
 
-const styles = StyleSheet.create({
-    gradient: {
-        bottom: 0,
-        left: 0,
-        position: 'absolute',
-        right: 0,
-        top: 0
-    },
-    headerTitle: { fontFamily: 'Montserrat_700Bold', fontSize: 20 }
-});
+export default AppNavigation;

@@ -13,7 +13,6 @@ import TrendsScreen from 'Screens/Trends';
 import AwardsScreen from 'Screens/Awards';
 import CalendarScreen from 'Screens/Calendar';
 import { TabColours } from 'Styles/Colours';
-import { StyleSheet } from 'react-native';
 import HomeScreen from 'Screens/Home';
 
 export type TabParamList = {
@@ -30,7 +29,22 @@ interface AppProps {
 	route: any;
 }
 
-export default function TabNavigation ({ navigation, route }: AppProps) {
+const getHeaderTitle = (route: RouteProp<TabParamList, 'Home'>): string | undefined => {
+    // TODO: figure out what this function does, and why it doesn't just return routeName
+
+    const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
+
+    switch (routeName) {
+        case 'Calendar':
+            return 'Calendar';
+        case 'Trends':
+            return 'Trends';
+        case 'Awards':
+            return 'Awards';
+    }
+};
+
+const TabNavigation: React.FC<AppProps> = ({ navigation, route }) => {
     const { colors } = useTheme();
 
     useLayoutEffect(() => {
@@ -96,21 +110,6 @@ export default function TabNavigation ({ navigation, route }: AppProps) {
             <Tab.Screen name='Awards' component={AwardsScreen} />
         </Tab.Navigator>
     );
-}
-
-const getHeaderTitle = (route: RouteProp<TabParamList, 'Home'>) => {
-    const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
-
-    switch (routeName) {
-        case 'Calendar':
-            return 'Calendar';
-        case 'Trends':
-            return 'Trends';
-        case 'Awards':
-            return 'Awards';
-    }
 };
 
-const styles = StyleSheet.create({
-    label: { fontFamily: 'Montserrat_600SemiBold' }
-});
+export default TabNavigation;

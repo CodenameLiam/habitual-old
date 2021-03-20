@@ -19,12 +19,12 @@ interface RootNavigationProps {
 	setColour: (colour: GradientType) => void;
 }
 
-export default function RootNavigation ({
+const RootNavigation: React.FC<RootNavigationProps> = ({
     theme,
     setTheme,
     toggleTheme,
     setColour
-}: RootNavigationProps) {
+}) => {
     return (
         <Drawer.Navigator
             drawerType='slide'
@@ -40,4 +40,6 @@ export default function RootNavigation ({
             <Drawer.Screen name='App' component={AppNavigation} />
         </Drawer.Navigator>
     );
-}
+};
+
+export default RootNavigation;
