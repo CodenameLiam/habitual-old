@@ -13,9 +13,11 @@ interface EditProps {
 	route: EditRoute;
 }
 
-export default function EditScreen ({ navigation, route }: EditProps) {
+const EditScreen: React.FC<EditProps> = ({ navigation, route }) => {
     const { habits } = useContext(AppContext);
     const { id } = route.params;
 
     return <HabitEdtor navigation={navigation} habit={habits[id]} />;
-}
+};
+
+export default EditScreen;

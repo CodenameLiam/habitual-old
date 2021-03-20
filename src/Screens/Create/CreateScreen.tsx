@@ -6,6 +6,8 @@ interface CreateProps {
 	navigation: EditNavProps;
 }
 
-export default function CreateScreen ({ navigation }: CreateProps) {
+const CreateScreen: React.FC<CreateProps> = ({ navigation }) => {
     return <HabitEdtor navigation={navigation} />;
-}
+};
+
+export default CreateScreen;

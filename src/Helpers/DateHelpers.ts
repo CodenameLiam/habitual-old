@@ -74,3 +74,8 @@ export const getInitialDate = (schedule: ScheduleType, displayDays: string[]): S
     return displayDays[0] as ScheduleTypeValue;
 };
 
+export const getDayString = (index: number): string => {
+    if (index === 0) return 'Today';
+    else if (index === 1) return 'Yesterday';
+    else return moment().subtract(index, 'd').format('MMMM Do');
+};

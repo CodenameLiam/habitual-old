@@ -28,13 +28,14 @@ const Habits: HabitIdeas = {
     }
 };
 
-export default function IdeaScreen () {
+const IdeaScreen: React.FC = () => {
     const { createHabit } = useContext(AppContext);
 
-    const handleCreate = () => {
+    const handleCreate = (): void => {
         const habit: IHabit = { ...Habits.WATER, id: getRandomBytes(8).join('') };
         createHabit(habit);
     };
+
     return (
         <View>
             <TouchableOpacity onPress={handleCreate}>
@@ -42,4 +43,6 @@ export default function IdeaScreen () {
             </TouchableOpacity>
         </View>
     );
-}
+};
+
+export default IdeaScreen;

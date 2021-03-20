@@ -1,7 +1,6 @@
-import { DrawerContentComponentProps, DrawerContentOptions } from '@react-navigation/drawer';
 import React from 'react';
 import { View, Text } from 'react-native';
-import { ScrollView, Switch } from 'react-native-gesture-handler';
+import { Switch } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ColourPicker } from 'Components/ColourPicker';
 import { ThemeType } from 'Controllers/ThemeController';
@@ -14,8 +13,8 @@ interface SettingsProps {
 	setColour: (colour: GradientType) => void;
 }
 
-export default function SettingsScreen ({ theme, setTheme, toggleTheme, setColour }: SettingsProps) {
-    const toggleThemeSwitch = () => {
+const SettingsScreen: React.FC<SettingsProps> = ({ theme, setTheme, toggleTheme, setColour }) => {
+    const toggleThemeSwitch = (): void => {
         setTheme(toggleTheme(theme));
     };
 
@@ -40,9 +39,11 @@ export default function SettingsScreen ({ theme, setTheme, toggleTheme, setColou
 
             <SafeAreaView style={{ flex: 1 }}>
                 <Text>Test</Text>
-                <Switch value={theme != 'light'} onValueChange={toggleThemeSwitch} />
+                <Switch value={theme !== 'light'} onValueChange={toggleThemeSwitch} />
                 <ColourPicker updateGradient={(gradient) => setColour(gradient)} />
             </SafeAreaView>
         </View>
     );
-}
+};
+
+export default SettingsScreen;

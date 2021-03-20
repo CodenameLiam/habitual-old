@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
-export default function TrendsScreen () {
+const TrendsScreen: React.FC = () => {
     return (
         <View>
             <Text>Trends</Text>
         </View>
     );
-}
+};
+
+export default TrendsScreen;
