@@ -1,5 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { TextInput, View } from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import {
+    Dimensions,
+    EmitterSubscription,
+    InteractionManager,
+    Keyboard,
+    StyleSheet,
+    TextInput,
+    Text,
+    View,
+} from 'react-native';
 import { getDefaultHabit, IHabit } from 'Controllers/HabitController';
 import { GradientColours, GradientType, GreyColours } from 'Styles';
 import { RouteProp } from '@react-navigation/native';
@@ -11,7 +20,12 @@ import Icon, { IconProps } from 'Components/Icon';
 import Toast from 'react-native-toast-message';
 import { ToastConfig } from 'Components/Toast/CustomToast';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
+import {
+    impactAsync,
+    ImpactFeedbackStyle,
+    notificationAsync,
+    NotificationFeedbackType,
+} from 'expo-haptics';
 import { Card } from 'Components/Card';
 import styled from '@emotion/native';
 import { ColourPicker } from 'Components/ColourPicker';
@@ -23,9 +37,22 @@ import {
     WEEKEND_SCHEDULE,
 } from 'Components/Scheduler';
 import { ColourButtonGroup } from 'Components/ColourButtonGroup';
-import { Row } from 'Styles/Globals';
-import { Input, SqaureButton } from './CreateScreen.styles';
+import { MarginLeft, MarginRight, Row, RowBetween } from 'Styles/Globals';
+import { Input, ProgressTextInput, SqaureButton } from './CreateScreen.styles';
 import { getRandomColour } from 'Components/ColourPicker/GetRandomColour';
+import { HabitType } from 'Components/Habit';
+import { TypeModule } from './TypeModule';
+import { CountModule } from './CountModule';
+
+import BottomSheet from 'reanimated-bottom-sheet';
+import Animated from 'react-native-reanimated';
+import { TimeModule } from './TimeModule';
+import { DEFAULT_GESTURE_RESPONSE } from 'Components/DismissableScrollView';
+import { ModalModule } from './ModalModule';
+import { EditNavProps } from 'Screens/Edit';
+import { AppContext } from 'Context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { SaveModule } from './SaveModule';
 
 export type CreateNavProps = StackNavigationProp<AppStackParamList, 'Create'>;
 export type CreateRoute = RouteProp<AppStackParamList, 'Create'>;
@@ -47,8 +74,10 @@ const CreateScreen: React.FC<CreateProps> = ({ navigation, route }) => {
 
 export default CreateScreen;
 
+const scheduleFunctions = [EVERYDAY_SCHEDULE, WEEKDAY_SCHEDULE, WEEKEND_SCHEDULE];
+
 interface HabitEditorProps {
-    navigation: CreateNavProps;
+    navigation: CreateNavProps | EditNavProps;
     editHabit?: IHabit;
     gradient?: GradientType;
     icon?: Partial<IconProps>;
@@ -58,16 +87,41 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ editHabit, navigation, gradie
     const [habit, setHabit] = useState<IHabit>(editHabit ? editHabit : getDefaultHabit(gradient!));
     const [hours, setHours] = useState(Math.floor(habit.progressTotal / 3600));
     const [minutes, setMinutes] = useState(Math.floor((habit.progressTotal % 3600) / 60));
+    const [isReady, setIsReady] = useState(false);
+    const timeRef = useRef<BottomSheet>(null);
 
+    // Updates the header to reflect the current gradient
     useEffect(() => {
         navigation.setOptions({
             headerBackground: () => <HeaderBackground colour={habit.gradient} />,
         });
     }, [habit.gradient]);
 
+    // Updates the icon to reflect the selected icon
     useEffect(() => {
         icon && setHabit({ ...habit, icon: icon });
     }, [icon]);
+
+    // Check if heavier components can be rendered
+    useEffect(() => {
+        InteractionManager.runAfterInteractions(() => {
+            setIsReady(true);
+        });
+    }, []);
+
+    // Adds a listener to the keyboard hide event
+    useEffect(() => {
+        keyboardDidHideListener.current = Keyboard.addListener('keyboardDidHide', onKeyboardHide);
+        return () => {
+            keyboardDidHideListener.current!.remove();
+        };
+    }, [habit.progressTotal]);
+
+    // Sets the progress to be at least 1
+    const keyboardDidHideListener = useRef<EmitterSubscription>();
+    const onKeyboardHide = () => {
+        habit.progressTotal === 0 && setHabit({ ...habit, progressTotal: 1 });
+    };
 
     const handleIconPress = () => {
         impactAsync(ImpactFeedbackStyle.Light);
@@ -79,14 +133,21 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ editHabit, navigation, gradie
         setHabit({ ...habit, schedule: schedule });
     };
 
-    const handleCountChange = () => {
-        setHabit({ ...habit, type: 'count', progressTotal: 1 });
-        setHours(0);
-        setMinutes(1);
+    const handleTimeOpen = () => {
+        navigation.setOptions({
+            gestureResponseDistance: {
+                vertical: DEFAULT_GESTURE_RESPONSE,
+            },
+        });
+        timeRef.current && timeRef.current.snapTo(0);
     };
 
-    const handleTimeChange = () => {
-        setHabit({ ...habit, type: 'timer', progressTotal: 60 });
+    const handleTimeClose = () => {
+        navigation.setOptions({
+            gestureResponseDistance: {
+                vertical: Dimensions.get('screen').height,
+            },
+        });
     };
 
     // return <></>;
@@ -140,47 +201,37 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ editHabit, navigation, gradie
             </Card>
 
             <View style={Row}>
-                <Card title='Type' style={{ marginRight: 0 }}>
-                    <View style={Row}>
-                        <SqaureButton
-                            colour={GradientColours[habit.gradient].solid}
-                            grey={habit.type === 'timer'}
-                            onPress={handleCountChange}>
-                            <Icon
-                                family='fontawesome'
-                                name='plus'
-                                size={24}
-                                colour={
-                                    habit.type === 'count'
-                                        ? GradientColours[habit.gradient].solid
-                                        : GreyColours.GREY2
-                                }
-                                style={{ zIndex: 1 }}
-                            />
-                        </SqaureButton>
-                        <SqaureButton
-                            colour={GradientColours[habit.gradient].solid}
-                            grey={habit.type === 'count'}
-                            onPress={handleTimeChange}>
-                            <Icon
-                                family='antdesign'
-                                name='clockcircle'
-                                size={24}
-                                colour={
-                                    habit.type === 'timer'
-                                        ? GradientColours[habit.gradient].solid
-                                        : GreyColours.GREY2
-                                }
-                                style={{ zIndex: 1 }}
-                            />
-                        </SqaureButton>
-                    </View>
+                <TypeModule
+                    habit={habit}
+                    setHabit={setHabit}
+                    setHours={setHours}
+                    setMinutes={setMinutes}
+                />
+                <Card title='Value' style={{ flex: 1 }}>
+                    {habit.type === 'count' ? (
+                        <CountModule habit={habit} setHabit={setHabit} />
+                    ) : (
+                        <TimeModule habit={habit} handleOpen={handleTimeOpen} />
+                    )}
                 </Card>
             </View>
+
+            {isReady && (
+                <ModalModule
+                    habit={habit}
+                    setHabit={setHabit}
+                    hours={hours}
+                    setHours={setHours}
+                    minutes={minutes}
+                    setMinutes={setMinutes}
+                    timeRef={timeRef}
+                    handleTimeClose={handleTimeClose}
+                />
+            )}
+
+            <SaveModule habit={habit} navigation={navigation} />
 
             <Toast config={ToastConfig} ref={(ref) => Toast.setRef(ref)} />
         </KeyboardAwareScrollView>
     );
 };
-
-const scheduleFunctions = [EVERYDAY_SCHEDULE, WEEKDAY_SCHEDULE, WEEKEND_SCHEDULE];

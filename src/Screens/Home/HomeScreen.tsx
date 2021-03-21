@@ -31,7 +31,7 @@ interface HomeProps {
 export default function HomeScreen({ navigation, route }: HomeProps) {
     // AsyncStorage.clear();
 
-    return <View></View>;
+    // return <View></View>;
 
     const { habits } = useContext(AppContext);
     const { activeTimer } = useContext(TimerContext);
