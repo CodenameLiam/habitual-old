@@ -29,3 +29,32 @@ export const SqaureButton = styled(TouchableOpacity)<ButtonProps>`
     justify-content: center;
     align-items: center;
 `;
+
+interface ProgressInputProps {
+    colour: string;
+}
+
+export const ProgressTextInput = styled(TextInput)<ProgressInputProps>`
+    color: ${(props) => props.colour};
+    background-color: ${(props) => props.theme.colors.background};
+    flex: 1;
+    border-radius: 5px;
+    text-align: center;
+    font-family: Montserrat_800ExtraBold;
+    font-size: 20px;
+`;
+
+export const ProgressText = styled.Text<ProgressInputProps>`
+    color: ${(props) => props.colour};
+    text-align: center;
+    font-family: Montserrat_800ExtraBold;
+    font-size: 20px;
+`;
+
+export const ProgressTimeInput = styled(TouchableOpacity)`
+    flex: 1;
+    background-color: ${(props) => props.theme.colors.background};
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+`;

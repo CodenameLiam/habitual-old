@@ -23,9 +23,7 @@ interface HomeProps {
 const HomeScreen: React.FC<HomeProps> = ({ navigation, route }) => {
     // AsyncStorage.clear();
 
-    // TODO: Why??
-
-    return <View></View>;
+    // return <View></View>;
 
     const { habits } = useContext(AppContext);
     const { activeTimer } = useContext(TimerContext);
@@ -54,11 +52,17 @@ const HomeScreen: React.FC<HomeProps> = ({ navigation, route }) => {
         }, [navigation])
     );
 
-    const habitKey = (progress: number) => {
+    const habitKey = (progress: number): string => {
         if (!navigation.isFocused()) {
             return progress.toString();
         }
         return habitId;
+    };
+
+    const getDayString = (index: number): string => {
+        if (index === 0) return 'Today';
+        else if (index === 1) return 'Yesterday';
+        else return moment().subtract(index, 'd').format('MMMM Do');
     };
 
     const handleDayChange = (day: ScheduleTypeValue, index: number): void => {
@@ -67,13 +71,7 @@ const HomeScreen: React.FC<HomeProps> = ({ navigation, route }) => {
         setDate(moment().subtract(index, 'd').format('YYYY-MM-DD'));
     };
 
-    const getDayString = (index: number) => {
-        if (index == 0) return 'Today';
-        else if (index == 1) return 'Yesterday';
-        else return moment().subtract(index, 'd').format('MMMM Do');
-    };
-
-    const getAlphaValue = (displayDay: string, index: number) => {
+    const getAlphaValue = (displayDay: string, index: number): number => {
         let habitDayLength = 0;
         let habitDayCompleteLength = 0;
 

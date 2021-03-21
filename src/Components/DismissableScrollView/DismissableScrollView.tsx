@@ -10,7 +10,7 @@ import {
 import { Dimensions, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { IconNavProps } from 'Screens/Icons';
 
-const DEFAULT_GESTURE_RESPONSE = 135;
+export const DEFAULT_GESTURE_RESPONSE = 135;
 interface DismissableScrollViewProps {
     children?: React.ReactNode;
     scrollProps?: NativeViewGestureHandlerProperties;
