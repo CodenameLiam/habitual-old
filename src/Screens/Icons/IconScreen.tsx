@@ -11,12 +11,13 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Container, IconContainer, Label, LabelContainer, Row } from './IconScreen.styles';
 
 export type IconNavProps = StackNavigationProp<AppStackParamList, 'Icons'>;
-
+export type IconRouteProps = RouteProp<AppStackParamList, 'Icons'>;
 interface IconScreenProps {
     navigation: IconNavProps;
+    route: IconRouteProps;
 }
 
-const IconScreen: React.FC<IconScreenProps> = ({ navigation }) => {
+const IconScreen: React.FC<IconScreenProps> = ({ navigation, route }) => {
     const { colors } = useTheme();
 
     const [isReady, setIsReady] = useState(false);
@@ -27,7 +28,7 @@ const IconScreen: React.FC<IconScreenProps> = ({ navigation }) => {
     }, []);
 
     const handlePress = (icon: Partial<IconProps>) => {
-        navigation.navigate('Create', { icon: icon });
+        navigation.navigate(route.params.iconBackRoute, { icon: icon });
         impactAsync(ImpactFeedbackStyle.Light);
     };
 

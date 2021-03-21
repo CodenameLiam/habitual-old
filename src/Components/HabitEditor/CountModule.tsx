@@ -5,7 +5,7 @@ import React, { useRef } from 'react';
 import { View } from 'react-native';
 import { GradientColours, GreyColours } from 'Styles';
 import { RowBetween, MarginLeft, MarginRight } from 'Styles/Globals';
-import { ProgressTextInput, SqaureButton } from './CreateScreen.styles';
+import { ProgressTextInput, SqaureButton } from './HabitEditor.styles';
 
 interface CountModuleProps {
     habit: IHabit;

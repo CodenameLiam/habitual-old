@@ -6,7 +6,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { GradientColours, GreyColours } from 'Styles';
 import { Row } from 'Styles/Globals';
-import { SqaureButton } from './CreateScreen.styles';
+import { SqaureButton } from '../../Screens/Create/CreateScreen.styles';
 
 interface TypeModuleProps {
     habit: IHabit;

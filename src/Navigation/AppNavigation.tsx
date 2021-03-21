@@ -25,14 +25,17 @@ import IdeaScreen from 'Screens/Idea';
 import { getRandomColour } from 'Components/ColourPicker/GetRandomColour';
 import HeaderBackground from 'Headers/HeaderBackground';
 import IconScreen from 'Screens/Icons';
+import { IHabit } from 'Controllers/HabitController';
+
+export type BackRouteType = 'Edit' | 'Create';
 
 export type AppStackParamList = {
     Tabs: { timerId: string } | undefined;
     Create: { gradient?: GradientType; icon?: Partial<IconProps> };
-    View: { id: string };
-    Edit: { id: string };
+    Edit: { habit: IHabit; backView: boolean; icon?: Partial<IconProps> };
+    View: { habit: IHabit };
     Ideas: undefined;
-    Icons: undefined;
+    Icons: { iconBackRoute: BackRouteType };
 };
 
 export type RootNavProps = DrawerNavigationProp<RootDrawerParamList, 'App'>;
@@ -72,7 +75,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
 
     const handleEdit = (navigation: AppNavProps, route: ViewRoute) => {
         impactAsync(ImpactFeedbackStyle.Medium);
-        navigation.navigate('Edit', { id: route.params.id });
+        navigation.navigate('Edit', { habit: route.params.habit, backView: true });
     };
 
     const handleIdeas = (navigation: AppNavProps) => {
@@ -171,7 +174,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
                     headerStyle: { height: 60 },
                     title: 'View Habit',
                     headerBackground: () => (
-                        <HeaderBackground colour={habits[route.params.id].gradient} />
+                        <HeaderBackground colour={route.params.habit.gradient} />
                     ),
                     headerLeft: () => (
                         <TouchableOpacity
@@ -202,7 +205,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
                     headerStyle: { height: 60 },
                     title: 'Edit Habit',
                     headerBackground: () => (
-                        <HeaderBackground colour={habits[route.params.id].gradient} />
+                        <HeaderBackground colour={route.params.habit.gradient} />
                     ),
                     headerLeft: () => (
                         <TouchableOpacity

@@ -3,20 +3,22 @@ import { AppContext } from 'Context';
 import { IHabit } from 'Controllers/HabitController';
 import { notificationAsync, NotificationFeedbackType } from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BackRouteType } from 'Navigation';
 import React, { useContext } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import Toast from 'react-native-toast-message';
+import { CreateNavProps } from 'Screens/Create';
 import { EditNavProps } from 'Screens/Edit';
 import { GradientColours } from 'Styles';
-import { CreateNavProps } from '.';
 
 interface SaveModuleProps {
     habit: IHabit;
     navigation: CreateNavProps | EditNavProps;
+    backView?: boolean;
 }
 
-export const SaveModule: React.FC<SaveModuleProps> = ({ habit, navigation }) => {
+export const SaveModule: React.FC<SaveModuleProps> = ({ habit, navigation, backView }) => {
     const { createHabit } = useContext(AppContext);
 
     const handleSave = async () => {
@@ -45,7 +47,12 @@ export const SaveModule: React.FC<SaveModuleProps> = ({ habit, navigation }) => 
             });
             notificationAsync(NotificationFeedbackType.Error);
         } else {
-            navigation.goBack();
+            if (backView) {
+                navigation.navigate('View', { habit: habit });
+            } else {
+                navigation.goBack();
+            }
+
             notificationAsync(NotificationFeedbackType.Success);
             createHabit(habit);
         }

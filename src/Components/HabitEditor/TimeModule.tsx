@@ -1,21 +1,9 @@
 import styled from '@emotion/native';
-import Icon from 'Components/Icon';
 import { TimePicker } from 'Components/TimePicker';
 import { IHabit } from 'Controllers/HabitController';
-import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
-import React, { useState } from 'react';
-import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import Animated from 'react-native-reanimated';
-import { GradientColours, GreyColours } from 'Styles';
-import { RowBetween, MarginLeft, MarginRight } from 'Styles/Globals';
-import {
-    ProgressText,
-    ProgressTextInput,
-    ProgressTimeInput,
-    SqaureButton,
-} from './CreateScreen.styles';
-import BottomSheet from 'reanimated-bottom-sheet';
+import React from 'react';
+import { GradientColours } from 'Styles';
+import { ProgressText, ProgressTimeInput } from './HabitEditor.styles';
 
 interface TimeModuleProps {
     habit: IHabit;

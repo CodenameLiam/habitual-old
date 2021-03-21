@@ -9,13 +9,23 @@ export type EditNavProps = StackNavigationProp<AppStackParamList, 'Edit'>;
 export type EditRoute = RouteProp<AppStackParamList, 'Edit'>;
 
 interface EditProps {
-	navigation: EditNavProps;
-	route: EditRoute;
+    navigation: EditNavProps;
+    route: EditRoute;
 }
 
 export default function EditScreen({ navigation, route }: EditProps) {
-	const { habits } = useContext(AppContext);
-	const { id } = route.params;
+    // const { habits } = useContext(AppContext);
+    // const { id } = route.params;
 
-	return <HabitEdtor navigation={navigation} habit={habits[id]} />;
+    console.log(route.params.backView);
+
+    return (
+        <HabitEdtor
+            navigation={navigation}
+            editHabit={route.params.habit}
+            icon={route.params.icon}
+            iconBackRoute='Edit'
+            backView={route.params.backView}
+        />
+    );
 }
