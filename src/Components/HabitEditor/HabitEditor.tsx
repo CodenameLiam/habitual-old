@@ -2,14 +2,7 @@ import { useFocusEffect, useTheme } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    Keyboard,
-    EmitterSubscription,
-    InteractionManager
-} from 'react-native';
+import { View, Text, TouchableOpacity, Keyboard, EmitterSubscription, InteractionManager } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
 import { ColourPicker } from 'Components/ColourPicker';
@@ -17,13 +10,7 @@ import Icon, { IconProps } from 'Components/Icon';
 import { GradientColours, GreyColours } from 'Styles/Colours';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { ColourButtonGroup } from 'Components/ColourButtonGroup';
-import {
-    EVERYDAY_SCHEDULE,
-    Scheduler,
-    ScheduleType,
-    WEEKDAY_SCHEDULE,
-    WEEKEND_SCHEDULE
-} from 'Components/Scheduler';
+import { EVERYDAY_SCHEDULE, Scheduler, ScheduleType, WEEKDAY_SCHEDULE, WEEKEND_SCHEDULE } from 'Components/Scheduler';
 import { IHabit } from 'Controllers/HabitController';
 import { HabitType } from 'Components/Habit';
 import { getRandomBytes } from 'expo-random';
@@ -38,9 +25,9 @@ import { randomGradient } from 'Helpers';
 import { ShadowModal, IconModal, HeaderModal, TimeModal } from './molecules';
 
 interface EditProps {
-	navigation: EditNavProps;
-	habit?: IHabit;
-	// resetGradient?: boolean;
+    navigation: EditNavProps;
+    habit?: IHabit;
+    // resetGradient?: boolean;
 }
 
 /**
@@ -62,12 +49,19 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 0 }}
                     />
-                )
+                ),
             });
-        }, [navigation, localGradient])
+        }, [navigation, localGradient]),
     );
 
     const [isReady, setIsReady] = useState(false);
+
+    useEffect(() => {
+        InteractionManager.runAfterInteractions(() => {
+            setIsReady(true);
+        });
+    }, []);
+
     const sheetRef = React.useRef<BottomSheet>(null);
     const timeRef = React.useRef<BottomSheet>(null);
     const shadow = useRef(new Animated.Value<number>(1)).current;
@@ -77,7 +71,7 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
     const [type, setType] = useState<HabitType>(habit ? habit.type : 'count');
     const [icon, setIcon] = useState<Partial<IconProps>>({
         family: habit ? habit.icon.family : 'fontawesome5',
-        name: habit ? habit.icon.name : 'icons'
+        name: habit ? habit.icon.name : 'icons',
     });
 
     const [hours, setHours] = useState(habit ? Math.floor(count / 3600) : 0);
@@ -86,21 +80,21 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
     const [schedule, setSchedule] = useState<ScheduleType>(habit ? habit.schedule : { ...EVERYDAY_SCHEDULE });
 
     const toastConfig = {
-        error: ({ text1 }: BaseToastProps): JSX.Element => (
+        error: ({ text1, ...rest }: BaseToastProps) => (
             <View
                 style={{
-				  height: 40,
-				  width: '90%',
-				  borderRadius: 6,
-				  backgroundColor: GradientColours.RED.solid,
-				  flexDirection: 'row',
-				  alignItems: 'center',
-				  justifyContent: 'center'
+                    height: 40,
+                    width: '90%',
+                    borderRadius: 6,
+                    backgroundColor: GradientColours.RED.solid,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                 }}
             >
                 <Text style={{ color: colors.text, fontFamily: 'Montserrat_600SemiBold' }}>{text1}</Text>
             </View>
-        )
+        ),
     };
 
     const scheduleFunctions = [
@@ -115,7 +109,7 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
         () => {
             setSchedule({ ...WEEKEND_SCHEDULE });
             impactAsync(ImpactFeedbackStyle.Light);
-        }
+        },
     ];
 
     const openSheet = (): void => {
@@ -136,15 +130,15 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
                 type: 'error',
                 text1: 'Please enter a name for your new habit',
                 position: 'bottom',
-                bottomOffset: 150
+                bottomOffset: 150,
             });
             notificationAsync(NotificationFeedbackType.Error);
-        } else if (Object.values(schedule).every((value) => value === false)) {
+        } else if (Object.values(schedule).every(value => value === false)) {
             Toast.show({
                 type: 'error',
                 text1: 'Please schedule your habit for at least one day',
                 position: 'bottom',
-                bottomOffset: 150
+                bottomOffset: 150,
             });
             notificationAsync(NotificationFeedbackType.Error);
         } else if (count === 0) {
@@ -152,7 +146,7 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
                 type: 'error',
                 text1: 'Please assign time to your habit',
                 position: 'bottom',
-                bottomOffset: 150
+                bottomOffset: 150,
             });
             notificationAsync(NotificationFeedbackType.Error);
         } else {
@@ -164,7 +158,7 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
                 progressTotal: count,
                 type: type,
                 schedule: schedule,
-                dates: habit ? habit.dates : {}
+                dates: habit ? habit.dates : {},
             };
             notificationAsync(NotificationFeedbackType.Success);
             createHabit(newHabit);
@@ -201,6 +195,13 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
         count === 0 && setCount(1);
     };
 
+    useEffect(() => {
+        keyboardDidHideListener.current = Keyboard.addListener('keyboardDidHide', onKeyboardHide);
+        return () => {
+            keyboardDidHideListener.current!.remove();
+        };
+    }, [count]);
+
     const getFormattedTimeCount = (): string => {
         const h = Math.floor(count / 3600);
         const m = Math.floor((count % 3600) / 60);
@@ -210,19 +211,6 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
 
         return hString + mString;
     };
-
-    useEffect(() => {
-        keyboardDidHideListener.current = Keyboard.addListener('keyboardDidHide', onKeyboardHide);
-        return () => {
-			keyboardDidHideListener.current!.remove();
-        };
-    }, [count]);
-
-    useEffect(() => {
-        InteractionManager.runAfterInteractions(() => {
-            setIsReady(true);
-        });
-    });
 
     return (
         <React.Fragment>
@@ -237,25 +225,25 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
                     </TouchableOpacity>
                     <Card style={{ marginLeft: 0, flex: 1 }}>
                         <TextInput
-                            placeholder='Name'
+                            placeholder="Name"
                             placeholderTextColor={GreyColours.GREY2}
-                            returnKeyType='done'
-                            onChangeText={(name) => setName(name)}
+                            returnKeyType="done"
+                            onChangeText={name => setName(name)}
                             value={name}
                             style={[
-							  globalStyles.cardText,
-							  {
-							    color: GradientColours[localGradient].solid,
-							    flex: 1
-							  }
+                                globalStyles.cardText,
+                                {
+                                    color: GradientColours[localGradient].solid,
+                                    flex: 1,
+                                },
                             ]}
                         />
                     </Card>
                 </View>
-                <Card title='Colour'>
-                    <ColourPicker updateGradient={(gradient) => setLocalGradient(gradient)} />
+                <Card title="Colour">
+                    <ColourPicker updateGradient={gradient => setLocalGradient(gradient)} />
                 </Card>
-                <Card title='Schedule'>
+                <Card title="Schedule">
                     <Scheduler
                         schedule={schedule}
                         setSchedule={setSchedule}
@@ -268,24 +256,24 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
                     />
                 </Card>
                 <View style={{ display: 'flex', flexDirection: 'row' }}>
-                    <Card title='Type' style={{ marginRight: 0 }}>
+                    <Card title="Type" style={{ marginRight: 0 }}>
                         <View style={{ display: 'flex', flexDirection: 'row' }}>
                             <TouchableOpacity
                                 onPress={handleCountChange}
                                 style={[
-								  globalStyles.type,
-								  {
-								    backgroundColor:
-											type === 'count'
-											  ? GradientColours[localGradient].solid + 50
-											  : GreyColours.GREY2 + 50,
-								    marginRight: 10
-								  }
+                                    globalStyles.type,
+                                    {
+                                        backgroundColor:
+                                            type === 'count'
+                                                ? GradientColours[localGradient].solid + 50
+                                                : GreyColours.GREY2 + 50,
+                                        marginRight: 10,
+                                    },
                                 ]}
                             >
                                 <Icon
-                                    family='fontawesome'
-                                    name='plus'
+                                    family="fontawesome"
+                                    name="plus"
                                     size={24}
                                     colour={type === 'count' ? GradientColours[localGradient].solid : GreyColours.GREY2}
                                     style={{ zIndex: 1 }}
@@ -294,18 +282,18 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
                             <TouchableOpacity
                                 onPress={handleTimeChange}
                                 style={[
-								  globalStyles.type,
-								  {
-								    backgroundColor:
-											type === 'timer'
-											  ? GradientColours[localGradient].solid + 50
-											  : GreyColours.GREY2 + 50
-								  }
+                                    globalStyles.type,
+                                    {
+                                        backgroundColor:
+                                            type === 'timer'
+                                                ? GradientColours[localGradient].solid + 50
+                                                : GreyColours.GREY2 + 50,
+                                    },
                                 ]}
                             >
                                 <Icon
-                                    family='antdesign'
-                                    name='clockcircle'
+                                    family="antdesign"
+                                    name="clockcircle"
                                     size={24}
                                     colour={type === 'timer' ? GradientColours[localGradient].solid : GreyColours.GREY2}
                                     style={{ zIndex: 1 }}
@@ -313,119 +301,117 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
                             </TouchableOpacity>
                         </View>
                     </Card>
-                    <Card title='Value' style={{ flex: 1 }}>
-                        {type === 'count'
-						  ? (
-                                <View
-                                    style={{
-								  display: 'flex',
-								  flexDirection: 'row',
-								  justifyContent: 'space-between'
-                                    }}
-                                >
-                                    <TextInput
-                                        returnKeyType='done'
-                                        onChangeText={handleCountType}
-                                        value={count > 0 ? count.toString() : ''}
-                                        keyboardType='number-pad'
-                                        style={[
-									  {
-									    color: GradientColours[localGradient].solid,
-									    flex: 1,
-									    backgroundColor: colors.background,
-									    borderRadius: 5,
-									    textAlign: 'center',
-									    fontFamily: 'Montserrat_800ExtraBold',
-									    fontSize: 20
-									  }
-                                        ]}
-                                    />
-                                    <TouchableOpacity
-                                        onPress={() => count > 1 && setCount(count - 1)}
-                                        style={[
-									  globalStyles.count,
-									  {
-									    marginLeft: 10,
-									    marginRight: 10,
-									    backgroundColor:
-												count > 1
-												  ? GradientColours[localGradient].solid + 50
-												  : GreyColours.GREY2 + 50
-									  }
-                                        ]}
-                                    >
-                                        <Icon
-                                            family='fontawesome'
-                                            name='minus'
-                                            size={24}
-                                            colour={
-                                                count > 1 ? GradientColours[localGradient].solid : GreyColours.GREY2
-                                            }
-                                        />
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity
-                                        onPress={() => setCount(count + 1)}
-                                        style={[
-									  globalStyles.count,
-									  {
-									    backgroundColor: GradientColours[localGradient].solid + 50
-									  }
-                                        ]}
-                                    >
-                                        <Icon
-                                            family='fontawesome'
-                                            name='plus'
-                                            size={24}
-                                            colour={GradientColours[localGradient].solid}
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-						    )
-						  : (
+                    <Card title="Value" style={{ flex: 1 }}>
+                        {type === 'count' ? (
+                            <View
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                }}
+                            >
+                                <TextInput
+                                    returnKeyType="done"
+                                    onChangeText={handleCountType}
+                                    value={count > 0 ? count.toString() : ''}
+                                    keyboardType="number-pad"
+                                    style={[
+                                        {
+                                            color: GradientColours[localGradient].solid,
+                                            flex: 1,
+                                            backgroundColor: colors.background,
+                                            borderRadius: 5,
+                                            textAlign: 'center',
+                                            fontFamily: 'Montserrat_800ExtraBold',
+                                            fontSize: 20,
+                                        },
+                                    ]}
+                                />
                                 <TouchableOpacity
-                                    onPress={openTime}
+                                    onPress={() => count > 1 && setCount(count - 1)}
+                                    style={[
+                                        globalStyles.count,
+                                        {
+                                            marginLeft: 10,
+                                            marginRight: 10,
+                                            backgroundColor:
+                                                Number(count) > 1
+                                                    ? GradientColours[localGradient].solid + 50
+                                                    : GreyColours.GREY2 + 50,
+                                        },
+                                    ]}
+                                >
+                                    <Icon
+                                        family="fontawesome"
+                                        name="minus"
+                                        size={24}
+                                        colour={
+                                            Number(count) > 1 ? GradientColours[localGradient].solid : GreyColours.GREY2
+                                        }
+                                    />
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    onPress={() => setCount(count + 1)}
+                                    style={[
+                                        globalStyles.count,
+                                        {
+                                            backgroundColor: GradientColours[localGradient].solid + 50,
+                                        },
+                                    ]}
+                                >
+                                    <Icon
+                                        family="fontawesome"
+                                        name="plus"
+                                        size={24}
+                                        colour={GradientColours[localGradient].solid}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        ) : (
+                            <TouchableOpacity
+                                onPress={openTime}
+                                style={{
+                                    flex: 1,
+                                    backgroundColor: colors.background,
+                                    borderRadius: 5,
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                <Text
                                     style={{
-								  flex: 1,
-								  backgroundColor: colors.background,
-								  borderRadius: 5,
-								  display: 'flex',
-								  justifyContent: 'center'
+                                        color: GradientColours[localGradient].solid,
+                                        textAlign: 'center',
+                                        fontFamily: 'Montserrat_800ExtraBold',
+                                        fontSize: 20,
                                     }}
                                 >
-                                    <Text
-                                        style={{
-									  color: GradientColours[localGradient].solid,
-									  textAlign: 'center',
-									  fontFamily: 'Montserrat_800ExtraBold',
-									  fontSize: 20
-                                        }}
-                                    >
-                                        {getFormattedTimeCount()}
-                                    </Text>
-                                </TouchableOpacity>
-						    )}
+                                    {getFormattedTimeCount()}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
                     </Card>
                 </View>
 
                 <View
                     style={{
-					  flex: 1,
-					  justifyContent: 'center',
-					  alignItems: 'center',
-					  margin: 10
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        margin: 10,
                     }}
                 >
                     <TouchableOpacity
                         onPress={handleSave}
                         style={{
-						  height: 60,
-						  borderRadius: 100,
-						  overflow: 'hidden',
-						  justifyContent: 'center',
-						  alignItems: 'center',
-						  width: '100%',
-						  margin: 10
+                            height: 60,
+                            borderRadius: 100,
+                            overflow: 'hidden',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: '100%',
+                            margin: 10,
                         }}
                     >
                         <LinearGradient
@@ -436,12 +422,12 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
                         />
                         <Text
                             style={{
-							  fontFamily: 'Montserrat_600SemiBold',
-							  fontSize: 20,
-							  color: colors.text
+                                fontFamily: 'Montserrat_600SemiBold',
+                                fontSize: 20,
+                                color: colors.text,
                             }}
                         >
-							Save
+                            Save
                         </Text>
                     </TouchableOpacity>
                 </View>
@@ -469,7 +455,7 @@ const HabitEdtor: React.FC<EditProps> = ({ navigation, habit }) => {
                     </React.Fragment>
                 )}
             </KeyboardAwareScrollView>
-            <Toast config={toastConfig} ref={(ref) => Toast.setRef(ref)} />
+            <Toast config={toastConfig} ref={ref => Toast.setRef(ref)} />
         </React.Fragment>
     );
 };

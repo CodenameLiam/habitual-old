@@ -5,7 +5,7 @@ import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { GradientColours, GradientType } from 'Styles/Colours';
 
 interface ColourPickerProps {
-	updateGradient: (gradient: GradientType) => void;
+    updateGradient: (gradient: GradientType) => void;
 }
 
 export const ColourPicker: React.FC<ColourPickerProps> = ({ updateGradient }) => {

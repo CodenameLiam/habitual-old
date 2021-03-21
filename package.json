@@ -9,6 +9,8 @@
 		"lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix"
 	},
 	"dependencies": {
+		"@emotion/native": "^11.0.0",
+		"@emotion/react": "^11.1.5",
 		"@expo-google-fonts/montserrat": "^0.1.0",
 		"@gorhom/animated-tabbar": "^2.1.1",
 		"@react-native-async-storage/async-storage": "^1.13.4",

@@ -11,7 +11,6 @@ import { ColourButtonGroup } from 'Components/ColourButtonGroup';
 import Icon from 'Components/Icon';
 import { DEFAULT_SCHEDULE, ScheduleTypeValue } from 'Components/Scheduler';
 import { AppContext } from 'Context/AppContext';
-import { GradientContext } from 'Context/GradientContext';
 import { AppNavProps } from 'Navigation/AppNavigation';
 import { TabParamList } from 'Navigation/TabNavigation';
 import { IHabit, mergeDates } from 'Controllers/HabitController';
@@ -20,21 +19,18 @@ import { GradientColours, GreyColours } from 'Styles/Colours';
 type NavProps = BottomTabNavigationProp<TabParamList, 'Calendar'>;
 type RouteProps = RouteProp<TabParamList, 'Calendar'>;
 interface CalendarProps {
-	navigation: AppNavProps;
-	route: RouteProps;
+    navigation: AppNavProps;
+    route: RouteProps;
 }
 
 type dateRange = 'Weekly' | 'Monthly' | 'Yearly';
 
 const CalendarScreen: React.FC<CalendarProps> = ({ navigation, route }) => {
     const { colors } = useTheme();
-    const { habits, updateHabit } = useContext(AppContext);
-    const { colour } = useContext(GradientContext);
+    const { habits, updateHabit, colour } = useContext(AppContext);
 
     const [range, setRange] = useState<dateRange>('Weekly');
     const [weekIndex, setWeekIndex] = useState<number>(0);
-
-    const today = moment().format('YYYY-MM-DD');
 
     // useFocusEffect(
     // 	useCallback(() => {
@@ -64,7 +60,7 @@ const CalendarScreen: React.FC<CalendarProps> = ({ navigation, route }) => {
                 justifyContent: 'center',
                 marginLeft: 10,
                 marginRight: 10,
-                width: 25
+                width: 25,
             },
             dayContainer: {
                 alignItems: 'center',
@@ -73,20 +69,20 @@ const CalendarScreen: React.FC<CalendarProps> = ({ navigation, route }) => {
                 height: weeklyCellContainer,
                 justifyContent: 'center',
                 margin: 3,
-                width: weeklyCellContainer
+                width: weeklyCellContainer,
             },
             dayTitle: {
                 color: colors.text,
                 fontFamily: 'Montserrat_700Bold',
-                fontSize: 16
+                fontSize: 16,
             },
             weekTitle: {
                 color: colors.text,
                 fontFamily: 'Montserrat_700Bold',
                 fontSize: 18,
                 textAlign: 'center',
-                width: '60%'
-            }
+                width: '60%',
+            },
         });
 
         const getBackgroundColour = (habit: IHabit, index: number): string => {
@@ -94,7 +90,8 @@ const CalendarScreen: React.FC<CalendarProps> = ({ navigation, route }) => {
             const date = weekStart.add(index, 'd').format('YYYY-MM-DD');
 
             if (habit.dates[date] && habit.dates[date].progress > 0) {
-                let progress: number | string = habit.dates[date].progress / habit.dates[date].progressTotal;
+                let progress: number | string =
+                    habit.dates[date].progress / habit.dates[date].progressTotal;
                 progress = (Math.round(progress * 10) / 10) * 100;
                 if (progress <= 10) progress = 20;
                 if (progress >= 100) progress = '';
@@ -112,18 +109,23 @@ const CalendarScreen: React.FC<CalendarProps> = ({ navigation, route }) => {
             const dateString = date.format('YYYY-MM-DD');
 
             const newProgress =
-				habit.dates[dateString] && habit.dates[dateString].progress >= habit.dates[dateString].progressTotal
-				  ? 0
-				  : habit.progressTotal;
+                habit.dates[dateString] &&
+                habit.dates[dateString].progress >= habit.dates[dateString].progressTotal
+                    ? 0
+                    : habit.progressTotal;
 
             updateHabit({
                 ...habit,
-                dates: mergeDates(habit.dates, dateString, newProgress, habit.progressTotal)
+                dates: mergeDates(habit.dates, dateString, newProgress, habit.progressTotal),
             });
             notificationAsync(NotificationFeedbackType.Success);
         };
 
-        const renderDisabledIcon = (habit: IHabit, day: string, scheduleValue: ScheduleTypeValue): boolean => {
+        const renderDisabledIcon = (
+            habit: IHabit,
+            day: string,
+            scheduleValue: ScheduleTypeValue
+        ): boolean => {
             if (habit.dates[day] && habit.dates[day].progress > 0) return false;
             if (!habit.schedule[scheduleValue]) return true;
             return false;
@@ -133,21 +135,19 @@ const CalendarScreen: React.FC<CalendarProps> = ({ navigation, route }) => {
             <View style={{ alignItems: 'center' }}>
                 <View
                     style={{
-					  display: 'flex',
-					  flexDirection: 'row',
-					  marginBottom: 15,
-					  alignItems: 'center'
-                    }}
-                >
+                        display: 'flex',
+                        flexDirection: 'row',
+                        marginBottom: 15,
+                        alignItems: 'center',
+                    }}>
                     <TouchableOpacity
                         onPress={() => setWeekIndex(weekIndex + 1)}
                         style={[
-						  styles.arrow,
-						  {
-						    backgroundColor: GradientColours[colour].solid + 50
-						  }
-                        ]}
-                    >
+                            styles.arrow,
+                            {
+                                backgroundColor: GradientColours[colour].solid + 50,
+                            },
+                        ]}>
                         <Icon
                             family='fontawesome5'
                             name='angle-left'
@@ -161,12 +161,11 @@ const CalendarScreen: React.FC<CalendarProps> = ({ navigation, route }) => {
                     <TouchableOpacity
                         onPress={() => setWeekIndex(weekIndex - 1)}
                         style={[
-						  styles.arrow,
-						  {
-						    backgroundColor: GradientColours[colour].solid + 50
-						  }
-                        ]}
-                    >
+                            styles.arrow,
+                            {
+                                backgroundColor: GradientColours[colour].solid + 50,
+                            },
+                        ]}>
                         <Icon
                             family='fontawesome5'
                             name='angle-right'
@@ -177,11 +176,10 @@ const CalendarScreen: React.FC<CalendarProps> = ({ navigation, route }) => {
                 </View>
                 <View
                     style={{
-					  display: 'flex',
-					  flexDirection: 'row',
-					  marginLeft: weeklyTextContainer
-                    }}
-                >
+                        display: 'flex',
+                        flexDirection: 'row',
+                        marginLeft: weeklyTextContainer,
+                    }}>
                     {Object.keys(DEFAULT_SCHEDULE).map((day) => (
                         <View key={day} style={styles.dayContainer}>
                             <Text style={styles.dayTitle}>{day[0]}</Text>
@@ -194,26 +192,24 @@ const CalendarScreen: React.FC<CalendarProps> = ({ navigation, route }) => {
                 >
                     <View style={{ paddingBottom: 350 }}>
                         {Object.keys(habits).map((id) => {
-						  const habit = habits[id];
-						  return (
+                            const habit = habits[id];
+                            return (
                                 <View
                                     key={id}
                                     style={{
-									  display: 'flex',
-									  flexDirection: 'row',
-									  alignItems: 'center'
-                                    }}
-                                >
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                    }}>
                                     <TouchableOpacity
                                         onPress={() => navigation.navigate('View', { id: id })}
                                         style={{
-										  width: weeklyTextContainer,
-										  paddingRight: 10,
-										  backgroundColor: 'red',
-										  height: weeklyCellContainer,
-										  justifyContent: 'center'
-                                        }}
-                                    >
+                                            width: weeklyTextContainer,
+                                            paddingRight: 10,
+                                            // backgroundColor: 'red',
+                                            height: weeklyCellContainer,
+                                            justifyContent: 'center',
+                                        }}>
                                         <TextTicker
                                             scroll={false}
                                             animationType='bounce'
@@ -221,34 +217,38 @@ const CalendarScreen: React.FC<CalendarProps> = ({ navigation, route }) => {
                                             bounceDelay={1500}
                                             marqueeDelay={1000}
                                             bouncePadding={{ left: 0, right: 0 }}
-                                            style={[styles.dayTitle]}
-                                        >
+                                            style={[styles.dayTitle]}>
                                             {habit.name}
                                         </TextTicker>
                                     </TouchableOpacity>
 
                                     {Object.keys(DEFAULT_SCHEDULE).map((day, index) => {
-									  const schedule = Object.keys(DEFAULT_SCHEDULE);
-									  const scheduleValue = schedule[index] as ScheduleTypeValue;
-									  const date = weekEnd
-									    .clone()
-									    .subtract(6 - index, 'd')
-									    .format('YYYY-MM-DD');
+                                        const schedule = Object.keys(DEFAULT_SCHEDULE);
+                                        const scheduleValue = schedule[index] as ScheduleTypeValue;
+                                        const date = weekEnd
+                                            .clone()
+                                            .subtract(6 - index, 'd')
+                                            .format('YYYY-MM-DD');
 
-									  const isDisabled = weekStart.clone().add(index, 'd').isAfter(moment());
+                                        const isDisabled = weekStart
+                                            .clone()
+                                            .add(index, 'd')
+                                            .isAfter(moment());
 
-									  return (
+                                        return (
                                             <TouchableOpacity
                                                 key={day}
                                                 disabled={isDisabled}
                                                 onPress={() => handlePress(habit, index)}
                                                 style={[
-												  styles.dayContainer,
-												  {
-												    backgroundColor: getBackgroundColour(habit, index)
-												  }
-                                                ]}
-                                            >
+                                                    styles.dayContainer,
+                                                    {
+                                                        backgroundColor: getBackgroundColour(
+                                                            habit,
+                                                            index
+                                                        ),
+                                                    },
+                                                ]}>
                                                 {renderDisabledIcon(habit, date, scheduleValue) && (
                                                     <Icon
                                                         family='fontawesome'
@@ -258,10 +258,10 @@ const CalendarScreen: React.FC<CalendarProps> = ({ navigation, route }) => {
                                                     />
                                                 )}
                                             </TouchableOpacity>
-									  );
+                                        );
                                     })}
                                 </View>
-						  );
+                            );
                         })}
                     </View>
                 </ScrollView>
@@ -270,7 +270,11 @@ const CalendarScreen: React.FC<CalendarProps> = ({ navigation, route }) => {
     };
 
     const renderSwitch = (): JSX.Element => {
-        const switchFunctions = [() => setRange('Weekly'), () => setRange('Monthly'), () => setRange('Yearly')];
+        const switchFunctions = [
+            () => setRange('Weekly'),
+            () => setRange('Monthly'),
+            () => setRange('Yearly'),
+        ];
         return (
             <View style={{ padding: 20, marginBottom: 10 }}>
                 <ColourButtonGroup
@@ -293,7 +297,7 @@ const CalendarScreen: React.FC<CalendarProps> = ({ navigation, route }) => {
     };
 
     return (
-    // <ScrollView showsVerticalScrollIndicator={false}>
+        // <ScrollView showsVerticalScrollIndicator={false}>
         <View>
             {renderSwitch()}
             {renderView()}

@@ -12,7 +12,6 @@ import moment from 'moment';
 import DisplayDay, { dayIndex, days, displayDays } from 'Components/DisplayDay';
 import { getRandomBytes } from 'expo-random';
 import { TimerContext } from 'Context/TimerContext';
-import { getDayString } from 'Helpers';
 
 export type HomeNavProps = BottomTabNavigationProp<TabParamList, 'Home'>;
 export type HomeRoute = RouteProp<AppStackParamList, 'Tabs'>;
@@ -24,9 +23,13 @@ interface HomeProps {
 const HomeScreen: React.FC<HomeProps> = ({ navigation, route }) => {
     // AsyncStorage.clear();
 
+    // TODO: Why??
+
+    return <View></View>;
+
     const { habits } = useContext(AppContext);
     const { activeTimer } = useContext(TimerContext);
-    const habitArray = habits ? Object.values(habits) : [];
+    const habitArray = habits && Object.values(habits);
     const rootNavigation: AppNavProps = navigation.dangerouslyGetParent();
 
     const [day, setDay] = useState<ScheduleTypeValue>(days[dayIndex] as ScheduleTypeValue);
@@ -42,16 +45,16 @@ const HomeScreen: React.FC<HomeProps> = ({ navigation, route }) => {
                     title: dayString,
                 });
             }
-        }, [dayString]),
+        }, [dayString])
     );
 
     useFocusEffect(
         useCallback(() => {
             setHabitId(getRandomBytes(4).join(''));
-        }, [navigation]),
+        }, [navigation])
     );
 
-    const habitKey = (progress: number): string => {
+    const habitKey = (progress: number) => {
         if (!navigation.isFocused()) {
             return progress.toString();
         }
@@ -64,23 +67,30 @@ const HomeScreen: React.FC<HomeProps> = ({ navigation, route }) => {
         setDate(moment().subtract(index, 'd').format('YYYY-MM-DD'));
     };
 
-    const getAlphaValue = (displayDay: string, index: number): number => {
+    const getDayString = (index: number) => {
+        if (index == 0) return 'Today';
+        else if (index == 1) return 'Yesterday';
+        else return moment().subtract(index, 'd').format('MMMM Do');
+    };
+
+    const getAlphaValue = (displayDay: string, index: number) => {
         let habitDayLength = 0;
         let habitDayCompleteLength = 0;
 
-        habitArray.forEach(habit => {
-            if (habit.schedule[displayDay as ScheduleTypeValue]) {
-                habitDayLength += 1;
+        habits &&
+            habitArray.forEach((habit) => {
+                if (habit.schedule[displayDay as ScheduleTypeValue]) {
+                    habitDayLength += 1;
 
-                const date =
-                    habit.dates[
-                        moment()
-                            .subtract(6 - index, 'd')
-                            .format('YYYY-MM-DD')
-                    ] ?? 0;
-                if (date.progress >= date.progressTotal) habitDayCompleteLength += 1;
-            }
-        });
+                    const date =
+                        habit.dates[
+                            moment()
+                                .subtract(6 - index, 'd')
+                                .format('YYYY-MM-DD')
+                        ] ?? 0;
+                    if (date.progress >= date.progressTotal) habitDayCompleteLength += 1;
+                }
+            });
         return habitDayCompleteLength === 0 ? 1 : 1 - habitDayCompleteLength / habitDayLength;
     };
 
@@ -93,8 +103,7 @@ const HomeScreen: React.FC<HomeProps> = ({ navigation, route }) => {
                     justifyContent: 'space-between',
                     padding: 20,
                     paddingBottom: 10,
-                }}
-            >
+                }}>
                 {displayDays.map((displayDay, index) => (
                     <DisplayDay
                         key={index + habitKey(getAlphaValue(displayDay, index))}

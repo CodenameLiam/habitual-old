@@ -1,94 +1,58 @@
-import { useTheme } from '@react-navigation/native';
 import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { View, Text, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
-import { GradientShape, GreyColours } from 'Styles/Colours';
+import { Dimensions, StyleSheet } from 'react-native';
+import { GradientShape } from 'Styles/Colours';
+import { Container, ScheduleButton, ScheduleText } from './Scheduler.styles';
 
 interface ScheduleProps {
-	gradient: GradientShape;
-	schedule: ScheduleType;
-	setSchedule: React.Dispatch<React.SetStateAction<ScheduleType>>;
+    gradient: GradientShape;
+    schedule: ScheduleType;
+    setSchedule: (newSchedule: ScheduleType) => void;
 }
 
+const dimensions = Dimensions.get('screen').width / 10;
+
 export const Scheduler: React.FC<ScheduleProps> = ({ gradient, schedule, setSchedule }) => {
-    const { colors } = useTheme();
-
-    const dimensions = Dimensions.get('screen').width / 10;
-
-    const styles = StyleSheet.create({
-        container: {
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            padding: 5,
-            paddingBottom: 15
-        },
-        gradient: {
-            bottom: 0,
-            left: 0,
-            position: 'absolute',
-            right: 0,
-            top: 0
-        },
-        schedule: {
-            alignItems: 'center',
-            backgroundColor: colors.background,
-            borderRadius: dimensions,
-            display: 'flex',
-            height: dimensions,
-            justifyContent: 'center',
-            overflow: 'hidden',
-            width: dimensions
-        },
-        text: { fontFamily: 'Montserrat_600SemiBold', fontSize: 16 }
-    });
-
     const handleSchedule = (day: ScheduleTypeValue): void => {
         const tempSchedule = schedule;
         tempSchedule[day] = !tempSchedule[day];
-        setSchedule({ ...tempSchedule });
+        setSchedule(tempSchedule);
         impactAsync(ImpactFeedbackStyle.Light);
     };
 
     return (
-        <View style={styles.container}>
-            {Object.entries(schedule).map((day) => (
-                <TouchableOpacity
-                    key={`${day[0]}- ${day[1]}`}
-                    style={styles.schedule}
-                    onPress={() => handleSchedule(day[0] as ScheduleTypeValue)}>
-                    {day[1] && (
+        <Container>
+            {Object.keys(schedule).map((day) => (
+                <ScheduleButton
+                    key={day}
+                    dimensions={dimensions}
+                    onPress={() => handleSchedule(day as ScheduleTypeValue)}>
+                    {schedule[day as ScheduleTypeValue] && (
                         <LinearGradient
                             colors={[gradient.start, gradient.end]}
-                            style={styles.gradient}
+                            style={StyleSheet.absoluteFill}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
                         />
                     )}
-                    <Text
-                        style={[
-						  styles.text,
-						  day[1] ? { color: '#fff' } : { color: GreyColours.GREY2 }
-                        ]}>
-                        {day[0][0]}
-                    </Text>
-                </TouchableOpacity>
+                    <ScheduleText grey={!schedule[day as ScheduleTypeValue]}>{day[0]}</ScheduleText>
+                </ScheduleButton>
             ))}
-        </View>
+        </Container>
     );
 };
 
 export type ScheduleTypeValue = 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN';
 
 export interface ScheduleType {
-	MON: boolean;
-	TUE: boolean;
-	WED: boolean;
-	THU: boolean;
-	FRI: boolean;
-	SAT: boolean;
-	SUN: boolean;
+    MON: boolean;
+    TUE: boolean;
+    WED: boolean;
+    THU: boolean;
+    FRI: boolean;
+    SAT: boolean;
+    SUN: boolean;
 }
 
 export const DEFAULT_SCHEDULE: ScheduleType = {
@@ -98,7 +62,7 @@ export const DEFAULT_SCHEDULE: ScheduleType = {
     THU: false,
     FRI: false,
     SAT: false,
-    SUN: false
+    SUN: false,
 };
 
 export const EVERYDAY_SCHEDULE: ScheduleType = {
@@ -108,7 +72,7 @@ export const EVERYDAY_SCHEDULE: ScheduleType = {
     THU: true,
     FRI: true,
     SAT: true,
-    SUN: true
+    SUN: true,
 };
 
 export const WEEKDAY_SCHEDULE: ScheduleType = {
@@ -118,7 +82,7 @@ export const WEEKDAY_SCHEDULE: ScheduleType = {
     THU: true,
     FRI: true,
     SAT: false,
-    SUN: false
+    SUN: false,
 };
 
 export const WEEKEND_SCHEDULE: ScheduleType = {
@@ -128,5 +92,5 @@ export const WEEKEND_SCHEDULE: ScheduleType = {
     THU: false,
     FRI: false,
     SAT: true,
-    SUN: true
+    SUN: true,
 };

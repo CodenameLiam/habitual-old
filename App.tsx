@@ -6,33 +6,35 @@ import { CustomDarkTheme, CustomLightTheme, useCustomTheme } from 'Controllers/T
 import { useCustomFonts } from 'Controllers/FontController';
 import AppLoading from 'expo-app-loading';
 import { StatusBar } from 'react-native';
-import { GradientType } from 'Styles/Colours';
-import { randomGradient } from 'Helpers';
-import { GradientContext } from 'Context/GradientContext';
 import { AppContext } from 'Context/AppContext';
 import { useHabits } from 'Controllers/HabitController';
 import { TimerContext } from 'Context/TimerContext';
+import { ThemeProvider } from '@emotion/react';
 
 const App: React.FC = () => {
     const fontsLoaded = useCustomFonts();
     const { theme, setTheme, toggleTheme, colour, setColour } = useCustomTheme();
 
-    const [gradient, setGradient] = useState<GradientType>(randomGradient());
-    const gradientValue = { gradient, setGradient, colour, setColour };
-
     const [activeTimer, setActiveTimer] = useState<string | undefined>();
     const timerValue = { activeTimer, setActiveTimer };
 
-    const { habits, setHabits, createHabit, updateHabit, deleteHabit } = useHabits();
-    const appValue = { habits, setHabits, createHabit, updateHabit, deleteHabit };
+    const { habits, createHabit, updateHabit, deleteHabit } = useHabits();
+    const appValue = {
+        habits,
+        createHabit,
+        updateHabit,
+        deleteHabit,
+        colour,
+        setColour,
+    };
 
     if (!theme || !colour || !fontsLoaded) return <AppLoading />;
 
     return (
         <AppearanceProvider>
-            <AppContext.Provider value={appValue}>
-                <TimerContext.Provider value={timerValue}>
-                    <GradientContext.Provider value={gradientValue}>
+            <ThemeProvider theme={theme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
+                <AppContext.Provider value={appValue}>
+                    <TimerContext.Provider value={timerValue}>
                         <NavigationContainer
                             theme={theme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
                             <StatusBar
@@ -45,9 +47,9 @@ const App: React.FC = () => {
                                 setColour={setColour}
                             />
                         </NavigationContainer>
-                    </GradientContext.Provider>
-                </TimerContext.Provider>
-            </AppContext.Provider>
+                    </TimerContext.Provider>
+                </AppContext.Provider>
+            </ThemeProvider>
         </AppearanceProvider>
     );
 };

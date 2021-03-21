@@ -3,6 +3,8 @@ import { useColorScheme } from 'react-native-appearance';
 import { GradientType, GreyColours } from '../Styles/Colours';
 import { getValue, storeValue } from './StorageController';
 
+import '@emotion/react';
+
 export type ThemeType = 'dark' | 'light';
 export const DEFAULT_COLOUR = 'GREEN';
 
@@ -74,8 +76,8 @@ export const CustomDarkTheme = {
         background: '#0F2028',
         border: GreyColours.GREY4,
         card: '#223843',
-        notification: 'red'
-    }
+        notification: 'red',
+    },
 };
 
 export const CustomLightTheme = {
@@ -86,6 +88,19 @@ export const CustomLightTheme = {
         background: '#f4f4f4',
         border: GreyColours.GREY2,
         card: '#fff',
-        notification: 'red'
-    }
+        notification: 'red',
+    },
 };
+
+declare module '@emotion/react' {
+    export interface Theme {
+        colors: {
+            primary: string;
+            text: string;
+            background: string;
+            border: string;
+            card: string;
+            notification: string;
+        };
+    }
+}

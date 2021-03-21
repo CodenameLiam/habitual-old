@@ -1,38 +1,63 @@
 import React, { useEffect, useState } from 'react';
 import { HabitType } from 'Components/Habit';
 import { IconProps } from 'Components/Icon/Icon';
-import { ScheduleType } from 'Components/Scheduler';
+import { EVERYDAY_SCHEDULE, ScheduleType } from 'Components/Scheduler';
 import { GradientType } from '../Styles/Colours';
 import { getData, storeData } from './StorageController';
+import { getRandomBytes } from 'expo-random';
 
 const HABITS_KEY = '@Habits';
+
+export const getDefaultHabit = (gradient: GradientType): IHabit => {
+    return {
+        id: getRandomBytes(8).join(''),
+        name: '',
+        icon: { family: 'fontawesome5', name: 'icons' },
+        type: 'count',
+        progressTotal: 1,
+        schedule: { ...EVERYDAY_SCHEDULE },
+        gradient: gradient,
+        dates: {},
+    };
+};
+
+// const newHabit: IHabit = {
+//     id: habit ? habit.id : getRandomBytes(8).join(''),
+//     name: name,
+//     icon: icon,
+//     gradient: localGradient,
+//     progressTotal: count,
+//     type: type,
+//     schedule: schedule,
+//     dates: habit ? habit.dates : {},
+// };
 
 const getAllHabits = async (): Promise<any> => {
     return await getData(HABITS_KEY);
 };
 
 export interface IHabit {
-	id: string;
-	name: string;
-	icon: Partial<IconProps>;
-	progressTotal: number;
-	type: HabitType;
-	schedule: ScheduleType;
-	gradient: GradientType;
-	dates: IHabitDate;
+    id: string;
+    name: string;
+    icon: Partial<IconProps>;
+    progressTotal: number;
+    type: HabitType;
+    schedule: ScheduleType;
+    gradient: GradientType;
+    dates: IHabitDate;
 }
 
 export interface IHabitDateValue {
-	progressTotal: number;
-	progress: number;
+    progressTotal: number;
+    progress: number;
 }
 
 export interface IHabitDate {
-	[date: string]: IHabitDateValue;
+    [date: string]: IHabitDateValue;
 }
 
 export interface IHabitRecord {
-	[id: string]: IHabit;
+    [id: string]: IHabit;
 }
 
 interface UseHabits {
