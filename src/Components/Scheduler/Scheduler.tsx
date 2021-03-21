@@ -1,9 +1,9 @@
-import { useTheme } from '@react-navigation/native';
 import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { View, Text, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
-import { GradientShape, GreyColours } from 'Styles/Colours';
+import { Dimensions, StyleSheet } from 'react-native';
+import { GradientShape } from 'Styles/Colours';
+import { Container, ScheduleButton, ScheduleText } from './Scheduler.styles';
 
 interface ScheduleProps {
     gradient: GradientShape;
@@ -11,39 +11,9 @@ interface ScheduleProps {
     setSchedule: (newSchedule: ScheduleType) => void;
 }
 
+const dimensions = Dimensions.get('screen').width / 10;
+
 export const Scheduler = ({ gradient, schedule, setSchedule }: ScheduleProps) => {
-    const { colors } = useTheme();
-
-    const dimensions = Dimensions.get('screen').width / 10;
-
-    const styles = StyleSheet.create({
-        container: {
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            padding: 5,
-            paddingBottom: 15,
-        },
-        schedule: {
-            backgroundColor: colors.background,
-            height: dimensions,
-            width: dimensions,
-            borderRadius: dimensions,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden',
-        },
-        gradient: {
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 0,
-        },
-        text: { fontFamily: 'Montserrat_600SemiBold', fontSize: 16 },
-    });
-
     const handleSchedule = (day: ScheduleTypeValue) => {
         const tempSchedule = schedule;
         tempSchedule[day] = !tempSchedule[day];
@@ -52,30 +22,24 @@ export const Scheduler = ({ gradient, schedule, setSchedule }: ScheduleProps) =>
     };
 
     return (
-        <View style={styles.container}>
-            {Object.entries(schedule).map((day) => (
-                <TouchableOpacity
-                    key={`${day[0]}- ${day[1]}`}
-                    style={styles.schedule}
-                    onPress={() => handleSchedule(day[0] as ScheduleTypeValue)}>
-                    {day[1] && (
+        <Container>
+            {Object.keys(schedule).map((day) => (
+                <ScheduleButton
+                    key={day}
+                    dimensions={dimensions}
+                    onPress={() => handleSchedule(day as ScheduleTypeValue)}>
+                    {schedule[day as ScheduleTypeValue] && (
                         <LinearGradient
                             colors={[gradient.start, gradient.end]}
-                            style={styles.gradient}
+                            style={StyleSheet.absoluteFill}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
                         />
                     )}
-                    <Text
-                        style={[
-                            styles.text,
-                            day[1] ? { color: '#fff' } : { color: GreyColours.GREY2 },
-                        ]}>
-                        {day[0][0]}
-                    </Text>
-                </TouchableOpacity>
+                    <ScheduleText grey={!schedule[day as ScheduleTypeValue]}>{day[0]}</ScheduleText>
+                </ScheduleButton>
             ))}
-        </View>
+        </Container>
     );
 };
 

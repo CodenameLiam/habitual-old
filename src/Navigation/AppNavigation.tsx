@@ -65,7 +65,7 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
     };
 
     const handleCreate = (navigation: AppNavProps) => {
-        setRandomColour(getRandomColour());
+        // setRandomColour(getRandomColour());
         impactAsync(ImpactFeedbackStyle.Medium);
         navigation.navigate('Create', { gradient: randomColour });
     };
@@ -134,7 +134,9 @@ export default function AppNavigation({ navigation }: AppNavigationProps) {
                     headerStatusBarHeight: 2,
                     headerStyle: { height: 60 },
                     title: 'Create Habit',
-                    headerBackground: () => <HeaderBackground colour={randomColour} />,
+                    headerBackground: () => (
+                        <HeaderBackground colour={randomColour} setRandomColour={setRandomColour} />
+                    ),
                     headerLeft: () => (
                         <TouchableOpacity
                             style={{

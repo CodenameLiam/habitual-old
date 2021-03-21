@@ -25,6 +25,7 @@ import {
 import { ColourButtonGroup } from 'Components/ColourButtonGroup';
 import { Row } from 'Styles/Globals';
 import { Input, SqaureButton } from './CreateScreen.styles';
+import { getRandomColour } from 'Components/ColourPicker/GetRandomColour';
 
 export type CreateNavProps = StackNavigationProp<AppStackParamList, 'Create'>;
 export type CreateRoute = RouteProp<AppStackParamList, 'Create'>;
@@ -51,17 +52,12 @@ interface HabitEditorProps {
     editHabit?: IHabit;
     gradient?: GradientType;
     icon?: Partial<IconProps>;
-    // resetGradient?: boolean;
 }
 
 const HabitEditor: React.FC<HabitEditorProps> = ({ editHabit, navigation, gradient, icon }) => {
     const [habit, setHabit] = useState<IHabit>(editHabit ? editHabit : getDefaultHabit(gradient!));
-    const [hours, setHours] = useState(habit ? Math.floor(habit.progressTotal / 3600) : 0);
-    const [minutes, setMinutes] = useState(
-        habit ? Math.floor((habit.progressTotal % 3600) / 60) : 1
-    );
-
-    // return <></>;
+    const [hours, setHours] = useState(Math.floor(habit.progressTotal / 3600));
+    const [minutes, setMinutes] = useState(Math.floor((habit.progressTotal % 3600) / 60));
 
     useEffect(() => {
         navigation.setOptions({
@@ -93,6 +89,8 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ editHabit, navigation, gradie
         setHabit({ ...habit, type: 'timer', progressTotal: 60 });
     };
 
+    // return <></>;
+
     return (
         <KeyboardAwareScrollView
             contentContainerStyle={{ flex: 1 }}
@@ -120,6 +118,7 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ editHabit, navigation, gradie
                     />
                 </Card>
             </View>
+
             <Card title='Colour'>
                 <ColourPicker
                     updateGradient={(gradient) => setHabit({ ...habit, gradient: gradient })}
